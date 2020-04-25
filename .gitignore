@@ -1,0 +1,7 @@
+*.pckl
+.venv
+.DS_Store
+__pycache__
+dev
+resources/playtest
+config.ini
