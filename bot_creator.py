@@ -28,7 +28,7 @@ if __name__ == "__main__":
     config[bot_name] = {}
 
     config[bot_name]["Server"] = while_not_int("server")
-    config[bot_name]["Channel"] = while_not_int("gameplay")
+    config[bot_name]["Channel"] = while_not_int("gameplay channel")
     config[bot_name]["StorytellerID"] = while_not_int("Storyteller role")
     config[bot_name]["PlayerID"] = while_not_int("Player role")
     config[bot_name]["InactiveID"] = while_not_int("Inactive role")
