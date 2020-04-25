@@ -5,3 +5,4 @@ __pycache__
 dev
 resources/playtest
 config.ini
+.idea
