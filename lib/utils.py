@@ -129,9 +129,8 @@ async def get_bool_input(ctx: Context, text: str, timeout: int = 200) -> bool:
             # then continue
 
 
-def str_cleanup(text: str, chars: List[str] = None) -> str:
+def str_cleanup(text: str, chars: Tuple[str] = (",", " ", "-", "'", "_")) -> str:
     """Remove all instances of chars in str and capitalize the following letter."""
-    chars = chars or [",", " ", "-", "'", "_"]
     text_list = [text]
     for char in chars:
         temp_list = []
