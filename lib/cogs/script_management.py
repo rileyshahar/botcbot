@@ -177,22 +177,30 @@ def _permission_to_edit(ctx: Context, idn: int, script: Script):
         return True
 
     else:
-        editors, plural = script.editor_names(ctx)
-        s = "s" if plural else ""
-        verb = "are" if plural else "is"
+        message_text = f"You do not have permission to edit {script.name}. "
+        if script.editors != []:
+            editors, plural = script.editor_names(ctx)
+            s = "s" if plural else ""
+            verb = "are" if plural else "is"
 
-        if plural:
-            pronoun = "them"
-        else:
-            pronoun = load_preferences(ctx.bot.get_user(script.editors[0])).pronouns[1]
+            if plural:
+                pronoun = "them"
+            else:
+                pronoun = load_preferences(
+                    ctx.bot.get_user(script.editors[0])
+                ).pronouns[1]
 
-        raise commands.BadArgument(
-            (
-                f"You do not have permission to edit {script.name}. "
-                f"Its editor{s} {verb} {editors}. "
-                f"Contact {pronoun} for more info."
+            message_text += (
+                f"Its editor{s} {verb} {editors}. Contact {pronoun} for more info."
             )
-        )
+
+        else:
+            message_text += (
+                "If you believe the script is incorrect, "
+                "please contact nihilistkitten#6937 or an admin."
+            )
+
+        raise commands.BadArgument(message_text)
 
 
 def setup(bot: BOTCBot):
