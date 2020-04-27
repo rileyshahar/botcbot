@@ -3,6 +3,10 @@
 Adapted from https://github.com/python-discord/bot/blob/master/tests/helpers.py.
 """
 
+# TODO: we should really only need to be mocking bots
+# everything else should have a script to generate the actual object
+# with sensible default values
+
 import collections
 import itertools
 import unittest.mock

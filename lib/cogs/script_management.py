@@ -46,6 +46,9 @@ class ScriptManagement(commands.Cog, name="Scripts"):
                 # Check duplicate names
                 if script.name.lower() == name.lower():
                     if _permission_to_edit(ctx, ctx.author.id, script):
+                        # _permission_to_edit raises a BadArgument exception if the check
+                        # fails, which is handled in Events.on_command_error, so we don't
+                        # have to do any handling of that case here
                         await safe_send(
                             ctx,
                             (

@@ -7,10 +7,7 @@ from discord import HTTPException
 
 from lib import utils
 from tests import helpers
-
-# any strings should be fine here as long as they are shorter than 2000 characters,
-# aren't precisely "cancel", and don't start with "@" or ","
-_test_strings = ("hello world", "hello, world")
+from tests.blns import blns
 
 
 class TestGetPlayer(unittest.TestCase):
@@ -59,16 +56,17 @@ class TestGetInput(unittest.IsolatedAsyncioTestCase):
     async def test_get_input(self):
         """Test that get_input returns the input's content."""
 
-        for content in _test_strings:
-            with self.subTest(content=content):
-                self.context.reset_mock()
-                self.context.bot.wait_for.return_value = helpers.MockMessage(
-                    content=content
-                )
-                out = await utils.get_input(self.context, self.call_text)
-                self.assertEqual(content, out)
-                self.context.bot.wait_for.assert_called_once()
-                self.context.send.assert_called_with(self.call_text)
+        for content in blns:
+            if not content.startswith(self.context.bot.command_prefix):
+                with self.subTest(content=content):
+                    self.context.reset_mock()
+                    self.context.bot.wait_for.return_value = helpers.MockMessage(
+                        content=content
+                    )
+                    out = await utils.get_input(self.context, self.call_text)
+                    self.assertEqual(content, out)
+                    self.context.bot.wait_for.assert_called_once()
+                    self.context.send.assert_called_with(self.call_text)
 
     async def test_get_input_cancel(self):
         """Test that get_input raises an exception if cancelled."""
@@ -112,7 +110,7 @@ class TestSafeSend(unittest.IsolatedAsyncioTestCase):
 
     async def test_safe_send(self):
         """Test that safe_send properly sends a message."""
-        for content in _test_strings:
+        for content in blns:
             with self.subTest(content=content):
                 await utils.safe_send(self.context, content)
                 self.context.send.assert_called_with(content)

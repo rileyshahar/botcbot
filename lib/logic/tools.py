@@ -19,8 +19,8 @@ if TYPE_CHECKING:
 # TODO: sort these into more sensible locations
 
 
-def generate_game_info_message(order: List["Player"], ctx: Context) -> str:
-    """Generate a seating order message.
+def generate_game_info_message(order, ctx: Context) -> str:
+    """Generate a game order message.
 
     Parameters
     ----------
@@ -32,21 +32,26 @@ def generate_game_info_message(order: List["Player"], ctx: Context) -> str:
     Returns
     -------
     str
-        A seating order message representing order.
+        A message representing the seating order and other info about the game.
+
+    Notes
+    -----
+    Generally, ctx.bot.game may be none during this call (in particular, during the
+    startgame procedure), so it should not be referenced here.
     """
     message_text = _generate_seating_order_message(ctx, order)
     message_text += _generate_distribution_message(order)
     return message_text
 
 
-def _generate_seating_order_message(ctx, order):
+def _generate_seating_order_message(ctx: Context, order: List["Player"]):
     message_text = "**Seating Order:**"
     for player in order:
         message_text += _generate_player_line(ctx, player)
     return message_text
 
 
-def _generate_player_line(ctx, player):
+def _generate_player_line(ctx: Context, player: "Player"):
     message_text = "\n"
 
     if player.ghost(ctx, registers=True):
@@ -63,7 +68,7 @@ def _generate_player_line(ctx, player):
     return message_text
 
 
-def _generate_distribution_message(order):
+def _generate_distribution_message(order: List["Player"]):
     n = len([x for x in order if not x.character_type == "traveler"])
     if n == 5:
         distribution = ("3", "0", "1")
