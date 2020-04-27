@@ -117,7 +117,7 @@ class TestSafeSend(unittest.IsolatedAsyncioTestCase):
                 await utils.safe_send(self.context, content)
                 self.context.send.assert_called_with(content)
 
-    @unittest.skip("Not yet implemented.")
+    @unittest.skip("Testing sending long messages is difficult.")
     async def test_safe_send_long(self):
         """Test that safe_send properly sends long messages.
 
