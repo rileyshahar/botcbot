@@ -134,3 +134,23 @@ class TestSafeSend(unittest.IsolatedAsyncioTestCase):
                 self.assertIn(
                     content[: len(content) // 2], self.context.send.call_args_list
                 )
+
+
+class TestStrCleanup(unittest.TestCase):
+    """Tests for utils.str_cleanup."""
+
+    def test_str_cleanup(self):
+        """Test str_cleanup.
+
+        This test is pretty minimal because discord and python both do a good job
+        sanitizing strings for us, and in general it isn't called with complicated chars.
+        """
+        test_values = (
+            ("pit-hag", "PitHag"),
+            ("fang gu", "FangGu"),
+            ("devil's advocate", "DevilSAdvocate"),
+            ("iMP", "Imp"),
+        )
+        for content, expected_output in test_values:
+            with self.subTest(content=content, expected_output=expected_output):
+                self.assertEqual(expected_output, utils.str_cleanup(content))

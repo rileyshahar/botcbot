@@ -1,7 +1,6 @@
 """Contains several utilities, generally not for game logic management."""
 
 import re
-
 from typing import Any, List, Tuple, TYPE_CHECKING
 
 from discord import Message, HTTPException
@@ -132,11 +131,14 @@ async def get_bool_input(ctx: Context, text: str, timeout: int = 200) -> bool:
 
 
 def str_cleanup(text: str, chars: Tuple[str] = (",", " ", "-", "'", "_")) -> str:
-    """Remove all instances of chars in str and capitalize the following letter
+    """Remove all instances of chars in str and capitalize the following letter.
     
     Essentially converts text to UpperCamelCase with given chars as delimiters.
-    Uses a regex matcher for matching all of chars, so does not work with
-    special characters, could potentially be sanitized
+
+    Notes
+    -----
+    Uses a regex matcher for matching all of chars, so does not work with special
+    characters, could potentially be sanitized.
     """
     # the regex matcher is a disjoint of all the given characters
     regex = "|".join(chars)
