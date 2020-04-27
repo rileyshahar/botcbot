@@ -167,7 +167,7 @@ class ScriptManagement(commands.Cog, name="Scripts"):
     async def list(self, ctx):
         """List the scripts available from this bot."""
 
-        with ctx.typing()
+        with ctx.typing():
             for script in script_list(
                 ctx, playtest=ctx.author in ctx.bot.playtest_role.members
             ):
