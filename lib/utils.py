@@ -1,5 +1,7 @@
 """Contains several utilities, generally not for game logic management."""
 
+import re
+
 from typing import Any, List, Tuple, TYPE_CHECKING
 
 from discord import Message, HTTPException
@@ -130,15 +132,16 @@ async def get_bool_input(ctx: Context, text: str, timeout: int = 200) -> bool:
 
 
 def str_cleanup(text: str, chars: Tuple[str] = (",", " ", "-", "'", "_")) -> str:
-    """Remove all instances of chars in str and capitalize the following letter."""
-    text_list = [text]
-    for char in chars:
-        temp_list = []
-        for x in text_list:
-            for y in x.split(char):
-                temp_list.append(y)
-        text_list = temp_list
-    return "".join([x.capitalize() for x in text_list])
+    """Remove all instances of chars in str and capitalize the following letter
+    
+    Essentially converts text to UpperCamelCase with given chars as delimiters.
+    Uses a regex matcher for matching all of chars, so does not work with
+    special characters, could potentially be sanitized
+    """
+    # the regex matcher is a disjoint of all the given characters
+    regex = "|".join(chars)
+    split = re.split(regex, text)
+    return "".join(s.capitalize() for s in split)
 
 
 async def safe_send(target: Messageable, msg: str) -> Message:
