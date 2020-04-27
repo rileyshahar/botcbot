@@ -55,12 +55,6 @@ class ScriptManagement(commands.Cog, name="Scripts"):
                         )
                         await ctx.send_help(ctx.bot.get_command("script"))
                         return
-                    else:
-                        await safe_send(
-                            ctx,
-                            f"There is already a script named {name}. "
-                            f"Its editors are {await script.editor_names(ctx)}.",
-                        )
 
         # Get the characters
         if mode == "json":
@@ -156,7 +150,7 @@ class ScriptManagement(commands.Cog, name="Scripts"):
         return
 
     @script.command()
-    async def info(self, ctx, *, script: str):
+    async def info(self, ctx: Context, *, script: str):
         """View relevant info about a script, as you'd see at the start of a game."""
         script_actual = to_script(ctx, script)
         for x in script_actual.info(ctx):
@@ -164,14 +158,14 @@ class ScriptManagement(commands.Cog, name="Scripts"):
         return
 
     @script.command()
-    async def list(self, ctx):
+    async def list(self, ctx: Context):
         """List the scripts available from this bot."""
 
         with ctx.typing():
             for script in script_list(
                 ctx, playtest=ctx.author in ctx.bot.playtest_role.members
             ):
-                await safe_send(ctx, await script.short_info(ctx))
+                await safe_send(ctx, script.short_info(ctx))
 
 
 def _permission_to_edit(ctx: Context, idn: int, script: Script):
@@ -180,12 +174,19 @@ def _permission_to_edit(ctx: Context, idn: int, script: Script):
         return True
 
     else:
-        pronoun = load_preferences(ctx.bot.get_user(script.editors[0])).pronouns[1]
-        owner = ctx.bot.get_user(script.editors[0])
+        editors, plural = script.editor_names(ctx)
+        s = "s" if plural else ""
+        verb = "are" if plural else "is"
+
+        if plural:
+            pronoun = "them"
+        else:
+            pronoun = load_preferences(ctx.bot.get_user(script.editors[0])).pronouns[1]
+
         raise commands.BadArgument(
             (
                 f"You do not have permission to edit {script.name}. "
-                f"Its owner is {owner.name}#{owner.discriminator}. "
+                f"Its editor{s} {verb} {editors}. "
                 f"Contact {pronoun} for more info."
             )
         )

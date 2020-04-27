@@ -123,19 +123,19 @@ class Script:
 
             yield message_text
 
-    async def editor_names(self, ctx: Context) -> Tuple[str, bool]:
+    def editor_names(self, ctx: Context) -> Tuple[str, bool]:
         """Determine the names of the bot's editors."""
         names = []
         for idn in self.editors:
-            user = await ctx.bot.fetch_user(idn)
+            user = ctx.bot.get_user(idn)
             names.append(f"{user.name}#{user.discriminator}")
 
         return list_to_plural_string(names, "no one")
 
-    async def short_info(self, ctx: Context) -> str:
+    def short_info(self, ctx: Context) -> str:
         """Format a short-form summary of script info."""
         aliases = list_to_plural_string(self.aliases, "none")[0]
-        editors = (await self.editor_names(ctx))[0]
+        editors = (self.editor_names(ctx))[0]
         return f"**{self.name}:**\n> Aliases: {aliases}\n> Editors: {editors}"
 
     def _character_type_info(self, cls: Type["Character"]) -> str:
