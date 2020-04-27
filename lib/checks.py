@@ -8,7 +8,7 @@ from lib.typings.context import Context
 from lib.utils import get_player
 
 
-def is_in_channel() -> Callable[[Any], Coroutine[Any, Any, Any]]:
+def is_in_channel():
     """Apply predicate as a check."""
 
     def predicate(ctx: Context) -> bool:

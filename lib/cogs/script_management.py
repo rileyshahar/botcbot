@@ -31,7 +31,6 @@ class ScriptManagement(commands.Cog, name="Scripts"):
             return await ctx.send_help(ctx.bot.get_command("script"))
 
     @script.command()
-    @checks.is_dm()
     async def new(self, ctx: Context, mode: str = "json", *, name: str):
         """Create a new custom script.
 
@@ -56,6 +55,12 @@ class ScriptManagement(commands.Cog, name="Scripts"):
                         )
                         await ctx.send_help(ctx.bot.get_command("script"))
                         return
+                    else:
+                        await safe_send(
+                            ctx,
+                            f"There is already a script named {name}. "
+                            f"Its editors are {await script.editor_names(ctx)}.",
+                        )
 
         # Get the characters
         if mode == "json":
@@ -151,13 +156,21 @@ class ScriptManagement(commands.Cog, name="Scripts"):
         return
 
     @script.command()
-    @checks.is_dm()
     async def info(self, ctx, *, script: str):
         """View relevant info about a script, as you'd see at the start of a game."""
         script_actual = to_script(ctx, script)
         for x in script_actual.info(ctx):
             await safe_send(ctx, x)
         return
+
+    @script.command()
+    async def list(self, ctx):
+        """List the scripts available from this bot."""
+
+        for script in script_list(
+            ctx, playtest=ctx.author in ctx.bot.playtest_role.members
+        ):
+            await safe_send(ctx, await script.short_info(ctx))
 
 
 def _permission_to_edit(ctx: Context, idn: int, script: Script):

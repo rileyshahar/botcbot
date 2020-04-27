@@ -1,7 +1,7 @@
 """Contains the Script class and script_list generator."""
 
 from os import listdir
-from typing import List, Generator, Type
+from typing import List, Generator, Type, Tuple
 
 from dill import dump, load
 
@@ -15,6 +15,7 @@ except ImportError:
 
 from lib.logic.Character import Character, Townsfolk, Outsider, Minion, Demon
 from lib.typings.context import Context
+from lib.utils import list_to_plural_string
 
 
 class Script:
@@ -122,6 +123,21 @@ class Script:
 
             yield message_text
 
+    async def editor_names(self, ctx: Context) -> Tuple[str, bool]:
+        """Determine the names of the bot's editors."""
+        names = []
+        for idn in self.editors:
+            user = await ctx.bot.fetch_user(idn)
+            names.append(f"{user.name}#{user.discriminator}")
+
+        return list_to_plural_string(names, "no one")
+
+    async def short_info(self, ctx: Context) -> str:
+        """Format a short-form summary of script info."""
+        aliases = list_to_plural_string(self.aliases, "none")[0]
+        editors = (await self.editor_names(ctx))[0]
+        return f"**{self.name}:**\n> Aliases: {aliases}\n> Editors: {editors}"
+
     def _character_type_info(self, cls: Type["Character"]) -> str:
         """Generate a list of characters of cls type."""
         s = "" if cls == Townsfolk else "s"
@@ -201,7 +217,7 @@ def script_list(ctx: Context, playtest: bool = False) -> Generator[Script, None,
             characters.Spy,
         ],
         aliases=["TB"],
-        editors=[ctx.bot.user.id],
+        editors=[ctx.bot.owner_id],
     )
     yield Script(
         "Bad Moon Rising",
@@ -265,7 +281,7 @@ def script_list(ctx: Context, playtest: bool = False) -> Generator[Script, None,
             characters.Goon,
         ],
         aliases=["BMR"],
-        editors=[ctx.bot.user.id],
+        editors=[ctx.bot.owner_id],
     )
     yield Script(
         "Sects & Violets",
@@ -328,7 +344,7 @@ def script_list(ctx: Context, playtest: bool = False) -> Generator[Script, None,
             characters.Mathematician,
         ],
         aliases=["Sects and Violets", "SV", "S&V", "SnV"],
-        editors=[ctx.bot.user.id],
+        editors=[ctx.bot.owner_id],
     )
 
     # get custom scripts from resources
