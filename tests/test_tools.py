@@ -1,3 +1,5 @@
+"""Tests for lib.logic.tools."""
+
 from unittest import TestCase
 
 from lib.logic import tools
@@ -7,7 +9,7 @@ from tests.blns import blns
 
 
 class TestGenerateGameInfoMessage(TestCase):
-    """Tests for tools.generate_game_info_message and its utilities."""
+    """Tests for tools.generate_game_info_message."""
 
     def setUp(self):
         """Set the tests up."""
@@ -42,6 +44,6 @@ class TestGenerateGameInfoMessage(TestCase):
         )
 
     def test_generate_player_line_dead_votes(self):
-        """Test that Traveler's line is generated with the proper addendum."""
+        """Test that dead players' lines are generated with the proper dead votes."""
         self.assertIn("X", tools._generate_player_line(self.context, self.order[2]))
         self.assertIn("O" * 5, tools._generate_player_line(self.context, self.order[3]))

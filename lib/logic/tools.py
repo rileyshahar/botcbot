@@ -44,14 +44,16 @@ def generate_game_info_message(order, ctx: Context) -> str:
     return message_text
 
 
-def _generate_seating_order_message(ctx: Context, order: List["Player"]):
+def _generate_seating_order_message(ctx: Context, order: List["Player"]) -> str:
+    """Generate the seating order part of the game info message."""
     message_text = "**Seating Order:**"
     for player in order:
         message_text += _generate_player_line(ctx, player)
     return message_text
 
 
-def _generate_player_line(ctx: Context, player: "Player"):
+def _generate_player_line(ctx: Context, player: "Player") -> str:
+    """Generate an individual's player line in the seating order message."""
     message_text = "\n"
 
     if player.ghost(ctx, registers=True):
@@ -69,6 +71,7 @@ def _generate_player_line(ctx: Context, player: "Player"):
 
 
 def _generate_distribution_message(order: List["Player"]):
+    """Generate the distribution part of the game info message."""
     n = len([x for x in order if not x.character_type == "traveler"])
     if n == 5:
         distribution = ("3", "0", "1")
