@@ -9,9 +9,8 @@ from lib.utils import safe_send
 class Imp(Demon):
     """The Imp."""
 
-    def __init__(self, parent):
-        super().__init__(parent)
-        self.name = "Imp"
+    name: str = "Imp"
+    playtest: bool = False
 
     @if_functioning(False)
     async def morning(self, ctx):

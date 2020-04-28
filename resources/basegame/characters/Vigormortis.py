@@ -10,9 +10,8 @@ from lib.logic.tools import if_functioning, select_target, generic_ongoing_effec
 class Vigormortis(Demon):
     """The Vigormortis."""
 
-    def __init__(self, parent):
-        super().__init__(parent)
-        self.name = "Vigormortis"
+    name: str = "Vigormortis"
+    playtest: bool = False
 
     @if_functioning(False)
     async def morning(self, ctx):

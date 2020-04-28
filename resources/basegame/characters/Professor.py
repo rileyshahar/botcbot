@@ -9,10 +9,8 @@ from lib.typings.context import Context
 class Professor(Townsfolk):
     """The Professor."""
 
-    def __init__(self, parent):
-        super().__init__(parent)
-        self.name = "Professor"
-        self.playtest = False
+    name: str = "Professor"
+    str: bool = False
 
     @if_functioning(True)
     @onetime_use

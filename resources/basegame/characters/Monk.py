@@ -13,9 +13,8 @@ from lib.logic.tools import (
 class Monk(Townsfolk):
     """The Monk."""
 
-    def __init__(self, parent):
-        super().__init__(parent)
-        self.name = "Monk"
+    name: str = "Monk"
+    playtest: bool = False
 
     @if_functioning(True)
     async def morning(self, ctx, enabled=True, epithet_string=""):

@@ -6,7 +6,5 @@ from lib.logic.Character import Demon
 class FangGu(Demon):
     """The Fang Gu."""
 
-    def __init__(self, parent):
-        super().__init__(parent)
-        self.name = "Fang Gu"
-        self.playtest = False
+    name: str = "Fang Gu"
+    playtest: bool = False

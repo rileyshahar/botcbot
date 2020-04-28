@@ -50,15 +50,13 @@ class Character:
     parent: Player
     """
 
+    name: str = "Character"
+    playtest: bool = False
     default_effects: List[Type["Effect"]]
 
     def __init__(self, parent: Optional["Player"]):
         self.parent = parent
-        self.playtest = False
-        self.name = "Character"
         self.default_effects = []
-        # TODO: think about converting some of these to class attributes
-        # the problem is I'm lazy
 
     @property
     def seating_order_addendum(self):
@@ -150,46 +148,51 @@ class Character:
 class Townsfolk(Character):
     """The Townsfolk class."""
 
+    name: str = "Townsfolk"
+
     def __init__(self, parent):
         super().__init__(parent)
-        self.name = "Townsfolk"
-        self.default_effects = [Good, TownsfolkEffect]
+        self.default_effects += [Good, TownsfolkEffect]
 
 
 class Outsider(Character):
     """The Outsider class."""
 
+    name: str = "Outsider"
+
     def __init__(self, parent):
         super().__init__(parent)
-        self.name = "Outsider"
-        self.default_effects = [Good, OutsiderEffect]
+        self.default_effects += [Good, OutsiderEffect]
 
 
 class Minion(Character):
     """The Minion class."""
 
+    name: str = "Minion"
+
     def __init__(self, parent):
         super().__init__(parent)
-        self.name = "Minion"
-        self.default_effects = [Evil, MinionEffect]
+        self.default_effects += [Evil, MinionEffect]
 
 
 class Demon(Character):
     """The Demon class."""
 
+    name: str = "Demon"
+
     def __init__(self, parent):
         super().__init__(parent)
-        self.name = "Demon"
-        self.default_effects = [Evil, DemonEffect]
+        self.default_effects += [Evil, DemonEffect]
 
 
 class Traveler(Character):
     """The Traveler class."""
 
+    name: str = "Traveler"
+
     def __init__(self, parent):
         super().__init__(parent)
-        self.name = "Traveler"
-        self.default_effects = [TravelerEffect]
+        self.default_effects += [TravelerEffect]
 
     @property
     def seating_order_addendum(self):
@@ -221,10 +224,11 @@ class Traveler(Character):
 class Storyteller(Character):
     """The Storyteller."""
 
+    name: str = "Storyteller"
+
     def __init__(self, parent):
         super().__init__(parent)
-        self.name = "Storyteller"
-        self.default_effects = [StorytellerEffect]
+        self.default_effects += [StorytellerEffect]
 
     @property
     def seating_order_addendum(self):

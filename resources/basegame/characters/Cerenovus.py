@@ -6,7 +6,5 @@ from lib.logic.Character import Minion
 class Cerenovus(Minion):
     """The Cerenovus."""
 
-    def __init__(self, parent):
-        super().__init__(parent)
-        self.name = "Cerenovus"
-        self.playtest = False
+    name: str = "Cerenovus"
+    playtest: bool = False

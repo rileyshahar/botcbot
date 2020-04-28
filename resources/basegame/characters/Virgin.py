@@ -10,10 +10,8 @@ from lib.utils import safe_send
 class Virgin(Townsfolk):
     """The Virgin."""
 
-    def __init__(self, parent):
-        super().__init__(parent)
-        self.name = "Virgin"
-        self.playtest = False
+    name: str = "Virgin"
+    playtest: bool = False
 
     @if_functioning(True)
     @onetime_use

@@ -113,12 +113,12 @@ class Script:
 
             message_text = "__First Night:__\nDusk\nMinion Info\nDemon Info"
             for character in self.first_night:
-                message_text += "\n" + character(None).name
+                message_text += "\n" + character.name
             message_text += "\nDawn"
 
             message_text += "\n\n__Other Nights:__\nDusk"
             for character in self.other_nights:
-                message_text += "\n" + character(None).name
+                message_text += "\n" + character.name
             message_text += "\nDawn"
 
             yield message_text
@@ -145,8 +145,7 @@ class Script:
         for character in self.character_list:
             if issubclass(character, cls):
                 out += "\n> **{char_name}** - {char_rules}".format(
-                    char_name=character(None).name,
-                    char_rules=character(None).rules_text,
+                    char_name=character.name, char_rules=character(None).rules_text,
                 )
         return out
 
