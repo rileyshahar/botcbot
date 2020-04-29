@@ -414,7 +414,7 @@ class Storytelling(commands.Cog):
         vote: The vote to input.
         """
         voter_actual = await to_player(ctx, voter)
-        vote_actual = to_bool(vote)
+        vote_actual = to_bool(vote, "vote")
         if ctx.bot.game.current_day.current_vote.to_vote != voter_actual:
             await safe_send(
                 ctx,
@@ -423,6 +423,7 @@ class Storytelling(commands.Cog):
                     player=voter_actual.nick,
                 ),
             )
+            return
         await ctx.bot.game.current_day.current_vote.vote(ctx, voter_actual, vote_actual)
         await safe_send(ctx, f"Successfully voted for {voter_actual.nick}.")
 

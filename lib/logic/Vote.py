@@ -4,7 +4,7 @@ from typing import List, Dict, TYPE_CHECKING
 
 from lib.preferences import load_preferences
 from lib.typings.context import Context
-from lib.utils import list_to_plural_string, safe_send
+from lib.utils import list_to_plural_string, safe_send, get_bool_input
 
 if TYPE_CHECKING:
     from lib.logic.Player import Player
@@ -31,7 +31,7 @@ class Vote:
     announcements : List[int]
         List of IDs of announcement messages.
     prevotes : Dict[Player, int]
-        Players who have prevoted, and their prevotes.
+        IDs of players who have prevoted, and their prevotes.
     position : int
         The current position in the order.
     votes : int
@@ -48,9 +48,8 @@ class Vote:
 
     voted: List["Player"]
     announcements: List[int]
-    prevotes: Dict["Player", bool]
-
-    # TODO: prevote processing
+    prevotes: Dict["Player", int]
+    order: List["Player"]
 
     def __init__(self, ctx: Context, nominee: "Player", nominator: "Player"):
 
@@ -180,6 +179,26 @@ class Vote:
         # TODO: emergency vote processing
         # subject to decision about what emergency processing looks like
         return
+
+    async def prevote(self, ctx, voter: "Player", vt: int):
+        """Implement a prevote."""
+
+        if voter == self.to_vote:
+            if await get_bool_input(
+                ctx, "It is currently your vote. Would you like to vote now?"
+            ):
+                await self.vote(ctx, voter, vt)
+                return
+            else:
+                await safe_send(ctx, "Vote cancelled.")
+                return
+
+        if self.order.index(voter) < self.position:
+            await safe_send(ctx, "You have already voted.")
+            return
+
+        self.prevotes[voter] = vt
+        await safe_send(ctx, "Successfully prevoted.")
 
     async def end(self, ctx: Context):
         """End the vote."""

@@ -201,7 +201,7 @@ def list_to_plural_string(initial_list: List[str], alt: str) -> Tuple[str, bool]
     return ", ".join(initial_list[:-1]) + ", and " + initial_list[-1], True
 
 
-def to_bool(argument: str) -> bool:
+def to_bool(argument: str, message: str = "response") -> bool:
     """Convert an argument to a boolean."""
     if argument.lower() in ("y", "ye", "yes", "ok", "true", "t"):
         return True
@@ -210,7 +210,7 @@ def to_bool(argument: str) -> bool:
         return False
 
     raise commands.BadArgument(
-        f"{argument} is not a valid response. Try 'yes', 'y', 'no', or 'n'."
+        f"{argument} is not a valid {message}. Try 'yes', 'y', 'no', or 'n'."
     )
 
 

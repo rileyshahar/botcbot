@@ -50,7 +50,7 @@ class Playing(commands.Cog):
 
         vote: The vote to input.
         """
-        vote_actual = to_bool(vote)
+        vote_actual = to_bool(vote, "vote")
 
         player = get_player(ctx.bot.game, ctx.message.author.id)
 
@@ -116,6 +116,18 @@ class Playing(commands.Cog):
 
         else:
             await most_recent_author.message(ctx, author_player)
+
+    @commands.command()
+    @checks.is_vote()
+    @checks.is_day()
+    @checks.is_player()
+    @checks.is_game()
+    async def prevote(self, ctx: Context, vt: str):
+
+        actual_vt = int(to_bool(vt, "vote"))
+        await ctx.bot.game.current_day.current_vote.prevote(
+            ctx, get_player(ctx.bot.game, ctx.author.id), actual_vt
+        )
 
 
 def setup(bot):

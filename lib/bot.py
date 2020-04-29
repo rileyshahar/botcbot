@@ -50,7 +50,7 @@ class BOTCBot(commands.Bot):
         self._playtestid = playtestid
         self._observerid = observerid
         self.config = config
-        self.game = None
+        self.game: typing.Optional[Game] = None
 
     @property
     def server(self) -> discord.Guild:

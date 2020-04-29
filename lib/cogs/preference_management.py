@@ -111,7 +111,7 @@ class PreferenceManagement(commands.Cog, name="Preferences"):
 
         If you use this to mock trans people, I will blacklist you from using the bot. <3
         """
-        plural_actual = to_bool(plural)
+        plural_actual = to_bool(plural, "argument")
 
         preferences = load_preferences(ctx.message.author)
         preferences.pronouns = (
@@ -156,8 +156,8 @@ class PreferenceManagement(commands.Cog, name="Preferences"):
         specific: Whether this emergency is bot-specific, yes or no. Defaults to yes.
         """
         # TODO: fix the docstring when we know what these do
-        vote_actual = to_bool(vote)
-        specific_actual = to_bool(specific)
+        vote_actual = to_bool(vote, "vote")
+        specific_actual = to_bool(specific, "argument")
         preferences = load_preferences(ctx.message.author)
         if specific_actual:
             preferences.specific_emergencys[ctx.bot.user.id] = (vote_actual, time)
@@ -191,7 +191,7 @@ class PreferenceManagement(commands.Cog, name="Preferences"):
 
         specific: Whether to remove the bot-specific emergency vote or the generic one.
         """
-        specific_actual = to_bool(specific)
+        specific_actual = to_bool(specific, "argument")
         preferences = load_preferences(ctx.message.author)
         if specific_actual:
             try:
