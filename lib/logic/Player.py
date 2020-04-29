@@ -459,7 +459,10 @@ class Player:
 
     def __hash__(self):
         """Hashes the object."""
-        return hash(self.member.id)
+        try:
+            return hash(self.member.id)
+        except AttributeError:
+            return hash(self.member)
 
     def __eq__(self, other) -> bool:
         """Compare two Player objects."""
