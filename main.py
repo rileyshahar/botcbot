@@ -1,6 +1,6 @@
 """Runs the bot.
 
-Call this with an argument (which can include spaces) representing the bot's folder.
+Call this with an argument (which can include spaces) representing the bot's name.
 """
 
 from configparser import ConfigParser
