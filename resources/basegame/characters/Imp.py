@@ -18,7 +18,7 @@ class Imp(Demon):
         target = await select_target(ctx, f"Who did {self.parent.epithet}, kill?")
         if target:
             if not target.is_status(ctx, "safe_from_demon") and not target.ghost(ctx):
-                target.effects.append(Dead(ctx, target, self.parent))
+                target.add_effect(ctx, Dead, self.parent)
 
                 if target == self.parent:
                     while True:

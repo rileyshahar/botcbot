@@ -218,7 +218,7 @@ class Traveler(Character):
             await safe_send(
                 ctx.bot.channel, f"{self.parent.nick} has been exiled, and dies."
             )
-            self.parent.effects.append(Dead(ctx, self.parent, self.parent))
+            self.parent.add_effect(ctx, Dead, self.parent)
 
 
 class Storyteller(Character):

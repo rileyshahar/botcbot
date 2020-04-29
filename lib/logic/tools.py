@@ -332,7 +332,11 @@ def source_death_delete(*args, **kwargs):
 @class_decorator_factory("source_starts_functioning")
 def source_functioning_enable(*args, **kwargs):
     """Enable the wrapped effect when its source restarts functioning."""
-    args[0].disabled = False
+
+    def enabler_func():
+        args[0].disabled = False
+
+    args[0].turn_on(args[1], enabler_func)
 
 
 def generic_ongoing_effect(effect: Type["Effect"]):

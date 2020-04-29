@@ -171,9 +171,9 @@ class Storytelling(commands.Cog):
 
                 # add the alignment
                 if alignment.lower() == "good":
-                    player.effects.append(Good(ctx, player, player))
+                    player.add_effect(ctx, Good, player)
                 elif alignment.lower() == "evil":
-                    player.effects.append(Evil(ctx, player, player))
+                    player.add_effect(ctx, Evil, player)
 
                 # add the player role
                 await traveler_actual.add_roles(ctx.bot.player_role)
@@ -295,7 +295,7 @@ class Storytelling(commands.Cog):
 
         for player in kills_actual:
             if not player.ghost(ctx):
-                player.effects.append(Dead(ctx, player, player))
+                player.add_effect(ctx, Dead, player)
 
         await ctx.bot.game.startday(ctx, kills_actual)
 

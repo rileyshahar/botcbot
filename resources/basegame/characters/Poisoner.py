@@ -10,6 +10,14 @@ from lib.logic.tools import (
 )
 
 
+@evening_delete()
+@generic_ongoing_effect
+class _PoisonerPoison(Poisoned):
+    """The Poisoner's poison."""
+
+    pass
+
+
 class Poisoner(Minion):
     """The Poisoner."""
 
@@ -23,16 +31,7 @@ class Poisoner(Minion):
             ctx, f"Who did {self.parent.formatted_epithet(epithet_string)}, poison?"
         )
         if target:
-            effect = _PoisonerPoison(ctx, target, self.parent)
+            effect = target.add_effect(ctx, _PoisonerPoison, self.parent)
             if not enabled:
                 effect.disable(ctx)
-            target.effects.append(effect)
         return [], []
-
-
-@evening_delete()
-@generic_ongoing_effect
-class _PoisonerPoison(Poisoned):
-    """The Poisoner's poison."""
-
-    pass

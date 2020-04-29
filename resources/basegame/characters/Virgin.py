@@ -23,7 +23,7 @@ class Virgin(Townsfolk):
         If nominee is the Virgin and nominator is a townsfolk, execute nominator.
         """
         if nominee == self.parent:
-            self.parent.effects.append(UsedAbility(ctx, self.parent, self.parent))
+            self.parent.add_effect(ctx, UsedAbility, self.parent)
             if enabled and nominator.is_status(ctx, "townsfolk", registers=True):
                 await safe_send(
                     ctx.bot.channel,

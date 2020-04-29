@@ -7,56 +7,6 @@ from lib.logic.Effect import Dead, Poisoned
 from lib.logic.tools import if_functioning, select_target, generic_ongoing_effect
 
 
-class Vigormortis(Demon):
-    """The Vigormortis."""
-
-    name: str = "Vigormortis"
-    playtest: bool = False
-
-    @if_functioning(False)
-    async def morning(self, ctx):
-        """Apply the Vigormortis's kill to a chosen target.
-
-        If a Minion is chosen, apply the corresponding poison.
-        """
-        target = await select_target(ctx, f"Who did {self.parent.epithet}, kill?")
-        if target:
-            if not target.is_status(ctx, "safe_from_demon") and not target.ghost(ctx):
-                target.effects.append(_VigormortisDead(ctx, target, self.parent))
-
-                # vigormortis poison
-                if target.is_status(ctx, "minion", registers=True):
-
-                    new_target = await select_target(
-                        ctx,
-                        "Who did that poison?",
-                        condition=_neighbor_condition,
-                        target=target,
-                    )
-                    if new_target:
-                        new_target.effects.append(
-                            generic_ongoing_effect(Poisoned)(
-                                ctx, new_target, self.parent
-                            )
-                        )
-                        # TODO: this needs to be a custom Poisoned subclass that has nice
-                        # cleanup functions for if the minion changes character
-                return [target], []
-        return [], []
-
-
-def _neighbor_condition(player, ctx, **kwargs):
-    """Determine whether player registers as a townsfolk."""
-    target = kwargs.pop("target")
-    if player in target.neighbors(
-        ctx, lambda x, y: x.is_status(y, "townsfolk", registers=True)
-    ):
-        return True
-    raise commands.BadArgument(
-        f"{player.nick} is not a Townsfolk neighbor of {target.nick}."
-    )
-
-
 class _VigormortisDead(Dead):
     """The Vigormortis's kill."""
 
@@ -74,3 +24,51 @@ class _VigormortisDead(Dead):
         ) and self.source_player.functioning(ctx):
             return False
         return True
+
+
+def _neighbor_condition(player, ctx, **kwargs):
+    """Determine whether player registers as a townsfolk."""
+    target = kwargs.pop("target")
+    if player in target.neighbors(
+        ctx, lambda x, y: x.is_status(y, "townsfolk", registers=True)
+    ):
+        return True
+    raise commands.BadArgument(
+        f"{player.nick} is not a Townsfolk neighbor of {target.nick}."
+    )
+
+
+class Vigormortis(Demon):
+    """The Vigormortis."""
+
+    name: str = "Vigormortis"
+    playtest: bool = False
+
+    @if_functioning(False)
+    async def morning(self, ctx):
+        """Apply the Vigormortis's kill to a chosen target.
+
+        If a Minion is chosen, apply the corresponding poison.
+        """
+        target = await select_target(ctx, f"Who did {self.parent.epithet}, kill?")
+        if target:
+            if not target.is_status(ctx, "safe_from_demon") and not target.ghost(ctx):
+                target.add_effect(ctx, _VigormortisDead, self.parent)
+
+                # vigormortis poison
+                if target.is_status(ctx, "minion", registers=True):
+
+                    new_target = await select_target(
+                        ctx,
+                        "Who did that poison?",
+                        condition=_neighbor_condition,
+                        target=target,
+                    )
+                    if new_target:
+                        new_target.add_effect(
+                            ctx, generic_ongoing_effect(Poisoned), self.parent
+                        )
+                        # TODO: this needs to be a custom Poisoned subclass that has nice
+                        # cleanup functions for if the minion changes character
+                return [target], []
+        return [], []

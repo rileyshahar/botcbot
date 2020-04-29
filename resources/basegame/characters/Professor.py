@@ -25,7 +25,7 @@ class Professor(Townsfolk):
         )
         if target:
             if target.ghost(ctx, registers=True):
-                self.parent.effects.append(UsedAbility(ctx, self.parent, self.parent))
+                self.parent.add_effect(ctx, UsedAbility, self.parent)
                 if enabled and target.is_status(ctx, "townsfolk", registers=True):
                     return [], [await target.revive(ctx)]
         return [], []

@@ -12,6 +12,8 @@ from lib.bot import BOTCBot
 from lib.logic import Effect
 from lib.logic.Player import Player
 from lib.logic.playerconverter import to_player
+from lib.logic.tools import generic_ongoing_effect
+
 from lib.typings.context import Context
 from lib.utils import safe_send
 
@@ -115,7 +117,9 @@ class EffectManagement(commands.Cog, name="Effects"):
             source_actual = await to_player(ctx, source, includes_storytellers=True)
         else:
             source_actual = ctx.bot.game.storytellers[0]
-        await _effect_adder(ctx, player_actual, Effect.Poisoned, source_actual)
+        await _effect_adder(
+            ctx, player_actual, generic_ongoing_effect(Effect.Poisoned), source_actual
+        )
 
 
 def setup(bot: BOTCBot):
@@ -124,13 +128,15 @@ def setup(bot: BOTCBot):
 
 
 async def _effect_adder(
-    ctx, player: Player, effect: Type[Effect.Effect], source: Player = None
+    ctx: Context, player: Player, effect: Type[Effect.Effect], source: Player = None
 ):
     """Add effect to player."""
-    source = player or source
-    effect_object = effect(ctx, player, source)
-    player.effects.append(effect_object)
-    source_text = "" if source == player else f"with source {source.nick} "
+    source = source or player
+    effect_object = player.add_effect(ctx, effect, source)
+    if source == player or source.character_type(ctx) == "storyteller":
+        source_text = ""
+    else:
+        source_text = f"with source {source.nick} "
     await safe_send(
         ctx,
         f"Successfully added effect {effect_object.name} {source_text}to {player.nick}.",

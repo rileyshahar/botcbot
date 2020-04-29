@@ -10,6 +10,14 @@ from lib.logic.tools import (
 )
 
 
+@morning_delete()
+@generic_ongoing_effect
+class _MonkProtection(SafeFromDemon):
+    """The Monk's protection."""
+
+    pass
+
+
 class Monk(Townsfolk):
     """The Monk."""
 
@@ -23,16 +31,7 @@ class Monk(Townsfolk):
             ctx, f"Who did {self.parent.formatted_epithet(epithet_string)}, protect?"
         )
         if target:
-            effect = _MonkProtection(ctx, target, self.parent)
+            effect = target.add_effect(ctx, _MonkProtection, self.parent)
             if not enabled:
                 effect.disable(ctx)
-            target.effects.append(effect)
         return [], []
-
-
-@morning_delete()
-@generic_ongoing_effect
-class _MonkProtection(SafeFromDemon):
-    """The Monk's protection."""
-
-    pass

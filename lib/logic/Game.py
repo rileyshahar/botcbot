@@ -130,12 +130,12 @@ class Game:
             self.current_day = Day()
             await ctx.bot.update_status()
 
-            remove(ctx.bot.bot_name + "/special_backup.pckl")
+            remove("resources/backup/" + ctx.bot.bot_name + "/special_backup.pckl")
 
         except Exception:
 
             await ctx.bot.restore_backup("special_backup.pckl", mute=True)
-            remove(ctx.bot.bot_name + "special_backup.pckl")
+            remove("resources/backup/" + ctx.bot.bot_name + "/special_backup.pckl")
             raise
 
         # announcements

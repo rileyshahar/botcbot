@@ -1,5 +1,6 @@
 """Contains the Player class."""
 
+import traceback
 import typing
 
 from discord import Member
@@ -17,7 +18,7 @@ def _get_neighbor(
     ctx: Context,
     condition: typing.Callable[["Player", Context], bool],
     order: typing.List["Player"],
-):
+) -> typing.Optional["Player"]:
     """Determine the first player in order matching condition."""
     out = None
     for player in order:
@@ -66,7 +67,6 @@ class Player:
     character
     """
 
-    # probably not justified here but I'm too lazy to refactor this atm
     # TODO: store all the day-related attributes more compactly
 
     character: "Character"
@@ -81,9 +81,7 @@ class Player:
         self.member = member
         self.character = character(self)
         self.position = position
-        self.effects = [
-            effect(None, self, self) for effect in self.character.default_effects
-        ]
+        self.effects = [effect(self, self) for effect in self.character.default_effects]
         self.dead_votes = 1
         self.message_history = []
         self.has_spoken = False
@@ -96,7 +94,7 @@ class Player:
         self,
         ctx: Context,
         condition: typing.Callable[["Player", Context], bool] = lambda x, y: True,
-    ) -> typing.Tuple["Player", "Player"]:
+    ) -> typing.Tuple[typing.Optional["Player"], typing.Optional["Player"]]:
         """Determine the player's nearest neighbors satisfying a given condition.
 
         Parameters
@@ -226,8 +224,8 @@ class Player:
                     "Hit a recursion error while determining "
                     f"whether {self.nick} is {status_name}.",
                     str(e),
-                    str(e.__traceback__),
                 ),
+                traceback.print_exc(),
             )
             return True  # TODO: decide the default status, also log it more sensibly
 
@@ -366,11 +364,29 @@ class Player:
 
         self.character = new_character(self)
         for effect in self.character.default_effects:
-            self.effects.append(effect(ctx, self, self))
+            self.add_effect(ctx, effect, self)
 
         await safe_send(
             ctx, f"Successfully changed {self.nick} to the {self.character.name}."
         )
+
+    def add_effect(
+        self, ctx: Context, effect: typing.Type["Effect"], source_player: "Player"
+    ) -> Effect:
+        """Add non-default effects to the player.
+
+        This is basically a factory method for an arbitrary Effect. It handles
+        side-effects of the effect's initialization, for instance shutting down other
+        effects. Except in the Player constructor, this should always be called instead
+        of the Effect constructor.
+        """
+        effect_object = effect(self, source_player)
+
+        def effect_adder():
+            """Add the effect to the player's effects list."""
+            self.effects.append(effect_object)
+
+        return effect_object.turn_on(ctx, effect_adder)
 
     async def execute(self, ctx: Context):
         """Execute the player."""
@@ -387,7 +403,7 @@ class Player:
 
         else:
             await safe_send(ctx.bot.channel, message_text + "and dies.")
-            self.effects.append(Dead(ctx, self, self))
+            self.add_effect(ctx, Dead, self)
 
         # Day.end has a "successfully ended the day" message so this is above that
         if safe_bug_report(ctx):

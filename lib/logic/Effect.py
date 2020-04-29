@@ -1,16 +1,12 @@
 """Contains the Effect class and several Effect subclass ABCs."""
 
-from typing import Optional, TYPE_CHECKING
+from typing import Callable, TYPE_CHECKING
 
 from lib.typings.context import Context
 
 if TYPE_CHECKING:
     from lib.logic.Player import Player
 
-
-# there are a lot of unused arguments here because
-# these functions are changed by lots of subclasses
-# same thing with functions which could be class methods
 
 # TODO: add user-facing names for statuses
 
@@ -39,8 +35,6 @@ status_list = [
 ]
 
 
-# noinspection PyUnusedLocal
-# lots of unused parameters here because they're used by Effect subclasses
 class Effect:
     """Stores information about a game effect.
 
@@ -62,23 +56,13 @@ class Effect:
     """
 
     def __init__(
-        self,
-        ctx: Optional[
-            Context
-        ],  # this is none iff the effect is created during startgame
-        affected_player: "Player",
-        source_player: "Player",
+        self, affected_player: "Player", source_player: "Player",
     ):
         self.affected_player = affected_player
         self.source_player = source_player
         self._name = "Effect"
         self.appears = True
         self.disabled = False
-
-        # if ctx is none we don't want to run this
-        # because ctx is only none for default effects
-        if ctx:
-            self.source_starts_functioning(ctx)
 
     @property
     def name(self):
@@ -150,9 +134,9 @@ class Effect:
         # this seems to be a false positive
         pass
 
-    async def nomination(
-        self, ctx: Context, nominee: "Player", nominator: "Player"
-    ) -> bool:
+    # noinspection PyUnusedLocal
+    @staticmethod
+    async def nomination(ctx: Context, nominee: "Player", nominator: "Player") -> bool:
         """Call at the start of each nomination.
 
         Parameters
@@ -192,47 +176,80 @@ class Effect:
         """
         pass
 
-    def source_starts_functioning(self, ctx: Context):
-        """Call when the effect is initiated or source_player restarts functioning.
+    def turn_on(self, ctx: Context, enabler_func: Callable[[], None]) -> "Effect":
+        """Turn on the effect.
 
-        Modified by decorators to re-enable effects.
+        Parameters
+        ----------
+        ctx : Context
+            The invocation context.
+        enabler_func : Callable [[], None]
+            A function which enables the effect in some way.
+
+        Notes
+        -----
+        The effect should be disabled in some way (either by not being a in
+        affected_player.effects, or because self.disabled = True) before this method id
+        called. This checks if the effect being enabled causes the player to die or stop
+        functioning via checking the player's state before enabler_func is called and
+        then comparing it to the state after. If it causes death or drunkpoisoning, the
+        appropriate modifiers are also called.
         """
-        # TODO: this breaks if it causes another effect to stop the player functioning
+        originally_functioning = self.affected_player.functioning(ctx)
+        originally_dead = self.affected_player.ghost(ctx)
 
-        # stops functioning
-        if self.affected_player.functioning(ctx) and self.status(
-            ctx, "not_functioning"
-        ):
+        enabler_func()
 
-            # death
-            if not self.affected_player.ghost(ctx) and self.status(ctx, "dead"):
+        if originally_functioning and not self.affected_player.functioning(ctx):
+
+            if not originally_dead and self.affected_player.ghost(ctx):
                 for effect in self.affected_player.source_effects(ctx):
-                    effect.source_death_cleanup(ctx)
+                    # can't call it on self because of recursion errors
+                    if not self == effect:
+                        effect.source_death_cleanup(ctx)
 
-            # drunkpoison
             else:
                 for effect in self.affected_player.source_effects(ctx):
-                    effect.source_drunkpoisoned_cleanup(ctx)
+                    if not self == effect:
+                        effect.source_drunkpoisoned_cleanup(ctx)
+
+        return self
 
     def disable(self, ctx: Context):
         """Handle disabling of the effect."""
-        originally_functioning = self.affected_player.functioning(ctx)  # type: bool
-        self.disabled = True
 
-        # if deleting this effect caused the affected play to restart functioning
-        if not originally_functioning and self.affected_player.functioning(ctx):
-            for effect in self.affected_player.source_effects(ctx):
-                effect.source_starts_functioning(ctx)
+        def disabler_func():
+            """Disable the effect."""
+            self.disabled = True
+
+        self.turn_off(ctx, disabler_func)
 
     def delete(self, ctx: Context):
         """Handle deletion of the effect."""
-        originally_functioning = self.affected_player.functioning(ctx)  # type: bool
-        self.affected_player.effects.remove(self)
 
-        # if deleting this effect caused the affected play to restart functioning
+        def disabler_func():
+            """Delete the effect."""
+            self.affected_player.effects.remove(self)
+
+        self.turn_off(ctx, disabler_func)
+
+    def turn_off(self, ctx: Context, disabler_func: Callable[[], None]):
+        """Turn off the effect.
+
+        For more details, see the turn_on documentation."""
+        originally_functioning = self.affected_player.functioning(ctx)
+
+        disabler_func()
+
         if not originally_functioning and self.affected_player.functioning(ctx):
             for effect in self.affected_player.source_effects(ctx):
                 effect.source_starts_functioning(ctx)
+
+    def source_starts_functioning(self, ctx: Context):
+        """Call when source_player restarts functioning.
+
+        Modified by decorators (defined in logic.tools) to call self.turn_on."""
+        pass
 
 
 # Some generic single-status effects that can be caused by storytellers
@@ -240,50 +257,46 @@ class Drunk(Effect):
     """Makes the player drunk."""
 
     def __init__(
-        self,
-        ctx: Optional[Context],
-        affected_player: "Player",
-        source_player: "Player",
+        self, affected_player: "Player", source_player: "Player",
     ):
-        super().__init__(ctx, affected_player, source_player)
+        super().__init__(affected_player, source_player)
         self._name = "Drunk"
 
-    def drunk(self, ctx: Context) -> bool:
+    # noinspection PyUnusedLocal
+    @staticmethod
+    def drunk(ctx: Context) -> bool:
         """Determine whether the effect causes drunkenness."""
-        return (not self.source_player) or self.source_player.functioning(ctx)
+        return True
 
 
 class Poisoned(Effect):
     """Makes the player poisoned."""
 
     def __init__(
-        self,
-        ctx: Optional[Context],
-        affected_player: "Player",
-        source_player: "Player",
+        self, affected_player: "Player", source_player: "Player",
     ):
-        super().__init__(ctx, affected_player, source_player)
+        super().__init__(affected_player, source_player)
         self._name = "Poisoned"
 
-    def poisoned(self, ctx: Context) -> bool:
+    # noinspection PyUnusedLocal
+    @staticmethod
+    def poisoned(ctx: Context) -> bool:
         """Determine whether the effect causes poisoning."""
-        return (not self.source_player) or self.source_player.functioning(ctx)
+        return True
 
 
 class Dead(Effect):
     """Makes the player dead."""
 
     def __init__(
-        self,
-        ctx: Optional[Context],
-        affected_player: "Player",
-        source_player: "Player",
+        self, affected_player: "Player", source_player: "Player",
     ):
-        super().__init__(ctx, affected_player, source_player)
+        super().__init__(affected_player, source_player)
         self._name = "Dead"
 
     # noinspection PyUnusedLocal
-    def dead(self, ctx: Context) -> bool:
+    @staticmethod
+    def dead(ctx: Context) -> bool:
         """Determine whether the effect causes death."""
         return True
 
@@ -292,46 +305,41 @@ class Safe(Effect):
     """Makes the player safe."""
 
     def __init__(
-        self,
-        ctx: Optional[Context],
-        affected_player: "Player",
-        source_player: "Player",
+        self, affected_player: "Player", source_player: "Player",
     ):
-        super().__init__(ctx, affected_player, source_player)
+        super().__init__(affected_player, source_player)
         self._name = "Safe"
 
-    def safe(self, ctx: Context) -> bool:
+    # noinspection PyUnusedLocal
+    @staticmethod
+    def safe(ctx: Context) -> bool:
         """Determine whether the effect causes safety."""
-        return (not self.source_player) or self.source_player.functioning(ctx)
+        return True
 
 
 class SafeFromDemon(Effect):
     """Makes the player safe from the demon."""
 
     def __init__(
-        self,
-        ctx: Optional[Context],
-        affected_player: "Player",
-        source_player: "Player",
+        self, affected_player: "Player", source_player: "Player",
     ):
-        super().__init__(ctx, affected_player, source_player)
+        super().__init__(affected_player, source_player)
         self._name = "Safe From Demon"
 
-    def safe_from_demon(self, ctx: Context) -> bool:
+    # noinspection PyUnusedLocal
+    @staticmethod
+    def safe_from_demon(ctx: Context) -> bool:
         """Determine whether the effect causes safety from the Demon."""
-        return (not self.source_player) or self.source_player.functioning(ctx)
+        return True
 
 
 class UsedAbility(Effect):
     """For one-time-use characters who have used their ability."""
 
     def __init__(
-        self,
-        ctx: Optional[Context],
-        affected_player: "Player",
-        source_player: "Player",
+        self, affected_player: "Player", source_player: "Player",
     ):
-        super().__init__(ctx, affected_player, source_player)
+        super().__init__(affected_player, source_player)
         self._name = "Used Ability"
 
     # noinspection PyUnusedLocal
@@ -345,12 +353,9 @@ class NoDeadVoteNeeded(Effect):
     """For effects which allow voting without a dead vote."""
 
     def __init__(
-        self,
-        ctx: Optional[Context],
-        affected_player: "Player",
-        source_player: "Player",
+        self, affected_player: "Player", source_player: "Player",
     ):
-        super().__init__(ctx, affected_player, source_player)
+        super().__init__(affected_player, source_player)
         self._name = "Infinite Dead Votes"
 
     # noinspection PyUnusedLocal
@@ -365,12 +370,9 @@ class Good(Effect):
     """Makes the player good."""
 
     def __init__(
-        self,
-        ctx: Optional[Context],
-        affected_player: "Player",
-        source_player: "Player",
+        self, affected_player: "Player", source_player: "Player",
     ):
-        super().__init__(ctx, affected_player, source_player)
+        super().__init__(affected_player, source_player)
         self._name = "Good"
         self.appears = False
 
@@ -385,12 +387,9 @@ class Evil(Effect):
     """Makes the player evil."""
 
     def __init__(
-        self,
-        ctx: Optional[Context],
-        affected_player: "Player",
-        source_player: "Player",
+        self, affected_player: "Player", source_player: "Player",
     ):
-        super().__init__(ctx, affected_player, source_player)
+        super().__init__(affected_player, source_player)
         self._name = "Evil"
         self.appears = False
 
@@ -405,12 +404,9 @@ class TownsfolkEffect(Effect):
     """Makes the player a Townsfolk."""
 
     def __init__(
-        self,
-        ctx: Optional[Context],
-        affected_player: "Player",
-        source_player: "Player",
+        self, affected_player: "Player", source_player: "Player",
     ):
-        super().__init__(ctx, affected_player, source_player)
+        super().__init__(affected_player, source_player)
         self._name = "Townsfolk"
         self.appears = False
 
@@ -425,12 +421,9 @@ class OutsiderEffect(Effect):
     """Makes the player an Outsider."""
 
     def __init__(
-        self,
-        ctx: Optional[Context],
-        affected_player: "Player",
-        source_player: "Player",
+        self, affected_player: "Player", source_player: "Player",
     ):
-        super().__init__(ctx, affected_player, source_player)
+        super().__init__(affected_player, source_player)
         self._name = "Outsider"
         self.appears = False
 
@@ -445,12 +438,9 @@ class MinionEffect(Effect):
     """Makes the player a Minion."""
 
     def __init__(
-        self,
-        ctx: Optional[Context],
-        affected_player: "Player",
-        source_player: "Player",
+        self, affected_player: "Player", source_player: "Player",
     ):
-        super().__init__(ctx, affected_player, source_player)
+        super().__init__(affected_player, source_player)
         self._name = "Minion"
         self.appears = False
 
@@ -465,12 +455,9 @@ class DemonEffect(Effect):
     """Makes the player a Demon."""
 
     def __init__(
-        self,
-        ctx: Optional[Context],
-        affected_player: "Player",
-        source_player: "Player",
+        self, affected_player: "Player", source_player: "Player",
     ):
-        super().__init__(ctx, affected_player, source_player)
+        super().__init__(affected_player, source_player)
         self._name = "Demon"
         self.appears = False
 
@@ -485,12 +472,9 @@ class TravelerEffect(Effect):
     """Makes the player a Traveler."""
 
     def __init__(
-        self,
-        ctx: Optional[Context],
-        affected_player: "Player",
-        source_player: "Player",
+        self, affected_player: "Player", source_player: "Player",
     ):
-        super().__init__(ctx, affected_player, source_player)
+        super().__init__(affected_player, source_player)
         self._name = "Traveler"
         self.appears = False
 
@@ -505,12 +489,9 @@ class StorytellerEffect(Effect):
     """Makes the player a Storyteller."""
 
     def __init__(
-        self,
-        ctx: Optional[Context],
-        affected_player: "Player",
-        source_player: "Player",
+        self, affected_player: "Player", source_player: "Player",
     ):
-        super().__init__(ctx, affected_player, source_player)
+        super().__init__(affected_player, source_player)
         self._name = "Storyteller"
         self.appears = False
 
@@ -524,11 +505,13 @@ class StorytellerEffect(Effect):
 class RegistersGood(Effect):
     """Makes a character register as Good."""
 
-    def __init__(self, ctx, affected_player, source_player):
-        super().__init__(ctx, affected_player, source_player)
+    def __init__(self, affected_player, source_player):
+        super().__init__(affected_player, source_player)
         self._name = "Registers as Good"
 
-    def registers_good(self, ctx: Context):
+    # noinspection PyUnusedLocal
+    @staticmethod
+    def registers_good(ctx: Context):
         """Determine whether the effect makes the player register as good."""
         return True
 
@@ -536,11 +519,13 @@ class RegistersGood(Effect):
 class RegistersEvil(Effect):
     """Makes a character register as Good."""
 
-    def __init__(self, ctx, affected_player, source_player):
-        super().__init__(ctx, affected_player, source_player)
+    def __init__(self, affected_player, source_player):
+        super().__init__(affected_player, source_player)
         self._name = "Registers as Evil"
 
-    def registers_evil(self, ctx: Context):
+    # noinspection PyUnusedLocal
+    @staticmethod
+    def registers_evil(ctx: Context):
         """Determine whether the effect makes the player register as evil."""
         return True
 
@@ -548,11 +533,13 @@ class RegistersEvil(Effect):
 class RegistersTownsfolk(Effect):
     """Makes a character register as a Townsfolk."""
 
-    def __init__(self, ctx, affected_player, source_player):
-        super().__init__(ctx, affected_player, source_player)
+    def __init__(self, affected_player, source_player):
+        super().__init__(affected_player, source_player)
         self._name = "Registers as a Townsfolk"
 
-    def registers_townsfolk(self, ctx: Context):
+    # noinspection PyUnusedLocal
+    @staticmethod
+    def registers_townsfolk(ctx: Context):
         """Determine whether the effect makes the player register as a townsfolk."""
         return True
 
@@ -560,11 +547,13 @@ class RegistersTownsfolk(Effect):
 class RegistersOutsider(Effect):
     """Makes a character register as a Outsider."""
 
-    def __init__(self, ctx, affected_player, source_player):
-        super().__init__(ctx, affected_player, source_player)
+    def __init__(self, affected_player, source_player):
+        super().__init__(affected_player, source_player)
         self._name = "Registers as an Outsider"
 
-    def registers_outsider(self, ctx: Context):
+    # noinspection PyUnusedLocal
+    @staticmethod
+    def registers_outsider(ctx: Context):
         """Determine whether the effect makes the player register as an outsider."""
         return True
 
@@ -572,11 +561,13 @@ class RegistersOutsider(Effect):
 class RegistersMinion(Effect):
     """Makes a character register as a Minion."""
 
-    def __init__(self, ctx, affected_player, source_player):
-        super().__init__(ctx, affected_player, source_player)
+    def __init__(self, affected_player, source_player):
+        super().__init__(affected_player, source_player)
         self._name = "Registers as a Minion"
 
-    def registers_minion(self, ctx: Context):
+    # noinspection PyUnusedLocal
+    @staticmethod
+    def registers_minion(ctx: Context):
         """Determine whether the effect makes the player register as a minion."""
         return True
 
@@ -584,11 +575,13 @@ class RegistersMinion(Effect):
 class RegistersDemon(Effect):
     """Makes a character register as a Demon."""
 
-    def __init__(self, ctx, affected_player, source_player):
-        super().__init__(ctx, affected_player, source_player)
+    def __init__(self, affected_player, source_player):
+        super().__init__(affected_player, source_player)
         self._name = "Registers as a Demon"
 
-    def registers_demon(self, ctx: Context):
+    # noinspection PyUnusedLocal
+    @staticmethod
+    def registers_demon(ctx: Context):
         """Determine whether the effect makes the player register as a demon."""
         return True
 
