@@ -49,22 +49,9 @@ except KeyError as e:
         sysexit()
 
 
-# Global Checks
+# Backup wrapper
 # noinspection PyUnboundLocalVariable
 # if we get here, bot is guaranteed to be defined
-@bot.check
-def not_bot(ctx: Context) -> bool:
-    """Check if the author is a bot."""
-    return not ctx.author.bot
-
-
-@bot.check
-def valid_channel(ctx: Context) -> bool:
-    """Check if the message is in dms or the correct channel."""
-    return ctx.guild is None or ctx.channel == ctx.bot.channel
-
-
-# Backup wrapper
 @bot.after_invoke
 async def command_cleanup(ctx: Context):
     """Run after every command.
