@@ -218,16 +218,15 @@ class Player:
 
             return False
 
-        except RecursionError as e:
+        except RecursionError:
             print(
                 (
                     "Hit a recursion error while determining "
                     f"whether {self.nick} is {status_name}.",
-                    str(e),
                 ),
                 traceback.print_exc(),
             )
-            return True  # TODO: decide the default status, also log it more sensibly
+            return True
 
     def exclusive_status_search(
         self, ctx: Context, statuses: typing.List[str]

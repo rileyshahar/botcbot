@@ -63,7 +63,9 @@ class Character:
         """Determine the seating order addendum."""
         return ""
 
-    async def morning(self, ctx: Context) -> Tuple[List["Player"], List[str]]:
+    async def morning(
+        self, ctx: Context, skip: bool = False
+    ) -> Tuple[List["Player"], List[str]]:
         """Call at the start of each day. Processes night actions.
 
         Parameters
@@ -80,8 +82,6 @@ class Character:
         """
         # check that this isn't a dummy call from a wrapper to figure out the return
         # see the commenting of tools.if_functioning for more info
-        # TODO: pass this as an arg instead
-        # the challenge with that is idk how it works with **kwargs
         if self.parent:
             await safe_send(
                 ctx,

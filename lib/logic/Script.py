@@ -166,7 +166,6 @@ def script_list(ctx: Context, playtest: bool = False) -> Generator[Script, None,
         Default scripts, or scripts stored in resources.
     """
     # Add the three default scripts
-    # TODO: default scripts should have no owner
     # not sure this will work so it needs testing
     yield Script(
         "Trouble Brewing",

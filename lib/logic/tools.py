@@ -244,9 +244,8 @@ def class_decorator_factory(func_name):
 
     Why is this using decorators and not subclasses?
     This more easily allows us to append the wrapped function to an existing function.
+    Also, it allows much more granular control than mixins.
     """
-    # TODO: refactor all this code to use subclasses
-    # because why the fuck did I think decorators were a good idea
 
     def wrapper_func_getter(wrapper_func):
         """Get the actual wrapper function."""

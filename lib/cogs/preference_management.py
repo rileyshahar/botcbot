@@ -155,7 +155,6 @@ class PreferenceManagement(commands.Cog, name="Preferences"):
         time: The time in minutes for the vote to trigger.
         specific: Whether this emergency is bot-specific, yes or no. Defaults to yes.
         """
-        # TODO: fix the docstring when we know what these do
         vote_actual = to_bool(vote, "vote")
         specific_actual = to_bool(specific, "argument")
         preferences = load_preferences(ctx.message.author)
