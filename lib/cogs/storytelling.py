@@ -24,8 +24,6 @@ from lib.utils import (
 class Storytelling(commands.Cog):
     """Commands for storytelling."""
 
-    # TODO: separate these into multiple cogs
-
     def __init__(self, bot):
         self.bot = bot
 

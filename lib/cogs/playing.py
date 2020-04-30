@@ -46,9 +46,9 @@ class Playing(commands.Cog):
     @checks.is_player()
     @checks.is_game()
     async def vote(self, ctx: Context, *, vote: str):
-        """Make a vote in an ongoing nomination.
+        """Vote in an ongoing nomination.
 
-        vote: The vote to input.
+        vote: The vote to submit.
         """
         vote_actual = to_bool(vote, "vote")
 
@@ -75,6 +75,7 @@ class Playing(commands.Cog):
     @checks.is_day()
     @checks.is_player()
     @checks.is_game()
+    @checks.is_dm()
     async def pm(self, ctx: Context, *, recipient: str):
         """Message a player or storyteller.
 
@@ -94,6 +95,7 @@ class Playing(commands.Cog):
     @checks.is_day()
     @checks.is_player()
     @checks.is_game()
+    @checks.is_dm()
     async def reply(self, ctx: Context):
         """Reply to the previously recieved message.
 
@@ -122,12 +124,55 @@ class Playing(commands.Cog):
     @checks.is_day()
     @checks.is_player()
     @checks.is_game()
-    async def prevote(self, ctx: Context, vt: str):
+    @checks.is_dm()
+    async def prevote(self, ctx: Context, vote: str):
+        """Prevote in an ongoing nomination.
 
-        actual_vt = int(to_bool(vt, "vote"))
+        vote: The prevote to queue.
+
+        When it's your turn to vote, this will automatically submit the queued vote.
+        """
+        actual_vt = int(to_bool(vote, "vote"))
         await ctx.bot.game.current_day.current_vote.prevote(
             ctx, get_player(ctx.bot.game, ctx.author.id), actual_vt
         )
+
+    @commands.command()
+    @checks.is_player()
+    @checks.is_game()
+    @checks.is_dm()
+    async def history(self, ctx: Context, *, player: str = None):
+        """View your message history.
+
+        player: The player to view your message history with.
+        If none, this will show your entire message history with everyone.
+        """
+        player_actual = None
+        if player is not None:
+            player_actual = await to_player(ctx, player)
+
+        author = get_player(ctx.bot.game, ctx.author.id, False)
+        message_text = "__Message History__"
+
+        if player_actual is not None:
+            message_text += f" (with {player_actual.nick})"
+
+        message_text += ":"
+        previously_from: Optional[Player] = None
+
+        for message in author.message_history:
+
+            if player_actual not in (message["from"], message["to"],):
+                # don't process messages not part of the relevant history
+                continue
+
+            if previously_from != message["from"]:
+                previously_from = message["from"]
+                message_text += f'\n{message["from"].nick}:'
+
+            message_text += f'\n> {message["content"]}'
+
+        await safe_send(ctx, message_text)
 
 
 def setup(bot):
