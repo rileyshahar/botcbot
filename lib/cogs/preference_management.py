@@ -144,7 +144,7 @@ class PreferenceManagement(commands.Cog, name="[General] Preferences"):
             ),
         )
 
-    @commands.command()
+    @commands.command(hidden=True)
     @checks.is_dm()
     async def emergencyvote(
         self, ctx: Context, vote: str, time: int, specific: str = "yes",
@@ -183,7 +183,7 @@ class PreferenceManagement(commands.Cog, name="[General] Preferences"):
                 ).format(vote=("no", "yes")[vote_actual], time=str(time)),
             )
 
-    @commands.command()
+    @commands.command(hidden=True)
     @checks.is_dm()
     async def removeemergencyvote(self, ctx: Context, specific: str = "yes"):
         """Remove your emergency vote.
