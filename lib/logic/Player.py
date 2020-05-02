@@ -334,7 +334,7 @@ class Player:
                 )
 
         # public report
-        if ctx.bot.config["instantMessageReports"]:
+        if ctx.bot.instant_message_reporting:
             await safe_send(ctx.bot.channel, f"**{frm.nick}** > **{self.nick}**")
 
         # update message histories
