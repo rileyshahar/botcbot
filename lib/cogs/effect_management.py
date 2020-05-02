@@ -6,9 +6,6 @@ from discord.ext import commands
 
 from lib import checks
 from lib.bot import BOTCBot
-
-# noinspection PyUnresolvedReferences
-# this is a false positive
 from lib.logic import Effect
 from lib.logic.Player import Player
 from lib.logic.playerconverter import to_player
@@ -18,7 +15,7 @@ from lib.typings.context import Context
 from lib.utils import safe_send
 
 
-class EffectManagement(commands.Cog, name="Effects"):
+class EffectManagement(commands.Cog, name="[ST] Effects"):
     """Tools for effect management."""
 
     def __init__(self, bot: BOTCBot):
@@ -29,7 +26,7 @@ class EffectManagement(commands.Cog, name="Effects"):
     @checks.is_storyteller()
     @checks.is_dm()
     async def registers(self, ctx: Context):
-        """The command to manage what a player registers as.
+        """Change what a player registers as.
 
         Primarily used for Recluse, Spy, etc.
         """
@@ -73,6 +70,8 @@ class EffectManagement(commands.Cog, name="Effects"):
         player_actual = await to_player(ctx, player)
         await _effect_adder(ctx, player_actual, Effect.RegistersDemon)
 
+    # noinspection PyArgumentList
+    # this seems like a false positive
     @registers.command()
     async def clear(self, ctx: Context, player: str):
         """Clear all ST-added registration effects on a player."""
@@ -80,13 +79,16 @@ class EffectManagement(commands.Cog, name="Effects"):
         effect_list = [x for x in player_actual.effects]
         i = 0
         for effect in effect_list:
-            if type(effect) in (
-                Effect.RegistersGood,
-                Effect.RegistersEvil,
-                Effect.RegistersTownsfolk,
-                Effect.RegistersOutsider,
-                Effect.RegistersMinion,
-                Effect.RegistersDemon,
+            if issubclass(
+                effect,
+                (
+                    Effect.RegistersGood,
+                    Effect.RegistersEvil,
+                    Effect.RegistersTownsfolk,
+                    Effect.RegistersOutsider,
+                    Effect.RegistersMinion,
+                    Effect.RegistersDemon,
+                ),
             ):
                 effect.delete(ctx)
                 i += 1

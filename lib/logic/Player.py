@@ -12,6 +12,7 @@ from lib.utils import safe_send, get_input, safe_bug_report
 
 if typing.TYPE_CHECKING:
     from lib.logic.Character import Character
+    from lib.logic.Game import Game
 
 
 def _get_neighbor(
@@ -350,6 +351,7 @@ class Player:
         frm.message_history.append(message_dict)
 
         # complete
+        await frm.make_active(ctx.bot.game)
         await safe_send(frm.member, "Message sent!")
         return
 
@@ -411,6 +413,20 @@ class Player:
         if ctx.bot.game.current_day:
             # TODO: currently doesn't support extra-nomination effects
             await ctx.bot.game.current_day.end(ctx)
+
+    async def make_active(self, game: "Game"):
+        """Set has_spoken to true and update storytellers."""
+        self.has_spoken = True
+
+        not_active = game.not_active
+
+        if len(not_active) == 0:
+            for st in game.storytellers:
+                await safe_send(st.member, "Everyone has spoken!")
+
+        elif len(not_active) == 1:
+            for st in game.storytellers:
+                await safe_send(st.member, f"Just {not_active[0].nick} to speak.")
 
     # Helpful properties
     @property

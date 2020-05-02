@@ -69,6 +69,14 @@ class Game:
         """Determine the current day number."""
         return len(self.past_days) + int(bool(self.current_day))
 
+    @property
+    def not_active(self) -> List[Player]:
+        """Determine the players who have not spoken today."""
+        if not self.current_day:
+            return []
+
+        return [player for player in self.seating_order if not player.has_spoken]
+
     async def reseat(self, ctx: Context, new_seating_order: List[Player]):
         """Modify the seating order and seating order message.
 

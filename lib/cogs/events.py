@@ -5,13 +5,11 @@ import asyncio
 from discord import HTTPException
 from discord.ext import commands
 
-from lib import checks
 from lib.bot import BOTCBot
 from lib.logic.Character import Storyteller
 from lib.logic.Player import Player
 from lib.typings.context import Context
 from lib.utils import get_player, safe_send, safe_bug_report
-
 
 _report_bug_message = " Please report this bug to nihilistkitten#6937 or an admin."
 
@@ -199,6 +197,28 @@ class Events(commands.Cog):
 
             # add new storytellers to the seating order
             _update_storyteller_list(self.bot, after, before)
+
+    @commands.Cog.listener()
+    async def on_message(self, message):
+        """Handle messages."""
+        if message.author.bot:
+            return
+
+        if not message.channel == self.bot.channel:
+            return
+
+        if self.bot.game is None or self.bot.game.current_day is None:
+            return
+
+        try:
+            player = get_player(self.bot.game, message.author.id, False)
+            await player.make_active(self.bot.game)
+        except TypeError as e:
+            if str(e) != "no current game":
+                raise
+        except ValueError as e:
+            if str(e) != "player not found":
+                raise
 
 
 def setup(bot: BOTCBot):

@@ -4,6 +4,7 @@ Call this with an argument (which can include spaces) representing the bot's nam
 """
 
 from configparser import ConfigParser
+from os import listdir
 from sys import exit as sysexit, argv
 
 from lib.bot import BOTCBot
@@ -32,8 +33,7 @@ try:
             "Clocktower. \nThis bot is in beta and is not associated with BOTC or "
             "TPI. Please be forgiving of bugs.\n\nI'm Riley - message me "
             "(nihilistkitten#6937) with questions, feedback, bug reports, or just "
-            "to talk!\n\nFor new players: the Gameplay and Preferences categories "
-            "are most relevant to you."
+            "to talk!"
         ),
         case_insensitive=True,
         owner_id=149969652141785088,
@@ -65,13 +65,9 @@ async def command_cleanup(ctx: Context):
 
 
 # Load extensions
-bot.load_extension("lib.cogs.events")
-bot.load_extension("lib.cogs.debug")
-bot.load_extension("lib.cogs.storytelling")
-bot.load_extension("lib.cogs.playing")
-bot.load_extension("lib.cogs.script_management")
-bot.load_extension("lib.cogs.preference_management")
-bot.load_extension("lib.cogs.effect_management")
+for file in listdir("lib/cogs"):
+    if file.endswith(".py") and not file.startswith("_"):
+        bot.load_extension("lib.cogs." + file[:-3])
 
 # Run the bot
 if __name__ == "__main__":

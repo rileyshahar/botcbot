@@ -11,7 +11,7 @@ from lib.typings.context import Context
 from lib.utils import get_input, safe_send
 
 
-class ScriptManagement(commands.Cog, name="Scripts"):
+class ScriptManagement(commands.Cog, name="[General] Scripts"):
     """Commands for script management."""
 
     # TODO: tools for script modification
@@ -19,10 +19,10 @@ class ScriptManagement(commands.Cog, name="Scripts"):
     def __init__(self, bot: BOTCBot):
         self.bot = bot
 
-    @commands.group(hidden=True)
+    @commands.group()
     @checks.is_dm()
     async def script(self, ctx: Context):
-        """The main command for custom script management.
+        """Manage custom scripts.
 
         To use subcommands, use script followed by the subcommand.
         """
