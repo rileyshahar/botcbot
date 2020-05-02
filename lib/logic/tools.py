@@ -1,9 +1,10 @@
 """Contains tools for managing game logic."""
-
+import itertools
 from functools import wraps
-from typing import List, Optional, Type, Callable, TYPE_CHECKING
+from typing import List, Optional, Type, Callable, TYPE_CHECKING, Dict
 
 import numpy as np
+from discord import Message
 from discord.ext import commands
 
 from lib.logic.Character import Character
@@ -90,6 +91,35 @@ def _generate_distribution_message(order: List["Player"]):
         f"{distribution[0]} Townsfolk, {distribution[1]} Outsider{outsider_plural}, "
         f"{distribution[2]} Minion{minion_plural}, and 1 Demon."
     )
+    return message_text
+
+
+def generate_message_tally(ctx: Context, condition: Callable[[Dict], bool]):
+    """Generate a tally of messages."""
+    # TODO: clean this up lol
+    message_tally = {
+        X: 0 for X in itertools.combinations(ctx.bot.game.seating_order, 2)
+    }
+    for person in ctx.bot.game.seating_order:
+        for msg in person.message_history:
+            if msg["from"] == person:
+                if condition(msg):
+                    if (person, msg["to"]) in message_tally:
+                        message_tally[(person, msg["to"])] += 1
+                    elif (msg["to"], person) in message_tally:
+                        message_tally[(msg["to"], person)] += 1
+                    else:
+                        message_tally[(person, msg["to"])] = 1
+    sorted_tally = sorted(message_tally.items(), key=lambda x: -x[1])
+    message_text = "**Message Tally**:"
+    for pair in sorted_tally:
+        if pair[1] > 0:
+            message_text += "\n> {person1} - {person2}: {n}".format(
+                person1=pair[0][0].nick, person2=pair[0][1].nick, n=pair[1]
+            )
+        else:
+            message_text += "\n> All other pairs: 0"
+            break
     return message_text
 
 
@@ -333,6 +363,7 @@ def source_functioning_enable(*args, **kwargs):
     """Enable the wrapped effect when its source restarts functioning."""
 
     def enabler_func():
+        """Disable the effect."""
         args[0].disabled = False
 
     args[0].turn_on(args[1], enabler_func)

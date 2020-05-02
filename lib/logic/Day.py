@@ -8,6 +8,7 @@ from numpy import ceil
 from lib.logic.Player import Player
 from lib.logic.Vote import Vote
 from lib.logic.playerconverter import to_player
+from lib.logic.tools import generate_message_tally
 from lib.typings.context import Context
 from lib.utils import safe_send, safe_bug_report
 
@@ -102,8 +103,28 @@ class Day:
         await msg.pin()
         self.current_vote.announcements.append(msg.id)
 
+        # message tally
+        await self._send_message_tally(ctx)
+
         # start voting!
         await self.current_vote.call_next(ctx)
+
+    async def _send_message_tally(self, ctx):
+        try:
+            time = (
+                await ctx.bot.channel.fetch_message(self.vote_end_messages[-1])
+            ).created_at
+            await safe_send(
+                ctx.bot.channel,
+                generate_message_tally(ctx, lambda x: x["time"] >= time),
+            )
+        except IndexError:
+            await safe_send(
+                ctx.bot.channel,
+                generate_message_tally(
+                    ctx, lambda x: x["day"] == ctx.bot.game.day_number
+                ),
+            )
 
     async def open_pms(self, ctx: Context):
         """Open PMs."""
@@ -154,6 +175,9 @@ class Day:
             ctx.bot.channel, f"{ctx.bot.player_role.mention}, go to sleep!",
         )
 
+        # message tally
+        await self._send_message_tally(ctx)
+
         # complete
         if safe_bug_report(ctx):
             await safe_send(ctx, "Successfully ended the day.")
@@ -168,7 +192,7 @@ def _check_valid_nominee(ctx: Context, nominator: Player, nominee: Player):
                     "The storytellers cannot be nominated today."
                 )
     elif not nominee.can_be_nominated(ctx, nominator):
-        raise commands.BadArgument("{nominee.nick} cannot be nominated today.")
+        raise commands.BadArgument(f"{nominee.nick} cannot be nominated today.")
 
 
 def _check_valid_nominator(ctx: Context, nominator: Player, nominee: Player):
