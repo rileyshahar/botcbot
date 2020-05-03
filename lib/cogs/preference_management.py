@@ -60,10 +60,9 @@ class PreferenceManagement(commands.Cog, name="[General] Preferences"):
     @commands.command()
     @checks.is_dm()
     async def removealias(self, ctx: Context, alias: str):
-        """Create a personal alias for a command.
+        """Remove a personal alias for a command.
 
-        alias: The alias to be created.
-        command: The command to create the alias for.
+        alias: The alias to remove.
         """
         preferences = load_preferences(ctx.message.author)
         try:
