@@ -328,9 +328,14 @@ class Player:
             )
 
             # inform sts and observers
-            for st in ctx.bot.game.storytellers + ctx.bot.observer_role.members:
+            for st in ctx.bot.game.storytellers:
                 await safe_send(
                     st.member, f"**[**{frm.nick} **>** {self.nick}**]** {content}",
+                )
+
+            for observer in ctx.bot.observer_role.members:
+                await safe_send(
+                    observer, f"**[**{frm.nick} **>** {self.nick}**]** {content}",
                 )
 
         # public report
