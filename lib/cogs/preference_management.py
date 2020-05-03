@@ -59,6 +59,22 @@ class PreferenceManagement(commands.Cog, name="[General] Preferences"):
 
     @commands.command()
     @checks.is_dm()
+    async def removealias(self, ctx: Context, alias: str):
+        """Create a personal alias for a command.
+
+        alias: The alias to be created.
+        command: The command to create the alias for.
+        """
+        preferences = load_preferences(ctx.message.author)
+        try:
+            del preferences.aliases[alias]
+            preferences.save_preferences()
+            await safe_send(ctx, f"Successfully deleted your alias {alias}.")
+        except KeyError:
+            raise commands.BadArgument(f"You do not have an alias {alias}.")
+
+    @commands.command()
+    @checks.is_dm()
     async def setnick(self, ctx: Context, *, nick: str):
         """Set your nickname for bot messages.
 
@@ -95,7 +111,7 @@ class PreferenceManagement(commands.Cog, name="[General] Preferences"):
 
         You can also fill in the blank:
             [subjective] is/are the Imp.
-            The Imp is [objective].
+            The Imp is [objective].  # TODO: this is apparently bad grammar
             It is [adjective] character.
             The character is [posessive].
             [subjective] made the Minion a Demon by targeting [reflexive].
