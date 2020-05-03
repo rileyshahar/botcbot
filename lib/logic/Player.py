@@ -313,7 +313,10 @@ class Player:
             for st in ctx.bot.game.storytellers:
                 message = await safe_send(
                     st.member,
-                    f"Message from {frm.nick} to storyteller {self.nick}: **{content}**",
+                    (
+                        f"{st.member.mention}, message from {frm.nick} to "
+                        f"storyteller {self.nick}: **{content}**"
+                    ),
                 )  # STs get the bolded message for a message to any ST
 
             for observer in ctx.bot.observer_role.members:
