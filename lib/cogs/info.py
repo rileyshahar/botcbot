@@ -5,6 +5,7 @@ from discord.ext import commands
 from lib import checks
 from lib.bot import BOTCBot
 from lib.logic.tools import generate_message_tally
+from lib.typings.context import Context
 from lib.utils import safe_send
 
 
@@ -49,6 +50,29 @@ class Info(commands.Cog, name="[ST] Info"):
             )
         except discord.errors.NotFound:
             await safe_send(ctx, f"Message with ID {idn} not found.")
+
+    @commands.command()
+    @checks.is_game()
+    @checks.is_storyteller()
+    @checks.is_dm()
+    async def grimoire(self, ctx: Context):
+        """Generate the grimoire."""
+
+        message_text = "**Grimoire:**"
+
+        for player in ctx.bot.game.seating_order:
+            message_text += f"\n{player.epithet}"
+            effect_list = [
+                effect
+                for effect in player.effects
+                if effect.appears and not effect.disabled
+            ]
+            if effect_list:
+                message_text += ":"
+                for effect in effect_list:
+                    message_text += f"\n> {effect.name}"
+
+        await safe_send(ctx, message_text)
 
 
 def setup(bot: BOTCBot):
