@@ -424,17 +424,18 @@ class Player:
 
     async def make_active(self, game: "Game"):
         """Set has_spoken to true and update storytellers."""
-        self.has_spoken = True
+        if not self.has_spoken:
+            self.has_spoken = True
 
-        not_active = game.not_active
+            not_active = game.not_active
 
-        if len(not_active) == 0:
-            for st in game.storytellers:
-                await safe_send(st.member, "Everyone has spoken!")
+            if len(not_active) == 0:
+                for st in game.storytellers:
+                    await safe_send(st.member, "Everyone has spoken!")
 
-        elif len(not_active) == 1:
-            for st in game.storytellers:
-                await safe_send(st.member, f"Just {not_active[0].nick} to speak.")
+            elif len(not_active) == 1:
+                for st in game.storytellers:
+                    await safe_send(st.member, f"Just {not_active[0].nick} to speak.")
 
     # Helpful properties
     @property
