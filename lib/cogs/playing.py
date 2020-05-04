@@ -141,38 +141,18 @@ class Playing(commands.Cog, name="[Player] Playing"):
     @checks.is_player()
     @checks.is_game()
     @checks.is_dm()
-    async def history(self, ctx: Context, *, player: str = None):
+    async def history(self, ctx: Context, *, player: str):
         """View your message history.
 
         player: The player to view your message history with.
-        If none, this will show your entire message history with everyone.
         """
-        player_actual = None
-        if player is not None:
-            player_actual = await to_player(ctx, player)
-
-        author = get_player(ctx.bot.game, ctx.author.id, False)
-        message_text = "__Message History__"
-
-        if player_actual is not None:
-            message_text += f" (with {player_actual.nick})"
-
-        message_text += ":"
-        previously_from: Optional[Player] = None
-
-        for message in author.message_history:
-
-            if player_actual not in (message["from"], message["to"],):
-                # don't process messages not part of the relevant history
-                continue
-
-            if previously_from != message["from"]:
-                previously_from = message["from"]
-                message_text += f'\n{message["from"].nick}:'
-
-            message_text += f'\n> {message["content"]}'
-
-        await safe_send(ctx, message_text)
+        player_actual = await to_player(ctx, player)
+        await safe_send(
+            ctx,
+            get_player(ctx.bot.game, ctx.author.id, False).message_history_with(
+                player_actual
+            ),
+        )
 
 
 def setup(bot):

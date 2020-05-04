@@ -4,6 +4,7 @@ from discord.ext import commands
 
 from lib import checks
 from lib.bot import BOTCBot
+from lib.logic.playerconverter import to_player
 from lib.logic.tools import generate_message_tally
 from lib.typings.context import Context
 from lib.utils import safe_send
@@ -73,6 +74,17 @@ class Info(commands.Cog, name="[ST] Info"):
                     message_text += f"\n> {effect.name}"
 
         await safe_send(ctx, message_text)
+
+    @commands.command()
+    @checks.is_game()
+    @checks.is_storyteller()
+    @checks.is_dm()
+    async def sthistory(self, ctx, player1: str, player2: str):
+        """View the message history between two players."""
+        player1_actual = await to_player(ctx, player1)
+        player2_actual = await to_player(ctx, player2)
+
+        await safe_send(ctx, player1_actual.message_history_with(player2_actual))
 
 
 def setup(bot: BOTCBot):

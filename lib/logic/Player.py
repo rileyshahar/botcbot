@@ -2,6 +2,7 @@
 
 import traceback
 import typing
+from typing import Optional
 
 from discord import Member
 
@@ -252,6 +253,36 @@ class Player:
             if self.is_status(ctx, status):
                 return status
         return None
+
+    def message_history_with(self, player: "Player") -> str:
+        """Generate the player's message history with a player.
+
+        Parameters
+        ----------
+        player
+            The player to generate the message history with.
+
+        Returns
+        -------
+        str
+            The message history.
+        """
+        message_text = "__Message History__"
+        message_text += f" (with {player.nick})"
+        message_text += ":"
+        previously_from: Optional[Player] = None
+        for message in self.message_history:
+
+            if player not in (message["from"], message["to"]):
+                # don't process messages not part of the relevant history
+                continue
+
+            if previously_from != message["from"]:
+                previously_from = message["from"]
+                message_text += f'\n{message["from"].nick}:'
+
+            message_text += f'\n> {message["content"]}'
+        return message_text
 
     # Gameplay Methods
     def morning(self, ctx: Context):
