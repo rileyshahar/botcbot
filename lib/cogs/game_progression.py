@@ -110,7 +110,7 @@ class GameProgression(commands.Cog, name="[ST] Game Progression"):
             ctx,
             (
                 "This will end the day without executing. "
-                "To end the day via execution, the `execute` command. "
+                "To end the day via execution, use the `execute` command. "
                 "Do you want to continue?"
             ),
         ):
