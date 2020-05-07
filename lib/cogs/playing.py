@@ -3,7 +3,6 @@
 from typing import Optional
 
 from discord.ext import commands
-from discord.ext.commands import DefaultHelpCommand
 
 from lib import checks
 from lib.logic.Player import Player
@@ -159,11 +158,22 @@ class Playing(commands.Cog):
     @checks.is_dm()
     async def playercommands(self, ctx: Context):
         """View all player commands."""
-        heading = "Player commands:"
-        help = DefaultHelpCommand()
-        help.add_indented_commands(self.get_commands(), heading=heading)
-        for page in help.paginator.pages:
-            await safe_send(ctx, page)
+        message_text = "```"
+        command_list = [
+            command.name
+            for command in ctx.bot.commands
+            if command.cog is not None
+            and command.cog.qualified_name
+            not in ("Effects", "Game Management", "Info", "Game Progression")
+            and not command.hidden
+        ]
+        command_list.sort()
+        for command in command_list:
+            message_text += f"\n{command}"
+        message_text += (
+            f"\n\nType {ctx.prefix}help command for more info on a command.```"
+        )
+        await safe_send(ctx, message_text)
 
 
 def setup(bot):
