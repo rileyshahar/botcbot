@@ -11,7 +11,7 @@ from lib.typings.context import Context
 from lib.utils import get_player, safe_send, to_bool
 
 
-class Playing(commands.Cog, name="[Player] Playing"):
+class Playing(commands.Cog):
     """Commands for playing the game."""
 
     def __init__(self, bot):

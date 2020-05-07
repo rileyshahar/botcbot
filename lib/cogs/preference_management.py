@@ -9,7 +9,7 @@ from lib.typings.context import Context
 from lib.utils import safe_send, to_bool
 
 
-class PreferenceManagement(commands.Cog, name="[General] Preferences"):
+class PreferenceManagement(commands.Cog, name="Preferences"):
     """Commands for preference management.
 
     Note that preferences are generally global (stored across all BOTC bots).

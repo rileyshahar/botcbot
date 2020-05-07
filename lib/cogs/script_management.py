@@ -11,7 +11,7 @@ from lib.typings.context import Context
 from lib.utils import get_input, safe_send
 
 
-class ScriptManagement(commands.Cog, name="[General] Scripts"):
+class ScriptManagement(commands.Cog, name="Scripts"):
     """Commands for script management."""
 
     # TODO: tools for script modification

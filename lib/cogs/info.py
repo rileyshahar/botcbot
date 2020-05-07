@@ -10,7 +10,7 @@ from lib.typings.context import Context
 from lib.utils import safe_send
 
 
-class Info(commands.Cog, name="[ST] Info"):
+class Info(commands.Cog, name="Info"):
     """Commands for viewing game information."""
 
     @commands.command()

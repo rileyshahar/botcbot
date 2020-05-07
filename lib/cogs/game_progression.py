@@ -14,7 +14,7 @@ from lib.typings.context import Context
 from lib.utils import safe_send, get_bool_input
 
 
-class GameProgression(commands.Cog, name="[ST] Game Progression"):
+class GameProgression(commands.Cog, name="Game Progression"):
     """Commands for game progression."""
 
     @commands.command()

@@ -15,7 +15,7 @@ from lib.typings.context import Context
 from lib.utils import safe_send
 
 
-class EffectManagement(commands.Cog, name="[ST] Effects"):
+class EffectManagement(commands.Cog, name="Effects"):
     """Tools for effect management."""
 
     def __init__(self, bot: BOTCBot):

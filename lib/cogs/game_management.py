@@ -17,7 +17,7 @@ from lib.utils import (
 )
 
 
-class GameManagement(commands.Cog, name="[ST] Game Management"):
+class GameManagement(commands.Cog, name="Game Management"):
     """Commands for game management."""
 
     def __init__(self, bot):
