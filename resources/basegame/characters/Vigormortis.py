@@ -1,10 +1,13 @@
 """Contains the Vigormortis class."""
+from typing import List, Tuple
 
 from discord.ext import commands
 
 from lib.logic.Character import Demon
 from lib.logic.Effect import Dead, Poisoned
+from lib.logic.Player import Player
 from lib.logic.tools import if_functioning, select_target, generic_ongoing_effect
+from lib.typings.context import Context
 
 
 class _VigormortisDead(Dead):
@@ -17,7 +20,7 @@ class _VigormortisDead(Dead):
     # ex if the vig kills a poisoner and then the poisoner targets a vig
     # although this is an unresolved issue in the game's rules as well
 
-    def not_functioning(self, ctx):
+    def not_functioning(self, ctx: Context):
         """Allow minions to function while killed by Vigormortis."""
         if self.affected_player.is_status(
             ctx, "minion", registers=True
@@ -26,7 +29,7 @@ class _VigormortisDead(Dead):
         return True
 
 
-def _neighbor_condition(player, ctx, **kwargs):
+def _neighbor_condition(player: Player, ctx: Context, **kwargs):
     """Determine whether player registers as a townsfolk."""
     target = kwargs.pop("target")
     if player in target.neighbors(
@@ -45,30 +48,30 @@ class Vigormortis(Demon):
     playtest: bool = False
 
     @if_functioning(False)
-    async def morning(self, ctx):
+    async def morning(self, ctx: Context) -> Tuple[List["Player"], List[str]]:
         """Apply the Vigormortis's kill to a chosen target.
 
         If a Minion is chosen, apply the corresponding poison.
         """
         target = await select_target(ctx, f"Who did {self.parent.epithet}, kill?")
-        if target:
-            if not target.is_status(ctx, "safe_from_demon") and not target.ghost(ctx):
-                target.add_effect(ctx, _VigormortisDead, self.parent)
+        if not target or target.is_status(ctx, "safe_from_demon") or target.ghost(ctx):
+            return [], []
 
-                # vigormortis poison
-                if target.is_status(ctx, "minion", registers=True):
+        target.add_effect(ctx, _VigormortisDead, self.parent)
 
-                    new_target = await select_target(
-                        ctx,
-                        "Who did that poison?",
-                        condition=_neighbor_condition,
-                        target=target,
-                    )
-                    if new_target:
-                        new_target.add_effect(
-                            ctx, generic_ongoing_effect(Poisoned), self.parent
-                        )
-                        # TODO: this needs to be a custom Poisoned subclass that has nice
-                        # cleanup functions for if the minion changes character
-                return [target], []
-        return [], []
+        # vigormortis poison
+        if target.is_status(ctx, "minion", registers=True):
+
+            new_target = await select_target(
+                ctx,
+                "Who did that poison?",
+                condition=_neighbor_condition,
+                target=target,
+            )
+            if new_target:
+                new_target.add_effect(
+                    ctx, generic_ongoing_effect(Poisoned), self.parent
+                )
+                # TODO: this needs to be a custom Poisoned subclass that has nice
+                # cleanup functions for if the minion changes character
+        return [target], []

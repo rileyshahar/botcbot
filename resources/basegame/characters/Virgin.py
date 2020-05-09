@@ -3,7 +3,9 @@
 from lib.logic.Character import Townsfolk
 from lib.logic.Day import generate_nomination_message_text
 from lib.logic.Effect import UsedAbility
+from lib.logic.Player import Player
 from lib.logic.tools import if_functioning, onetime_use
+from lib.typings.context import Context
 from lib.utils import safe_send
 
 
@@ -16,8 +18,13 @@ class Virgin(Townsfolk):
     @if_functioning(True)
     @onetime_use
     async def nomination(
-        self, ctx, nominee, nominator, enabled=True, epithet_string=""
-    ):
+        self,
+        ctx: Context,
+        nominee: Player,
+        nominator: Player,
+        enabled: bool = True,
+        epithet_string: str = "",
+    ) -> bool:
         """Handle Virgin nomination.
 
         If nominee is the Virgin and nominator is a townsfolk, execute nominator.

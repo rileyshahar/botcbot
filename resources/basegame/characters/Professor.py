@@ -1,7 +1,9 @@
 """Contains the Professor class."""
+from typing import Tuple, List
 
 from lib.logic.Character import Townsfolk
 from lib.logic.Effect import UsedAbility
+from lib.logic.Player import Player
 from lib.logic.tools import if_functioning, onetime_use, select_target
 from lib.typings.context import Context
 
@@ -14,7 +16,9 @@ class Professor(Townsfolk):
 
     @if_functioning(True)
     @onetime_use
-    async def morning(self, ctx: Context, enabled=True, epithet_string=""):
+    async def morning(
+        self, ctx: Context, enabled: bool = True, epithet_string: str = ""
+    ) -> Tuple[List["Player"], List[str]]:
         """Ask if the professor targeted anyone, then revive them if applicable."""
         target = await select_target(
             ctx,
