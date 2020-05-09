@@ -55,8 +55,8 @@ class Vote:
 
         self.nominee = nominee
         self.nominator = nominator
-        self.traveler = nominee.character_type(ctx) == "traveler"
-        self.storyteller = nominee.character_type(ctx) == "storyteller"
+        self.traveler = nominee.is_status(ctx, "traveler")
+        self.storyteller = nominee.is_status(ctx, "storyteller")
         self.announcements = []
         self.prevotes = {}
         self.position = 0
@@ -297,7 +297,7 @@ class Vote:
             await ctx.bot.game.current_day.open_noms(ctx)
 
             # Cleanup character data
-            if not self.nominee.character_type(ctx) in ("storyteller", "traveler"):
+            if not self.traveler or self.storyteller:
                 self.nominator.nominations_today -= 1
             self.nominee.has_been_nominated = False
 

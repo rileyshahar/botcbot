@@ -135,7 +135,7 @@ async def _effect_adder(
     """Add effect to player."""
     source = source or player
     effect_object = player.add_effect(ctx, effect, source)
-    if source == player or source.character_type(ctx) == "storyteller":
+    if source == player or source.is_status(ctx, "storyteller"):
         source_text = ""
     else:
         source_text = f"with source {source.nick} "

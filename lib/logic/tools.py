@@ -4,7 +4,6 @@ from functools import wraps
 from typing import List, Optional, Type, Callable, TYPE_CHECKING, Dict
 
 import numpy as np
-from discord import Message
 from discord.ext import commands
 
 from lib.logic.Character import Character
@@ -41,7 +40,7 @@ def generate_game_info_message(order, ctx: Context) -> str:
     startgame procedure), so it should not be referenced here.
     """
     message_text = _generate_seating_order_message(ctx, order)
-    message_text += _generate_distribution_message(order)
+    message_text += _generate_distribution_message(ctx, order)
     return message_text
 
 
@@ -71,9 +70,9 @@ def _generate_player_line(ctx: Context, player: "Player") -> str:
     return message_text
 
 
-def _generate_distribution_message(order: List["Player"]):
+def _generate_distribution_message(ctx, order: List["Player"]):
     """Generate the distribution part of the game info message."""
-    n = len([x for x in order if not x.character_type == "traveler"])
+    n = len([x for x in order if not x.is_status(ctx, "traveler")])
     if n == 5:
         distribution = ("3", "0", "1")
     elif n == 6:

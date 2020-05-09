@@ -137,17 +137,6 @@ class Player:
         """Determine whether the player is (or registers as) functioning."""
         return not self.is_status(ctx, "not_functioning", registers)
 
-    def alignment(self, ctx: Context) -> typing.Optional[str]:
-        """Determine the player's alignment."""
-        return self.exclusive_status_search(ctx, ["good", "evil"])
-
-    def character_type(self, ctx: Context) -> typing.Optional[str]:
-        """Determine the player's character type."""
-        return self.exclusive_status_search(
-            ctx,
-            ["townsfolk", "outsider", "minion", "demon", "traveler", "storyteller"],
-        )
-
     def can_nominate(self, ctx: Context) -> bool:
         """Determine whether the player can nominate."""
         return (
@@ -340,7 +329,7 @@ class Player:
         )
 
         # messages to storytellers
-        if self.character_type(ctx) == "storyteller":
+        if self.is_status(ctx, "storyteller"):
             for st in ctx.bot.game.storytellers:
                 message = await safe_send(
                     st.member,

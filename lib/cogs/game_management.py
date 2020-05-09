@@ -77,7 +77,7 @@ class GameManagement(commands.Cog, name="Game Management"):
                 )
 
                 # check that the character is a traveler
-                if not player.character_type(ctx) == "traveler":
+                if not player.is_status(ctx, "traveler"):
                     raise commands.BadArgument(
                         f"{player.character.name} is not a traveler."
                     )
@@ -137,7 +137,7 @@ class GameManagement(commands.Cog, name="Game Management"):
         traveler_actual = await to_player(ctx, traveler)
 
         # check that player is a traveler
-        if not traveler_actual.character_type(ctx) == "traveler":
+        if not traveler_actual.is_status(ctx, "traveler"):
             raise commands.BadArgument(f"{traveler_actual.nick} is not a traveler.")
 
         # remove them from the seating order
@@ -256,7 +256,7 @@ class GameManagement(commands.Cog, name="Game Management"):
         This will kill the player, as appropriate.
         """
         traveler_actual = await to_player(ctx, traveler)
-        if not traveler_actual.character_type(ctx) == "traveler":
+        if not traveler_actual.is_status(ctx, "traveler"):
             await safe_send(
                 ctx.bot.channel, f"{traveler_actual.nick} is not a traveler.",
             )
