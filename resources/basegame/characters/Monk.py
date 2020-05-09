@@ -30,7 +30,7 @@ class Monk(Townsfolk):
     @if_functioning(True)
     async def morning(
         self, ctx: Context, enabled: bool = True, epithet_string: str = ""
-    ) -> Tuple[List["Player"], List[str]]:
+    ) -> Tuple[List[Player], List[str]]:
         """Apply the Monk's protection to a chosen target."""
         target = await select_target(
             ctx, f"Who did {self.parent.formatted_epithet(epithet_string)}, protect?"

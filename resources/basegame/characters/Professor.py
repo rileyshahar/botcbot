@@ -12,13 +12,13 @@ class Professor(Townsfolk):
     """The Professor."""
 
     name: str = "Professor"
-    str: bool = False
+    playtest: bool = False
 
     @if_functioning(True)
     @onetime_use
     async def morning(
         self, ctx: Context, enabled: bool = True, epithet_string: str = ""
-    ) -> Tuple[List["Player"], List[str]]:
+    ) -> Tuple[List[Player], List[str]]:
         """Ask if the professor targeted anyone, then revive them if applicable."""
         target = await select_target(
             ctx,

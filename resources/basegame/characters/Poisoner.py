@@ -29,7 +29,7 @@ class Poisoner(Minion):
     @if_functioning(True)
     async def morning(
         self, ctx, enabled=True, epithet_string=""
-    ) -> Tuple[List["Player"], List[str]]:
+    ) -> Tuple[List[Player], List[str]]:
         """Apply the Poisoner's poison to a chosen target."""
         target = await select_target(
             ctx, f"Who did {self.parent.formatted_epithet(epithet_string)}, poison?"

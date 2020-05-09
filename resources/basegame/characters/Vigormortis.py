@@ -48,7 +48,7 @@ class Vigormortis(Demon):
     playtest: bool = False
 
     @if_functioning(False)
-    async def morning(self, ctx: Context) -> Tuple[List["Player"], List[str]]:
+    async def morning(self, ctx: Context) -> Tuple[List[Player], List[str]]:
         """Apply the Vigormortis's kill to a chosen target.
 
         If a Minion is chosen, apply the corresponding poison.
