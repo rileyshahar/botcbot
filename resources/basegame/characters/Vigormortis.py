@@ -29,7 +29,7 @@ class _VigormortisDead(Dead):
         return True
 
 
-def _neighbor_condition(player: Player, ctx: Context, **kwargs):
+def _condition(player: Player, ctx: Context, **kwargs) -> bool:
     """Determine whether player registers as a townsfolk."""
     target = kwargs.pop("target")
     if player in target.neighbors(
@@ -63,10 +63,7 @@ class Vigormortis(Demon):
         if target.is_status(ctx, "minion", registers=True):
 
             new_target = await select_target(
-                ctx,
-                "Who did that poison?",
-                condition=_neighbor_condition,
-                target=target,
+                ctx, "Who did that poison?", condition=_condition, target=target,
             )
             if new_target:
                 new_target.add_effect(

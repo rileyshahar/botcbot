@@ -1,11 +1,20 @@
 """Contains the Professor class."""
 from typing import Tuple, List
 
+from discord.ext import commands
+
 from lib.logic.Character import Townsfolk
 from lib.logic.Effect import UsedAbility
 from lib.logic.Player import Player
 from lib.logic.tools import if_functioning, onetime_use, select_target
 from lib.typings.context import Context
+
+
+def _condition(player: Player, ctx: Context) -> bool:
+    """Determine whether player registers as dead."""
+    if player.ghost(ctx, registers=True):
+        return True
+    raise commands.BadArgument(f"{player.nick} is not dead.")
 
 
 class Professor(Townsfolk):
@@ -26,7 +35,7 @@ class Professor(Townsfolk):
                 f"Who did {self.parent.formatted_epithet(epithet_string)}, revive? "
                 f'Or, say a variant of "no-one".'
             ),
-            condition=lambda x, y: x.ghost(y, registers=True),
+            condition=_condition,
         )
         if target:
             self.parent.add_effect(ctx, UsedAbility, self.parent)
