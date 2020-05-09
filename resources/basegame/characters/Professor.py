@@ -26,10 +26,10 @@ class Professor(Townsfolk):
                 f"Who did {self.parent.formatted_epithet(epithet_string)}, revive? "
                 f'Or, say a variant of "no-one".'
             ),
+            condition=lambda x, y: x.ghost(y, registers=True),
         )
         if target:
-            if target.ghost(ctx, registers=True):
-                self.parent.add_effect(ctx, UsedAbility, self.parent)
-                if enabled and target.is_status(ctx, "townsfolk", registers=True):
-                    return [], [await target.revive(ctx)]
+            self.parent.add_effect(ctx, UsedAbility, self.parent)
+            if enabled and target.is_status(ctx, "townsfolk", registers=True):
+                return [], [await target.revive(ctx)]
         return [], []
