@@ -74,7 +74,7 @@ class Game:
         """Determine the players who have not spoken today."""
         return [player for player in self.seating_order if not player.has_spoken]
 
-    def can_nominate(self, ctx: Context) -> List[Player]:
+    def to_nominate(self, ctx: Context) -> List[Player]:
         """Determine the players who have not spoken today."""
         return [
             player
