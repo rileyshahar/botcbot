@@ -5,6 +5,7 @@ import typing
 from typing import Optional
 
 from discord import Member
+from discord.ext import commands
 
 from lib.logic.Effect import Effect, Dead
 from lib.preferences import load_preferences
@@ -28,6 +29,30 @@ def _get_neighbor(
             out = player
             break
     return out
+
+
+async def _update_activity(
+    game: "Game",
+    updater_func: typing.Callable[["Game"], typing.List["Player"]],
+    zero_string: str,
+    one_string: str,
+):
+    """Update a player's activity."""
+    try:
+        player_list = updater_func(game)
+    except ValueError as e:
+        if str(e) == "update unnecessary":
+            return
+        else:
+            raise
+
+    if len(player_list) == 0:
+        for st in game.storytellers:
+            await safe_send(st.member, f"Everyone has {zero_string}!")
+
+    elif len(player_list) == 1:
+        for st in game.storytellers:
+            await safe_send(st.member, f"Just {player_list[0].nick} to {one_string}.")
 
 
 class Player:
@@ -444,18 +469,31 @@ class Player:
 
     async def make_active(self, game: "Game"):
         """Set has_spoken to true and update storytellers."""
-        if not self.has_spoken:
+
+        def _updater_func(inner_game: "Game") -> typing.List["Player"]:
+            if self.has_spoken:
+                raise ValueError("update unnecessary")
             self.has_spoken = True
+            return inner_game.not_active
 
-            not_active = game.not_active
+        await _update_activity(game, _updater_func, "spoken", "speak")
 
-            if len(not_active) == 0:
-                for st in game.storytellers:
-                    await safe_send(st.member, "Everyone has spoken!")
+    async def add_nomination(self, ctx: Context, skip: bool = False):
+        """Set has_spoken to true and update storytellers."""
 
-            elif len(not_active) == 1:
-                for st in game.storytellers:
-                    await safe_send(st.member, f"Just {not_active[0].nick} to speak.")
+        def _updater_func(game: "Game") -> typing.List["Player"]:
+            if skip:
+                if not self.has_skipped:
+                    self.has_skipped = True
+                else:
+                    raise commands.BadArgument("You have already skipped.")
+            else:
+                self.nominations_today += 1
+            return game.can_nominate(ctx)
+
+        await _update_activity(
+            ctx.bot.game, _updater_func, "nominated or skipped", "nominate or skip"
+        )
 
     # Helpful properties
     @property
@@ -493,6 +531,9 @@ class Player:
     def id(self) -> int:
         """Determine the player's discord id."""
         return self.member.id
+
+    def __repr__(self):
+        return self.epithet
 
     # Dill Stuff
     def __getstate__(self) -> dict:

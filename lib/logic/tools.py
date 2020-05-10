@@ -10,7 +10,7 @@ from lib.logic.Character import Character
 from lib.logic.playerconverter import to_player
 from lib.preferences import load_preferences
 from lib.typings.context import Context
-from lib.utils import safe_send, get_input, safe_bug_report
+from lib.utils import safe_send, get_input, safe_bug_report, list_to_plural_string
 
 if TYPE_CHECKING:
     from lib.logic.Player import Player
@@ -39,8 +39,13 @@ def generate_game_info_message(order, ctx: Context) -> str:
     Generally, ctx.bot.game may be none during this call (in particular, during the
     startgame procedure), so it should not be referenced here.
     """
-    message_text = _generate_seating_order_message(ctx, order)
-    message_text += _generate_distribution_message(ctx, order)
+    message_text = ""
+    for text in (
+        _generate_seating_order_message(ctx, order),
+        _generate_distribution_message(ctx, order),
+        _generate_day_info_message(ctx, order),
+    ):
+        message_text += "\n\n" + text
     return message_text
 
 
@@ -86,10 +91,32 @@ def _generate_distribution_message(ctx, order: List["Player"]):
     outsider_plural = "s" if distribution[1] != 1 else ""
     minion_plural = "s" if distribution[2] != 1 else ""
     message_text = (
-        f"\n\nThere are {str(n)} non-Traveler players. The default distribution is "
+        f"There are {str(n)} non-Traveler players. The default distribution is "
         f"{distribution[0]} Townsfolk, {distribution[1]} Outsider{outsider_plural}, "
         f"{distribution[2]} Minion{minion_plural}, and 1 Demon."
     )
+    return message_text
+
+
+def _generate_day_info_message(ctx: Context, order: List["Player"]) -> str:
+    """Generate info about the current day or night."""
+    if not ctx.bot.game or not ctx.bot.game.current_day:
+        message_text = "It is Night "
+        try:
+            message_text += str(ctx.bot.game.day_number + 1) + "."
+        except AttributeError:
+            message_text += "1."
+
+    else:
+        message_text = f"It is Day {ctx.bot.game.day_number}.\n"
+        skip_list = [player.nick for player in order if player.has_skipped]
+        if not skip_list:
+            message_text += "No players have skipped."
+        else:
+            skip_str = list_to_plural_string(skip_list, "none")
+            verb = ("has", "have")[skip_str[1]]
+            message_text += f"{skip_str[0]} {verb} skipped."
+
     return message_text
 
 

@@ -175,6 +175,24 @@ class Playing(commands.Cog):
         )
         await safe_send(ctx, message_text)
 
+    @commands.command()
+    @checks.is_day()
+    @checks.is_player()
+    @checks.is_game()
+    @checks.is_dm()
+    async def skip(self, ctx):
+        """Skip your right to nominate for the current day.
+
+        You will still be able to nominate.
+        However, if all players nominate or skip, the storytellers may end the day.
+        """
+        author_player = get_player(ctx.bot.game, ctx.author.id, False)
+        if author_player.can_nominate(ctx):
+            await author_player.add_nomination(ctx, skip=True)
+            await safe_send(ctx.bot.channel, f"{author_player.nick} has skipped.")
+        else:
+            raise commands.BadArgument("You cannot nominate today.")
+
 
 def setup(bot):
     """Set the cog up."""

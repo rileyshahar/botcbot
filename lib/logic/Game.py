@@ -72,10 +72,15 @@ class Game:
     @property
     def not_active(self) -> List[Player]:
         """Determine the players who have not spoken today."""
-        if not self.current_day:
-            return []
-
         return [player for player in self.seating_order if not player.has_spoken]
+
+    def can_nominate(self, ctx: Context) -> List[Player]:
+        """Determine the players who have not spoken today."""
+        return [
+            player
+            for player in self.seating_order
+            if player.can_nominate(ctx) and not player.has_skipped
+        ]
 
     async def reseat(self, ctx: Context, new_seating_order: List[Player]):
         """Modify the seating order and seating order message.

@@ -75,12 +75,10 @@ class Day:
             return
 
         # adjust the nominator and nominee
-        nominator.nominations_today += int(
-            not (
-                nominee.is_status(ctx, "storyteller")
-                or nominee.is_status(ctx, "traveler")
-            )
-        )
+        if not (
+            nominee.is_status(ctx, "storyteller") or nominee.is_status(ctx, "traveler")
+        ):
+            await nominee.add_nomination(ctx)
         nominee.has_been_nominated = True
 
         # close pms and nominations
@@ -159,9 +157,6 @@ class Day:
 
     async def end(self, ctx: Context):
         """End the day."""
-        # remove the day
-        ctx.bot.game.past_days.append(self)
-        ctx.bot.game.current_day = None
 
         # cleanup effects
         for player in ctx.bot.game.seating_order:
@@ -180,6 +175,10 @@ class Day:
 
         # message tally
         await self._send_message_tally(ctx)
+
+        # remove the day
+        ctx.bot.game.past_days.append(self)
+        ctx.bot.game.current_day = None
 
         # complete
         if safe_bug_report(ctx):
