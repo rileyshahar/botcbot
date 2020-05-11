@@ -152,59 +152,69 @@ class GameProgression(commands.Cog, name="Game Progression"):
 
         await ctx.bot.game.startday(ctx, kills_actual)
 
-    @commands.command(name="open")
+    @commands.group(name="open")
     @checks.is_day()
     @checks.is_game()
     @checks.is_storyteller()
     @checks.is_dm()
     async def _open(self, ctx: Context):
-        """Open PMs and nominations."""
-        await ctx.bot.game.current_day.open_pms(ctx)
-        await ctx.bot.game.current_day.open_noms(ctx)
+        """Open PMs and nominations.
 
-    @commands.command()
+        The bot automatically opens nominations and PMs at the end of a nomination.
+        Therefore, this should generally only be used for troubleshooting.
+        """
+        if ctx.invoked_subcommand is None:
+            await ctx.bot.game.current_day.open_pms(ctx)
+            await ctx.bot.game.current_day.open_noms(ctx)
+
+    @_open.command()
     @checks.is_day()
     @checks.is_game()
     @checks.is_storyteller()
     @checks.is_dm()
-    async def opennoms(self, ctx: Context):
+    async def noms(self, ctx: Context):
         """Open nominations."""
         await ctx.bot.game.current_day.open_noms(ctx)
 
-    @commands.command()
+    @_open.command()
     @checks.is_day()
     @checks.is_game()
     @checks.is_storyteller()
     @checks.is_dm()
-    async def openpms(self, ctx: Context):
+    async def pms(self, ctx: Context):
         """Open PMs."""
         await ctx.bot.game.current_day.open_pms(ctx)
 
-    @commands.command(name="close")
+    @commands.group(name="close")
     @checks.is_day()
     @checks.is_game()
     @checks.is_storyteller()
     @checks.is_dm()
     async def _close(self, ctx: Context):
-        """Close PMs and nominations."""
-        await ctx.bot.game.current_day.close_pms(ctx)
-        await ctx.bot.game.current_day.close_noms(ctx)
+        """Close PMs and nominations.
 
-    @commands.command()
+        The bot automatically closes nominations and PMs at the start of a nomination.
+        Therefore, this should generally only be used for troubleshooting.
+        """
+        if ctx.invoked_subcommand is None:
+            await ctx.bot.game.current_day.close_pms(ctx)
+            await ctx.bot.game.current_day.close_noms(ctx)
+
+    @_close.command(name="noms")
     @checks.is_day()
     @checks.is_game()
     @checks.is_storyteller()
     @checks.is_dm()
-    async def closenoms(self, ctx: Context):
+    async def _noms(self, ctx: Context):
         """Close nominations."""
         await ctx.bot.game.current_day.close_noms(ctx)
 
-    @commands.command()
+    @_close.command()
     @checks.is_day()
     @checks.is_game()
     @checks.is_storyteller()
     @checks.is_dm()
-    async def closepms(self, ctx: Context):
+    async def _pms(self, ctx: Context):
         """Close PMs."""
         await ctx.bot.game.current_day.close_pms(ctx)
 
