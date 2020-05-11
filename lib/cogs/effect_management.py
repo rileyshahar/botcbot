@@ -78,7 +78,7 @@ class EffectManagement(commands.Cog, name="Effects"):
         effect_list = [x for x in player_actual.effects]
         i = 0
         for effect in effect_list:
-            if issubclass(
+            if isinstance(
                 effect,
                 (
                     Effect.RegistersGood,
@@ -89,7 +89,7 @@ class EffectManagement(commands.Cog, name="Effects"):
                     Effect.RegistersDemon,
                 ),
             ):
-                effect.delete(ctx)
+                effect.delete(ctx.bot.game)
                 i += 1
         if i == 0:
             await safe_send(ctx, f"{player_actual.nick} is not registering unusually.")
