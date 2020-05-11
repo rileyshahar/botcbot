@@ -110,7 +110,7 @@ class PreferenceManagement(commands.Cog, name="Preferences"):
 
         You can also fill in the blank:
             [subjective] is/are the Imp.
-            The Imp is [objective].  # TODO: this is apparently bad grammar
+            The Imp is [objective].
             It is [adjective] character.
             The character is [posessive].
             [subjective] made the Minion a Demon by targeting [reflexive].
