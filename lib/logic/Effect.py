@@ -508,6 +508,3 @@ class RegistersDemon(Effect):
     def registers_demon(game: "Game"):
         """Determine whether the effect makes the player register as a demon."""
         return True
-
-
-# TODO: explore if __init_subclass__ is a way better method to do this
