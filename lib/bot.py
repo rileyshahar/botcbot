@@ -93,7 +93,6 @@ class BOTCBot(commands.Bot):
     def instant_message_reporting(self) -> bool:
         """Determine whether the bot uses instant message reporting."""
         return self.config.getboolean("instantmessagereports")
-        # TODO: this isnt working
 
     @property
     def playtest(self) -> bool:
