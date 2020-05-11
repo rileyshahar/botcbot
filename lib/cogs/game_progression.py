@@ -260,7 +260,10 @@ class GameProgression(commands.Cog, name="Game Progression"):
                 f"/ {utc} {utc_name} unless someone nominates or everyone skips."
             ),
         )
-        await safe_send(ctx, f"Successfully set a deadline in {length} hours.")
+        announcement = await safe_send(
+            ctx, f"Successfully set a deadline in {length} hours."
+        )
+        await announcement.pin()
 
 
 def setup(bot):
