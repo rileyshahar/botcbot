@@ -89,7 +89,7 @@ class GameProgression(commands.Cog, name="Game Progression"):
 
             # backup
             i = 1
-            while isfile(f"{ctx.bot.bot_name}/old/game_{i}.pckl"):
+            while isfile(f"resources/backup/{ctx.bot.bot_name}/old/game_{i}.pckl"):
                 i += 1
             ctx.bot.backup(f"old/game_{i}.pckl")
 
