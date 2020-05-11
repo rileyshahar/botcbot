@@ -1,13 +1,29 @@
 """Contains the Info cog, for commands related to viewing game info."""
+from typing import List
+
 import discord
 from discord.ext import commands
 
 from lib import checks
 from lib.bot import BOTCBot
+from lib.logic.Player import Player
 from lib.logic.playerconverter import to_player
 from lib.logic.tools import generate_message_tally
 from lib.typings.context import Context
 from lib.utils import safe_send
+
+
+async def _activity_checker(ctx, player_list: List[Player], text: str):
+    if not player_list:
+        message_text = f"Everyone has {text}!"
+
+    else:
+        message_text = f"The following players have not {text} today:"
+
+        for player in player_list:
+            message_text += f"\n{player.nick}"
+
+    await safe_send(ctx, message_text)
 
 
 class Info(commands.Cog, name="Info"):
@@ -20,18 +36,18 @@ class Info(commands.Cog, name="Info"):
     @checks.is_dm()
     async def notactive(self, ctx):
         """List the players yet to speak today."""
-        not_active = ctx.bot.game.not_active
+        await _activity_checker(ctx, ctx.bot.game.not_active, "spoken")
 
-        if not not_active:
-            message_text = "Everyone has spoken!"
-
-        else:
-            message_text = "The following players have not spoken today:"
-
-            for player in ctx.bot.game.not_active:
-                message_text += f"\n{player.nick}"
-
-        await safe_send(ctx, message_text)
+    @commands.command()
+    @checks.is_day()
+    @checks.is_game()
+    @checks.is_storyteller()
+    @checks.is_dm()
+    async def tonominate(self, ctx):
+        """List the players yet to nominate or skip today."""
+        await _activity_checker(
+            ctx, ctx.bot.game.to_nominate(ctx), "nominated or skipped"
+        )
 
     @commands.command()
     @checks.is_game()
