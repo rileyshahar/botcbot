@@ -45,21 +45,20 @@ class Effect:
 
     Attributes
     ----------
-    appears : bool
-        Whether the effect appears in the grimoire by default.
     disabled: bool
         Whether the effect is currently disabled.
     affected_player
     source_player
     """
 
+    _name: str = "Effect"
+    appears: bool = True
+
     def __init__(
         self, affected_player: "Player", source_player: "Player",
     ):
         self.affected_player = affected_player
         self.source_player = source_player
-        self._name = "Effect"
-        self.appears = True
         self.disabled = False
 
     @property
@@ -253,11 +252,7 @@ class Effect:
 class Drunk(Effect):
     """Makes the player drunk."""
 
-    def __init__(
-        self, affected_player: "Player", source_player: "Player",
-    ):
-        super().__init__(affected_player, source_player)
-        self._name = "Drunk"
+    _name = "Drunk"
 
     # noinspection PyUnusedLocal
     @staticmethod
@@ -269,11 +264,7 @@ class Drunk(Effect):
 class Poisoned(Effect):
     """Makes the player poisoned."""
 
-    def __init__(
-        self, affected_player: "Player", source_player: "Player",
-    ):
-        super().__init__(affected_player, source_player)
-        self._name = "Poisoned"
+    _name = "Poisoned"
 
     # noinspection PyUnusedLocal
     @staticmethod
@@ -285,11 +276,7 @@ class Poisoned(Effect):
 class Dead(Effect):
     """Makes the player dead."""
 
-    def __init__(
-        self, affected_player: "Player", source_player: "Player",
-    ):
-        super().__init__(affected_player, source_player)
-        self._name = "Dead"
+    _name = "Dead"
 
     # noinspection PyUnusedLocal
     @staticmethod
@@ -301,11 +288,7 @@ class Dead(Effect):
 class Safe(Effect):
     """Makes the player safe."""
 
-    def __init__(
-        self, affected_player: "Player", source_player: "Player",
-    ):
-        super().__init__(affected_player, source_player)
-        self._name = "Safe"
+    _name = "Safe"
 
     # noinspection PyUnusedLocal
     @staticmethod
@@ -317,11 +300,7 @@ class Safe(Effect):
 class SafeFromDemon(Effect):
     """Makes the player safe from the demon."""
 
-    def __init__(
-        self, affected_player: "Player", source_player: "Player",
-    ):
-        super().__init__(affected_player, source_player)
-        self._name = "Safe From Demon"
+    _name = "Safe From Demon"
 
     # noinspection PyUnusedLocal
     @staticmethod
@@ -333,11 +312,7 @@ class SafeFromDemon(Effect):
 class UsedAbility(Effect):
     """For one-time-use characters who have used their ability."""
 
-    def __init__(
-        self, affected_player: "Player", source_player: "Player",
-    ):
-        super().__init__(affected_player, source_player)
-        self._name = "Used Ability"
+    _name = "Used Ability"
 
     # noinspection PyUnusedLocal
     @staticmethod
@@ -349,11 +324,7 @@ class UsedAbility(Effect):
 class NoDeadVoteNeeded(Effect):
     """For effects which allow voting without a dead vote."""
 
-    def __init__(
-        self, affected_player: "Player", source_player: "Player",
-    ):
-        super().__init__(affected_player, source_player)
-        self._name = "Infinite Dead Votes"
+    _name = "Infinite Dead Votes"
 
     # noinspection PyUnusedLocal
     @staticmethod
@@ -366,12 +337,8 @@ class NoDeadVoteNeeded(Effect):
 class Good(Effect):
     """Makes the player good."""
 
-    def __init__(
-        self, affected_player: "Player", source_player: "Player",
-    ):
-        super().__init__(affected_player, source_player)
-        self._name = "Good"
-        self.appears = False
+    _name = "Good"
+    appears = False
 
     # noinspection PyUnusedLocal
     @staticmethod
@@ -383,12 +350,8 @@ class Good(Effect):
 class Evil(Effect):
     """Makes the player evil."""
 
-    def __init__(
-        self, affected_player: "Player", source_player: "Player",
-    ):
-        super().__init__(affected_player, source_player)
-        self._name = "Evil"
-        self.appears = False
+    _name = "Evil"
+    appears = False
 
     # noinspection PyUnusedLocal
     @staticmethod
@@ -400,12 +363,8 @@ class Evil(Effect):
 class TownsfolkEffect(Effect):
     """Makes the player a Townsfolk."""
 
-    def __init__(
-        self, affected_player: "Player", source_player: "Player",
-    ):
-        super().__init__(affected_player, source_player)
-        self._name = "Townsfolk"
-        self.appears = False
+    _name = "Townsfolk"
+    appears = False
 
     # noinspection PyUnusedLocal
     @staticmethod
@@ -417,12 +376,8 @@ class TownsfolkEffect(Effect):
 class OutsiderEffect(Effect):
     """Makes the player an Outsider."""
 
-    def __init__(
-        self, affected_player: "Player", source_player: "Player",
-    ):
-        super().__init__(affected_player, source_player)
-        self._name = "Outsider"
-        self.appears = False
+    _name = "Outsider"
+    appears = False
 
     # noinspection PyUnusedLocal
     @staticmethod
@@ -434,12 +389,8 @@ class OutsiderEffect(Effect):
 class MinionEffect(Effect):
     """Makes the player a Minion."""
 
-    def __init__(
-        self, affected_player: "Player", source_player: "Player",
-    ):
-        super().__init__(affected_player, source_player)
-        self._name = "Minion"
-        self.appears = False
+    _name = "Minion"
+    appears = False
 
     # noinspection PyUnusedLocal
     @staticmethod
@@ -451,12 +402,8 @@ class MinionEffect(Effect):
 class DemonEffect(Effect):
     """Makes the player a Demon."""
 
-    def __init__(
-        self, affected_player: "Player", source_player: "Player",
-    ):
-        super().__init__(affected_player, source_player)
-        self._name = "Demon"
-        self.appears = False
+    _name = "Demon"
+    appears = False
 
     # noinspection PyUnusedLocal
     @staticmethod
@@ -468,12 +415,8 @@ class DemonEffect(Effect):
 class TravelerEffect(Effect):
     """Makes the player a Traveler."""
 
-    def __init__(
-        self, affected_player: "Player", source_player: "Player",
-    ):
-        super().__init__(affected_player, source_player)
-        self._name = "Traveler"
-        self.appears = False
+    _name = "Traveler"
+    appears = False
 
     # noinspection PyUnusedLocal
     @staticmethod
@@ -485,12 +428,8 @@ class TravelerEffect(Effect):
 class StorytellerEffect(Effect):
     """Makes the player a Storyteller."""
 
-    def __init__(
-        self, affected_player: "Player", source_player: "Player",
-    ):
-        super().__init__(affected_player, source_player)
-        self._name = "Storyteller"
-        self.appears = False
+    _name = "Storyteller"
+    appears = False
 
     # noinspection PyUnusedLocal
     @staticmethod
@@ -502,9 +441,7 @@ class StorytellerEffect(Effect):
 class RegistersGood(Effect):
     """Makes a character register as Good."""
 
-    def __init__(self, affected_player, source_player):
-        super().__init__(affected_player, source_player)
-        self._name = "Registers as Good"
+    _name = "Registers as Good"
 
     # noinspection PyUnusedLocal
     @staticmethod
@@ -516,9 +453,7 @@ class RegistersGood(Effect):
 class RegistersEvil(Effect):
     """Makes a character register as Good."""
 
-    def __init__(self, affected_player, source_player):
-        super().__init__(affected_player, source_player)
-        self._name = "Registers as Evil"
+    _name = "Registers as Evil"
 
     # noinspection PyUnusedLocal
     @staticmethod
@@ -530,9 +465,7 @@ class RegistersEvil(Effect):
 class RegistersTownsfolk(Effect):
     """Makes a character register as a Townsfolk."""
 
-    def __init__(self, affected_player, source_player):
-        super().__init__(affected_player, source_player)
-        self._name = "Registers as a Townsfolk"
+    _name = "Registers as a Townsfolk"
 
     # noinspection PyUnusedLocal
     @staticmethod
@@ -544,9 +477,7 @@ class RegistersTownsfolk(Effect):
 class RegistersOutsider(Effect):
     """Makes a character register as a Outsider."""
 
-    def __init__(self, affected_player, source_player):
-        super().__init__(affected_player, source_player)
-        self._name = "Registers as an Outsider"
+    _name = "Registers as an Outsider"
 
     # noinspection PyUnusedLocal
     @staticmethod
@@ -558,9 +489,7 @@ class RegistersOutsider(Effect):
 class RegistersMinion(Effect):
     """Makes a character register as a Minion."""
 
-    def __init__(self, affected_player, source_player):
-        super().__init__(affected_player, source_player)
-        self._name = "Registers as a Minion"
+    _name = "Registers as a Minion"
 
     # noinspection PyUnusedLocal
     @staticmethod
@@ -572,9 +501,7 @@ class RegistersMinion(Effect):
 class RegistersDemon(Effect):
     """Makes a character register as a Demon."""
 
-    def __init__(self, affected_player, source_player):
-        super().__init__(affected_player, source_player)
-        self._name = "Registers as a Demon"
+    _name = "Registers as a Demon"
 
     # noinspection PyUnusedLocal
     @staticmethod
