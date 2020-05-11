@@ -10,7 +10,6 @@ from lib.logic import Effect
 from lib.logic.Player import Player
 from lib.logic.playerconverter import to_player
 from lib.logic.tools import generic_ongoing_effect
-
 from lib.typings.context import Context
 from lib.utils import safe_send
 
@@ -134,8 +133,8 @@ async def _effect_adder(
 ):
     """Add effect to player."""
     source = source or player
-    effect_object = player.add_effect(ctx, effect, source)
-    if source == player or source.is_status(ctx, "storyteller"):
+    effect_object = player.add_effect(ctx.bot.game, effect, source)
+    if source == player or source.is_status(ctx.bot.game, "storyteller"):
         source_text = ""
     else:
         source_text = f"with source {source.nick} "

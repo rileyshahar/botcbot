@@ -104,9 +104,9 @@ class Debug(commands.Cog, command_attrs=dict(hidden=True)):
                 statuses = []  # type: List[str]
                 registers_statuses = []  # type: List[str]
                 for status in status_list:
-                    if effect.status(ctx, status):
+                    if effect.status(ctx.bot.game, status):
                         statuses.append(status)
-                    if effect.registers_status(ctx, status):
+                    if effect.registers_status(ctx.bot.game, status):
                         registers_statuses.append(status)
                 message_text += "\n> Causes: "
                 message_text += list_to_plural_string(statuses, "none")[0]

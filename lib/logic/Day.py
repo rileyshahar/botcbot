@@ -1,6 +1,6 @@
 """Contains the Day class."""
 
-from typing import List, Optional, Tuple
+from typing import List, Optional, Tuple, TYPE_CHECKING
 
 from discord.ext import commands
 from numpy import ceil
@@ -11,6 +11,9 @@ from lib.logic.playerconverter import to_player
 from lib.logic.tools import generate_message_tally
 from lib.typings.context import Context
 from lib.utils import safe_send, safe_bug_report
+
+if TYPE_CHECKING:
+    from lib.logic.Game import Game
 
 
 class Day:
@@ -56,10 +59,10 @@ class Day:
         nominee = await _determine_nominee(ctx, nominee_str)
 
         # verify that the nominator can nominate
-        _check_valid_nominator(ctx, nominator, nominee)
+        _check_valid_nominator(ctx.bot.game, nominator, nominee)
 
         # verify that the nominee can be nominated
-        _check_valid_nominee(ctx, nominator, nominee)
+        _check_valid_nominee(ctx.bot.game, nominator, nominee)
 
         # check effects
         proceed = True
@@ -76,7 +79,8 @@ class Day:
 
         # adjust the nominator and nominee
         if not (
-            nominee.is_status(ctx, "storyteller") or nominee.is_status(ctx, "traveler")
+            nominee.is_status(ctx.bot.game, "storyteller")
+            or nominee.is_status(ctx.bot.game, "traveler")
         ):
             await nominee.add_nomination(ctx)
         nominee.has_been_nominated = True
@@ -86,7 +90,7 @@ class Day:
         await self.close_noms(ctx)
 
         # start the vote
-        self.current_vote = Vote(ctx, nominee, nominator)
+        self.current_vote = Vote(ctx.bot.game, nominee, nominator)
 
         # send announcement message
         message_text = generate_nomination_message_text(
@@ -185,24 +189,24 @@ class Day:
             await safe_send(ctx, "Successfully ended the day.")
 
 
-def _check_valid_nominee(ctx: Context, nominator: Player, nominee: Player):
+def _check_valid_nominee(game: "Game", nominator: Player, nominee: Player):
     """Check that the nominee is a valid nominee, else raise an exception."""
-    if nominee.is_status(ctx, "storyteller"):  # atheist nominations
-        for st in ctx.bot.game.storytellers:
-            if not st.can_be_nominated(ctx, nominator):
+    if nominee.is_status(game, "storyteller"):  # atheist nominations
+        for st in game.storytellers:
+            if not st.can_be_nominated(game, nominator):
                 raise commands.BadArgument(
                     "The storytellers cannot be nominated today."
                 )
-    elif not nominee.can_be_nominated(ctx, nominator):
+    elif not nominee.can_be_nominated(game, nominator):
         raise commands.BadArgument(f"{nominee.nick} cannot be nominated today.")
 
 
-def _check_valid_nominator(ctx: Context, nominator: Player, nominee: Player):
+def _check_valid_nominator(game: "Game", nominator: Player, nominee: Player):
     """Check that nominator is a valid nominator, else raise an exception."""
     if not (
-        nominator.can_nominate(ctx)
-        or nominee.is_status(ctx, "traveler")
-        or nominator.is_status(ctx, "storyteller")
+        nominator.can_nominate(game)
+        or nominee.is_status(game, "traveler")
+        or nominator.is_status(game, "storyteller")
     ):
         raise ValueError("nominator already nominated")
 
@@ -257,23 +261,23 @@ def generate_nomination_message_text(
     """
     nominator_mention = (
         "the storytellers"
-        if nominator.is_status(ctx, "storyteller")
+        if nominator.is_status(ctx.bot.game, "storyteller")
         else nominator.member.mention
     )
     nominee_mention = (
         "the storytellers"
-        if nominee.is_status(ctx, "storyteller")
+        if nominee.is_status(ctx.bot.game, "storyteller")
         else nominee.member.mention
     )
     if traveler:  # traveler nominations
-        verb = "have" if nominator.is_status(ctx, "storyteller") else "has"
+        verb = "have" if nominator.is_status(ctx.bot.game, "storyteller") else "has"
         message_text = (
             f"{ctx.bot.player_role.mention}, {nominator_mention} {verb} called for"
             f" {nominee_mention}'s exile."
         )
 
     else:
-        verb = "have" if nominee.is_status(ctx, "storyteller") else "has"
+        verb = "have" if nominee.is_status(ctx.bot.game, "storyteller") else "has"
         message_text = (
             f"{ctx.bot.player_role.mention}, {nominee_mention} {verb} been nominated"
             f" by {nominator_mention}."

@@ -1,6 +1,6 @@
 """Contains custom checks."""
 
-from typing import Coroutine, Any, Callable
+from typing import Callable
 
 from discord.ext import commands
 
@@ -8,7 +8,7 @@ from lib.typings.context import Context
 from lib.utils import get_player
 
 
-def is_in_channel():
+def is_in_channel() -> Callable:
     """Apply predicate as a check."""
 
     def predicate(ctx: Context) -> bool:

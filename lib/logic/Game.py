@@ -74,12 +74,12 @@ class Game:
         """Determine the players who have not spoken today."""
         return [player for player in self.seating_order if not player.has_spoken]
 
-    def to_nominate(self, ctx: Context) -> List[Player]:
+    def to_nominate(self, game: "Game") -> List[Player]:
         """Determine the players who have not spoken today."""
         return [
             player
             for player in self.seating_order
-            if player.can_nominate(ctx) and not player.has_skipped
+            if player.can_nominate(game) and not player.has_skipped
         ]
 
     async def reseat(self, ctx: Context, new_seating_order: List[Player]):
@@ -98,7 +98,7 @@ class Game:
 
         # Edit the message
         await self.seating_order_message.edit(
-            content=generate_game_info_message(new_seating_order, ctx)
+            content=generate_game_info_message(new_seating_order, ctx.bot.game)
         )
 
         # Update seating order
@@ -134,7 +134,7 @@ class Game:
 
             # cleanup stuff
             for player in self.seating_order:
-                player.morning(ctx)
+                player.morning(ctx.bot.inactive_role)
                 effect_list = [x for x in player.effects]
                 for effect in effect_list:
                     effect.morning_cleanup(ctx)

@@ -219,6 +219,7 @@ def script_list(ctx: Context, playtest: bool = False) -> Generator[Script, None,
         aliases=["TB"],
         editors=[],
     )
+    # noinspection DuplicatedCode
     yield Script(
         "Bad Moon Rising",
         [
@@ -283,6 +284,7 @@ def script_list(ctx: Context, playtest: bool = False) -> Generator[Script, None,
         aliases=["BMR"],
         editors=[],
     )
+    # noinspection DuplicatedCode
     yield Script(
         "Sects & Violets",
         [

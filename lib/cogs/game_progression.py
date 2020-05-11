@@ -155,8 +155,8 @@ class GameProgression(commands.Cog, name="Game Progression"):
             kills_actual.append(await to_player(ctx, kill_string))
 
         for player in kills_actual:
-            if not player.ghost(ctx):
-                player.add_effect(ctx, Dead, player)
+            if not player.ghost(ctx.bot.game):
+                player.add_effect(ctx.bot.game, Dead, player)
 
         await ctx.bot.game.startday(ctx, kills_actual)
 

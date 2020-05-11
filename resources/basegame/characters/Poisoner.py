@@ -35,7 +35,7 @@ class Poisoner(Minion):
             ctx, f"Who did {self.parent.formatted_epithet(epithet_string)}, poison?"
         )
         if target:
-            effect = target.add_effect(ctx, _PoisonerPoison, self.parent)
+            effect = target.add_effect(ctx.bot.game, _PoisonerPoison, self.parent)
             if not enabled:
-                effect.disable(ctx)
+                effect.disable(ctx.bot.game)
         return [], []

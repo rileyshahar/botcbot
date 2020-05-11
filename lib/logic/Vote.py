@@ -8,6 +8,7 @@ from lib.utils import list_to_plural_string, safe_send, get_bool_input
 
 if TYPE_CHECKING:
     from lib.logic.Player import Player
+    from lib.logic.Game import Game
 
 
 class Vote:
@@ -15,8 +16,8 @@ class Vote:
 
     Parameters
     ----------
-    ctx : Context
-        The invocation context.
+    game : Game
+        The current game.
     nominee : Player
         The vote's nominee.
     nominator : Player
@@ -51,12 +52,12 @@ class Vote:
     prevotes: Dict["Player", int]
     order: List["Player"]
 
-    def __init__(self, ctx: Context, nominee: "Player", nominator: "Player"):
+    def __init__(self, game: "Game", nominee: "Player", nominator: "Player"):
 
         self.nominee = nominee
         self.nominator = nominator
-        self.traveler = nominee.is_status(ctx, "traveler")
-        self.storyteller = nominee.is_status(ctx, "storyteller")
+        self.traveler = nominee.is_status(game, "traveler")
+        self.storyteller = nominee.is_status(game, "storyteller")
         self.announcements = []
         self.prevotes = {}
         self.position = 0
@@ -65,15 +66,11 @@ class Vote:
 
         # determine the order
         if self.storyteller:
-            self.order = ctx.bot.game.seating_order
+            self.order = game.seating_order
         else:
             self.order = (
-                ctx.bot.game.seating_order[
-                    ctx.bot.game.seating_order.index(self.nominee) + 1 :
-                ]
-                + ctx.bot.game.seating_order[
-                    : ctx.bot.game.seating_order.index(self.nominee) + 1
-                ]
+                game.seating_order[game.seating_order.index(self.nominee) + 1 :]
+                + game.seating_order[: game.seating_order.index(self.nominee) + 1]
             )
 
         # determine the majority
@@ -85,19 +82,19 @@ class Vote:
                     [
                         player
                         for player in self.order
-                        if not player.ghost(ctx, registers=True)
+                        if not player.ghost(game, registers=True)
                     ]
                 )
                 / 2
             )
-            if ctx.bot.game.current_day.about_to_die:
+            if game.current_day.about_to_die:
                 self.majority = max(
-                    self.majority, float(ctx.bot.game.current_day.about_to_die[1] + 1)
+                    self.majority, float(game.current_day.about_to_die[1] + 1)
                 )
 
         # check if anyone can vote twice
         for player in self.order:
-            if player.is_status(ctx, "can_vote_twice"):
+            if player.is_status(game, "can_vote_twice"):
                 self.order.insert(self.order.index(player), player)
 
     @property
@@ -128,13 +125,13 @@ class Vote:
         if vt:
 
             # change the vote count
-            self.votes += voter.vote_value(ctx, self.traveler)
+            self.votes += voter.vote_value(ctx.bot.game, self.traveler)
 
             # dead vote
             if (
                 not self.traveler
-                and voter.ghost(ctx, registers=True)
-                and not voter.is_status(ctx, "can_dead_vote_without_token")
+                and voter.ghost(ctx.bot.game, registers=True)
+                and not voter.is_status(ctx.bot.game, "can_dead_vote_without_token")
             ):
                 voter.dead_votes -= 1
 
@@ -160,7 +157,7 @@ class Vote:
     async def call_next(self, ctx: Context):
         """Call the next voter."""
         # check dead votes
-        if not self.to_vote.can_vote(ctx, self.traveler):
+        if not self.to_vote.can_vote(ctx.bot.game, self.traveler):
             await self.vote(ctx, self.to_vote, 0)
             return await safe_send(
                 self.to_vote.member, "You have no dead votes. Voting no."
@@ -255,13 +252,13 @@ class Vote:
 
     async def _send_vote_end_message(self, ctx: Context):
         """Send a message ending the vote."""
-        message_text, result = await self._generate_vote_end_message()
+        message_text, result = self._generate_vote_end_message()
         end_msg = await safe_send(ctx.bot.channel, message_text)
         await end_msg.pin()
         ctx.bot.game.current_day.vote_end_messages.append(end_msg.id)
         return end_msg, result
 
-    async def _generate_vote_end_message(self):
+    def _generate_vote_end_message(self):
         """Generate the vote end message."""
         result = self.votes >= self.majority
         voters = list_to_plural_string([x.nick for x in self.voted], "no one")

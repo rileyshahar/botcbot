@@ -15,18 +15,19 @@ from lib.utils import safe_send, get_input, safe_bug_report, list_to_plural_stri
 if TYPE_CHECKING:
     from lib.logic.Player import Player
     from lib.logic.Effect import Effect
+    from lib.logic.Game import Game
 
 # TODO: sort these into more sensible locations
 
 
-def generate_game_info_message(order, ctx: Context) -> str:
+def generate_game_info_message(order, game: "Game") -> str:
     """Generate a game order message.
 
     Parameters
     ----------
     order : List[Player]
         The order of players.
-    ctx : Context
+    game : Game
         The invocation context.
 
     Returns
@@ -36,32 +37,33 @@ def generate_game_info_message(order, ctx: Context) -> str:
 
     Notes
     -----
-    Generally, ctx.bot.game may be none during this call (in particular, during the
-    startgame procedure), so it should not be referenced here.
+    # TODO: there may be deep underlying issues here with Game being None
+    # that will require this function to be separated into two cases, for a new game
+    # and for change during the game
     """
     message_text = ""
     for text in (
-        _generate_seating_order_message(ctx, order),
-        _generate_distribution_message(ctx, order),
-        _generate_day_info_message(ctx, order),
+        _generate_seating_order_message(game, order),
+        _generate_distribution_message(game, order),
+        _generate_day_info_message(game, order),
     ):
         message_text += "\n\n" + text
     return message_text
 
 
-def _generate_seating_order_message(ctx: Context, order: List["Player"]) -> str:
+def _generate_seating_order_message(game: "Game", order: List["Player"]) -> str:
     """Generate the seating order part of the game info message."""
     message_text = "**Seating Order:**"
     for player in order:
-        message_text += _generate_player_line(ctx, player)
+        message_text += _generate_player_line(game, player)
     return message_text
 
 
-def _generate_player_line(ctx: Context, player: "Player") -> str:
+def _generate_player_line(game: "Game", player: "Player") -> str:
     """Generate an individual's player line in the seating order message."""
     message_text = "\n"
 
-    if player.ghost(ctx, registers=True):
+    if player.ghost(game, registers=True):
         message_text += f"~~{player.nick}~~ "
 
         dead_votes = "O" * player.dead_votes
@@ -75,9 +77,9 @@ def _generate_player_line(ctx: Context, player: "Player") -> str:
     return message_text
 
 
-def _generate_distribution_message(ctx, order: List["Player"]):
+def _generate_distribution_message(game: "Game", order: List["Player"]):
     """Generate the distribution part of the game info message."""
-    n = len([x for x in order if not x.is_status(ctx, "traveler")])
+    n = len([x for x in order if not x.is_status(game, "traveler")])
     if n == 5:
         distribution = ("3", "0", "1")
     elif n == 6:
@@ -98,17 +100,17 @@ def _generate_distribution_message(ctx, order: List["Player"]):
     return message_text
 
 
-def _generate_day_info_message(ctx: Context, order: List["Player"]) -> str:
+def _generate_day_info_message(game: "Game", order: List["Player"]) -> str:
     """Generate info about the current day or night."""
-    if not ctx.bot.game or not ctx.bot.game.current_day:
+    if not game or not game.current_day:
         message_text = "It is Night "
         try:
-            message_text += str(ctx.bot.game.day_number + 1) + "."
+            message_text += str(game.day_number + 1) + "."
         except AttributeError:
             message_text += "1."
 
     else:
-        message_text = f"It is Day {ctx.bot.game.day_number}.\n"
+        message_text = f"It is Day {game.day_number}.\n"
         skip_list = [player.nick for player in order if player.has_skipped]
         if not skip_list:
             message_text += "No players have skipped."
@@ -153,7 +155,7 @@ async def select_target(
     ctx: Context,
     question: str,
     allow_none: bool = True,
-    condition: Callable[["Player", Context], bool] = lambda x, y: True,
+    condition: Callable[["Player", "Game"], bool] = lambda x, y: True,
     **kwargs,
 ) -> Optional["Player"]:
     """Ask for a target.
@@ -166,7 +168,7 @@ async def select_target(
         The question to ask.
     allow_none : bool
         Whether "no one" is a valid option.
-    condition: Callable[["Player", ctx], bool]
+    condition: Callable[["Player", Game], bool]
         A condition to pass to get_player.
 
     Returns

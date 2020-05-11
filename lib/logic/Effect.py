@@ -2,11 +2,9 @@
 
 from typing import Callable, TYPE_CHECKING
 
-from lib.typings.context import Context
-
 if TYPE_CHECKING:
     from lib.logic.Player import Player
-
+    from lib.logic.Game import Game
 
 # TODO: add user-facing names for statuses
 
@@ -69,13 +67,13 @@ class Effect:
         """Determine the effect's name."""
         return self._name
 
-    def status(self, ctx: Context, status_name: str) -> bool:
+    def status(self, game: "Game", status_name: str) -> bool:
         """Determine whether the effect causes a status.
 
         Parameters
         ----------
-        ctx : Context
-            The invocation context.
+        game : Game
+            The current game.
         status_name : str
             The status to be checked.
 
@@ -90,28 +88,28 @@ class Effect:
         assert status_name in status_list
 
         try:
-            return getattr(self, status_name)(ctx)
+            return getattr(self, status_name)(game)
 
         except AttributeError:
             if status_name == "not_functioning":
                 return (
-                    self.status(ctx, "poisoned")
-                    or self.status(ctx, "drunk")
-                    or self.status(ctx, "dead")
+                    self.status(game, "poisoned")
+                    or self.status(game, "drunk")
+                    or self.status(game, "dead")
                 )
 
             if status_name == "safe_from_demon":
-                return self.status(ctx, "safe")
+                return self.status(game, "safe")
 
             return False
 
-    def registers_status(self, ctx: Context, status_name: str) -> bool:
+    def registers_status(self, game: "Game", status_name: str) -> bool:
         """Determine whether the effect causes registering as a status.
 
         Parameters
         ----------
-        ctx : Context
-            The invocation context.
+        game : Game
+            The current game.
         status_name : str
             The status to be checked.
 
@@ -124,25 +122,24 @@ class Effect:
             return False
 
         assert status_name in status_list
-        return getattr(self, "registers_" + status_name, lambda x: False)(ctx)
+        return getattr(self, "registers_" + status_name, lambda x: False)(game)
 
-    def morning_cleanup(self, ctx: Context):
+    def morning_cleanup(self, game: "Game"):
         """Call at the start of each day.
 
         Primarily used to delete effects, when appropriate.
         """
-        # this seems to be a false positive
         pass
 
     # noinspection PyUnusedLocal
     @staticmethod
-    async def nomination(ctx: Context, nominee: "Player", nominator: "Player") -> bool:
+    async def nomination(game: "Game", nominee: "Player", nominator: "Player") -> bool:
         """Call at the start of each nomination.
 
         Parameters
         ----------
-        ctx : Context
-            The invocation context.
+        game : Game
+            The current game.
         nominee : Player
             The nominee.
         nominator : Player
@@ -155,34 +152,34 @@ class Effect:
         """
         return True
 
-    def evening_cleanup(self, ctx: Context):
+    def evening_cleanup(self, game: "Game"):
         """Call at the end of each day.
 
         Primarily used to delete effects, when appropriate.
         """
         pass
 
-    def source_drunkpoisoned_cleanup(self, ctx: Context):
+    def source_drunkpoisoned_cleanup(self, game: "Game"):
         """Call when source_player stops functioning.
 
         Primarily used to disable effects, when appropriate.
         """
         pass
 
-    def source_death_cleanup(self, ctx: Context):
+    def source_death_cleanup(self, game: "Game"):
         """Call when source_player dies.
 
         Primarily used to delete effects, when appropriate.
         """
         pass
 
-    def turn_on(self, ctx: Context, enabler_func: Callable[[], None]) -> "Effect":
+    def turn_on(self, game: "Game", enabler_func: Callable[[], None]) -> "Effect":
         """Turn on the effect.
 
         Parameters
         ----------
-        ctx : Context
-            The invocation context.
+        game : Game
+            The current game.
         enabler_func : Callable [[], None]
             A function which enables the effect in some way.
 
@@ -195,57 +192,57 @@ class Effect:
         then comparing it to the state after. If it causes death or drunkpoisoning, the
         appropriate modifiers are also called.
         """
-        originally_functioning = self.affected_player.functioning(ctx)
-        originally_dead = self.affected_player.ghost(ctx)
+        originally_functioning = self.affected_player.functioning(game)
+        originally_dead = self.affected_player.ghost(game)
 
         enabler_func()
 
-        if originally_functioning and not self.affected_player.functioning(ctx):
+        if originally_functioning and not self.affected_player.functioning(game):
 
-            if not originally_dead and self.affected_player.ghost(ctx):
-                for effect in self.affected_player.source_effects(ctx):
+            if not originally_dead and self.affected_player.ghost(game):
+                for effect in self.affected_player.source_effects(game):
                     # can't call it on self because of recursion errors
                     if not self == effect:
-                        effect.source_death_cleanup(ctx)
+                        effect.source_death_cleanup(game)
 
             else:
-                for effect in self.affected_player.source_effects(ctx):
+                for effect in self.affected_player.source_effects(game):
                     if not self == effect:
-                        effect.source_drunkpoisoned_cleanup(ctx)
+                        effect.source_drunkpoisoned_cleanup(game)
 
         return self
 
-    def disable(self, ctx: Context):
+    def disable(self, game: "Game"):
         """Handle disabling of the effect."""
 
         def disabler_func():
             """Disable the effect."""
             self.disabled = True
 
-        self.turn_off(ctx, disabler_func)
+        self.turn_off(game, disabler_func)
 
-    def delete(self, ctx: Context):
+    def delete(self, game: "Game"):
         """Handle deletion of the effect."""
 
         def disabler_func():
             """Delete the effect."""
             self.affected_player.effects.remove(self)
 
-        self.turn_off(ctx, disabler_func)
+        self.turn_off(game, disabler_func)
 
-    def turn_off(self, ctx: Context, disabler_func: Callable[[], None]):
+    def turn_off(self, game: "Game", disabler_func: Callable[[], None]):
         """Turn off the effect.
 
         For more details, see the turn_on documentation."""
-        originally_functioning = self.affected_player.functioning(ctx)
+        originally_functioning = self.affected_player.functioning(game)
 
         disabler_func()
 
-        if not originally_functioning and self.affected_player.functioning(ctx):
-            for effect in self.affected_player.source_effects(ctx):
-                effect.source_starts_functioning(ctx)
+        if not originally_functioning and self.affected_player.functioning(game):
+            for effect in self.affected_player.source_effects(game):
+                effect.source_starts_functioning(game)
 
-    def source_starts_functioning(self, ctx: Context):
+    def source_starts_functioning(self, game: "Game"):
         """Call when source_player restarts functioning.
 
         Modified by decorators (defined in logic.tools) to call self.turn_on."""
@@ -264,7 +261,7 @@ class Drunk(Effect):
 
     # noinspection PyUnusedLocal
     @staticmethod
-    def drunk(ctx: Context) -> bool:
+    def drunk(game: "Game") -> bool:
         """Determine whether the effect causes drunkenness."""
         return True
 
@@ -280,7 +277,7 @@ class Poisoned(Effect):
 
     # noinspection PyUnusedLocal
     @staticmethod
-    def poisoned(ctx: Context) -> bool:
+    def poisoned(game: "Game") -> bool:
         """Determine whether the effect causes poisoning."""
         return True
 
@@ -296,7 +293,7 @@ class Dead(Effect):
 
     # noinspection PyUnusedLocal
     @staticmethod
-    def dead(ctx: Context) -> bool:
+    def dead(game: "Game") -> bool:
         """Determine whether the effect causes death."""
         return True
 
@@ -312,7 +309,7 @@ class Safe(Effect):
 
     # noinspection PyUnusedLocal
     @staticmethod
-    def safe(ctx: Context) -> bool:
+    def safe(game: "Game") -> bool:
         """Determine whether the effect causes safety."""
         return True
 
@@ -328,7 +325,7 @@ class SafeFromDemon(Effect):
 
     # noinspection PyUnusedLocal
     @staticmethod
-    def safe_from_demon(ctx: Context) -> bool:
+    def safe_from_demon(game: "Game") -> bool:
         """Determine whether the effect causes safety from the Demon."""
         return True
 
@@ -344,7 +341,7 @@ class UsedAbility(Effect):
 
     # noinspection PyUnusedLocal
     @staticmethod
-    def used_ability(ctx: Context) -> bool:
+    def used_ability(game: "Game") -> bool:
         """Determine whether the effect causes the ability to be used."""
         return True
 
@@ -360,7 +357,7 @@ class NoDeadVoteNeeded(Effect):
 
     # noinspection PyUnusedLocal
     @staticmethod
-    def can_dead_vote_without_token(ctx: Context) -> bool:
+    def can_dead_vote_without_token(game: "Game") -> bool:
         """Determine whether the effect allows dead voting without a token."""
         return True
 
@@ -378,7 +375,7 @@ class Good(Effect):
 
     # noinspection PyUnusedLocal
     @staticmethod
-    def good(ctx: Context) -> bool:
+    def good(game: "Game") -> bool:
         """Determine whether the effect makes the player good."""
         return True
 
@@ -395,7 +392,7 @@ class Evil(Effect):
 
     # noinspection PyUnusedLocal
     @staticmethod
-    def evil(ctx: Context) -> bool:
+    def evil(game: "Game") -> bool:
         """Determine whether the effect makes the player evil."""
         return True
 
@@ -412,7 +409,7 @@ class TownsfolkEffect(Effect):
 
     # noinspection PyUnusedLocal
     @staticmethod
-    def townsfolk(ctx: Context) -> bool:
+    def townsfolk(game: "Game") -> bool:
         """Determine whether the effect makes the player a townsfolk."""
         return True
 
@@ -429,7 +426,7 @@ class OutsiderEffect(Effect):
 
     # noinspection PyUnusedLocal
     @staticmethod
-    def outsider(ctx: Context) -> bool:
+    def outsider(game: "Game") -> bool:
         """Determine whether the effect makes the player an outsider."""
         return True
 
@@ -446,7 +443,7 @@ class MinionEffect(Effect):
 
     # noinspection PyUnusedLocal
     @staticmethod
-    def minion(ctx: Context) -> bool:
+    def minion(game: "Game") -> bool:
         """Determine whether the effect makes the player a minion."""
         return True
 
@@ -463,7 +460,7 @@ class DemonEffect(Effect):
 
     # noinspection PyUnusedLocal
     @staticmethod
-    def demon(ctx: Context) -> bool:
+    def demon(game: "Game") -> bool:
         """Determine whether the effect makes the player a demon."""
         return True
 
@@ -480,7 +477,7 @@ class TravelerEffect(Effect):
 
     # noinspection PyUnusedLocal
     @staticmethod
-    def traveler(ctx: Context) -> bool:
+    def traveler(game: "Game") -> bool:
         """Determine whether the effect makes the player a traveler."""
         return True
 
@@ -497,7 +494,7 @@ class StorytellerEffect(Effect):
 
     # noinspection PyUnusedLocal
     @staticmethod
-    def storyteller(ctx: Context) -> bool:
+    def storyteller(game: "Game") -> bool:
         """Determine whether the effect makes the player a storyteller."""
         return True
 
@@ -511,7 +508,7 @@ class RegistersGood(Effect):
 
     # noinspection PyUnusedLocal
     @staticmethod
-    def registers_good(ctx: Context):
+    def registers_good(game: "Game"):
         """Determine whether the effect makes the player register as good."""
         return True
 
@@ -525,7 +522,7 @@ class RegistersEvil(Effect):
 
     # noinspection PyUnusedLocal
     @staticmethod
-    def registers_evil(ctx: Context):
+    def registers_evil(game: "Game"):
         """Determine whether the effect makes the player register as evil."""
         return True
 
@@ -539,7 +536,7 @@ class RegistersTownsfolk(Effect):
 
     # noinspection PyUnusedLocal
     @staticmethod
-    def registers_townsfolk(ctx: Context):
+    def registers_townsfolk(game: "Game"):
         """Determine whether the effect makes the player register as a townsfolk."""
         return True
 
@@ -553,7 +550,7 @@ class RegistersOutsider(Effect):
 
     # noinspection PyUnusedLocal
     @staticmethod
-    def registers_outsider(ctx: Context):
+    def registers_outsider(game: "Game"):
         """Determine whether the effect makes the player register as an outsider."""
         return True
 
@@ -567,7 +564,7 @@ class RegistersMinion(Effect):
 
     # noinspection PyUnusedLocal
     @staticmethod
-    def registers_minion(ctx: Context):
+    def registers_minion(game: "Game"):
         """Determine whether the effect makes the player register as a minion."""
         return True
 
@@ -581,7 +578,7 @@ class RegistersDemon(Effect):
 
     # noinspection PyUnusedLocal
     @staticmethod
-    def registers_demon(ctx: Context):
+    def registers_demon(game: "Game"):
         """Determine whether the effect makes the player register as a demon."""
         return True
 

@@ -4,7 +4,7 @@ import traceback
 import typing
 from typing import Optional
 
-from discord import Member
+from discord import Member, Role
 from discord.ext import commands
 
 from lib.logic.Effect import Effect, Dead
@@ -18,14 +18,14 @@ if typing.TYPE_CHECKING:
 
 
 def _get_neighbor(
-    ctx: Context,
-    condition: typing.Callable[["Player", Context], bool],
+    game: "Game",
+    condition: typing.Callable[["Player", "Game"], bool],
     order: typing.List["Player"],
 ) -> typing.Optional["Player"]:
     """Determine the first player in order matching condition."""
     out = None
     for player in order:
-        if condition(player, ctx):
+        if condition(player, game):
             out = player
             break
     return out
@@ -119,16 +119,16 @@ class Player:
 
     def neighbors(
         self,
-        ctx: Context,
-        condition: typing.Callable[["Player", Context], bool] = lambda x, y: True,
+        game: "Game",
+        condition: typing.Callable[["Player", "Game"], bool] = lambda x, y: True,
     ) -> typing.Tuple[typing.Optional["Player"], typing.Optional["Player"]]:
         """Determine the player's nearest neighbors satisfying a given condition.
 
         Parameters
         ----------
-        ctx: Context
-            The invocation context.
-        condition: typing.Callable[["Player", Context], bool]
+        game: Game
+            The current game.
+        condition: typing.Callable[["Player", Game], bool]
             Conditions to be satisfied by the neighbor.
 
         Returns
@@ -137,81 +137,81 @@ class Player:
             The upwards neighbor and the downwards neighbor satisfying condition.
         """
         seating_order_excluding_self = (
-            ctx.bot.game.seating_order[self.position + 1 :]
-            + ctx.bot.game.seating_order[: self.position]
+            game.seating_order[self.position + 1 :]
+            + game.seating_order[: self.position]
         )
-        out1 = _get_neighbor(ctx, condition, seating_order_excluding_self[::-1])
-        out2 = _get_neighbor(ctx, condition, seating_order_excluding_self)
+        out1 = _get_neighbor(game, condition, seating_order_excluding_self[::-1])
+        out2 = _get_neighbor(game, condition, seating_order_excluding_self)
         return out1, out2
 
     def source_effects(
-        self, ctx: Context
+        self, game: "Game"
     ) -> typing.Generator["Effect", typing.Any, typing.Any]:
         """Yield all effects for which the player is the source."""
-        for player in ctx.bot.game.seating_order:
+        for player in game.seating_order:
             for effect in player.effects:
                 if effect.source_player == self:
                     yield effect
 
     # Aliases for is_status and registers_status and related
-    def ghost(self, ctx: Context, registers: bool = False) -> bool:
+    def ghost(self, game: "Game", registers: bool = False) -> bool:
         """Determine whether the player is (or registers as) dead."""
-        return self.is_status(ctx, "dead", registers)
+        return self.is_status(game, "dead", registers)
 
-    def functioning(self, ctx: Context, registers: bool = False) -> bool:
+    def functioning(self, game: "Game", registers: bool = False) -> bool:
         """Determine whether the player is (or registers as) functioning."""
-        return not self.is_status(ctx, "not_functioning", registers)
+        return not self.is_status(game, "not_functioning", registers)
 
-    def can_nominate(self, ctx: Context) -> bool:
+    def can_nominate(self, game: "Game") -> bool:
         """Determine whether the player can nominate."""
         return (
-            not self.ghost(ctx, registers=True)
-            or self.is_status(ctx, "can_nominate_while_dead")
+            not self.ghost(game, registers=True)
+            or self.is_status(game, "can_nominate_while_dead")
         ) and (
             self.nominations_today == 0
             or (
                 self.nominations_today == 1
-                and self.is_status(ctx, "can_nominate_twice")
+                and self.is_status(game, "can_nominate_twice")
             )
         )
 
     # noinspection PyUnusedLocal
     # these args will be necessary for forwards compatibility ex for matron
-    def can_be_nominated(self, ctx: Context, nominator: "Player") -> bool:
+    def can_be_nominated(self, game: "Game", nominator: "Player") -> bool:
         """Determine whether the player can be nominated."""
         return not self.has_been_nominated
 
-    def can_vote(self, ctx: Context, traveler: bool = False) -> bool:
+    def can_vote(self, game: "Game", traveler: bool = False) -> bool:
         """Determine whether the player can vote."""
         if traveler:
             return True
         return (
-            (not self.ghost(ctx, registers=True))
+            (not self.ghost(game, registers=True))
             or self.dead_votes > 0
-            or self.is_status(ctx, "can_dead_vote_without_token")
+            or self.is_status(game, "can_dead_vote_without_token")
         )
 
-    def vote_value(self, ctx: Context, traveler=False) -> int:
+    def vote_value(self, game: "Game", traveler=False) -> int:
         """Determine the player's vote's value."""
         if traveler:
             return 1
         multiplier = 1
-        if self.is_status(ctx, "thiefed"):
+        if self.is_status(game, "thiefed"):
             multiplier *= -1
-        if self.is_status(ctx, "bureaucrated"):
+        if self.is_status(game, "bureaucrated"):
             multiplier *= -3
         return multiplier
 
     # Effect management
     def is_status(
-        self, ctx: Context, status_name: str, registers: bool = False
+        self, game: "Game", status_name: str, registers: bool = False
     ) -> bool:
         """Determine whether the player is affected by a status.
 
         Parameters
         ----------
-        ctx : Context
-            The invocation context.
+        game : Game
+            The current game.
         status_name : str
             The status.
         registers : bool
@@ -225,11 +225,11 @@ class Player:
         try:
             if registers:
                 for effect in self.effects:
-                    if effect.registers_status(ctx, status_name):
+                    if effect.registers_status(game, status_name):
                         return True
 
             for effect in self.effects:
-                if effect.status(ctx, status_name):
+                if effect.status(game, status_name):
                     return True
 
             return False
@@ -245,7 +245,7 @@ class Player:
             return True
 
     def exclusive_status_search(
-        self, ctx: Context, statuses: typing.List[str]
+        self, game: "Game", statuses: typing.List[str]
     ) -> typing.Optional[str]:
         """Determine which of a list of statuses applies to the player.
 
@@ -253,8 +253,8 @@ class Player:
 
         Parameters
         ----------
-        ctx : Context
-            The invocation context.
+        game : Game
+            The current game.
         statuses : List[str]
             The statuses to check.
 
@@ -264,7 +264,7 @@ class Player:
             The matching status, or None.
         """
         for status in statuses:
-            if self.is_status(ctx, status):
+            if self.is_status(game, status):
                 return status
         return None
 
@@ -299,12 +299,12 @@ class Player:
         return message_text
 
     # Gameplay Methods
-    def morning(self, ctx: Context):
+    def morning(self, inactive_role: Role):
         """Handle basic cleanup at the beginning of the day.
 
         Called by Game.startday.
         """
-        if self.member in ctx.bot.inactive_role.members:
+        if self.member in inactive_role.members:
             self.is_inactive = True
         else:
             self.is_inactive = False
@@ -313,13 +313,13 @@ class Player:
         self.has_spoken = self.is_inactive
         self.has_skipped = self.is_inactive
 
-    async def revive(self, ctx: Context) -> str:
+    def revive(self, game: "Game") -> str:
         """Handle effect cleanup when the player revives.
 
         Parameters
         ----------
-        ctx : Context
-            The invocation context.
+        game: Game
+            The current game.
 
         Returns
         -------
@@ -328,12 +328,12 @@ class Player:
         """
         effect_list = [x for x in self.effects]
         for effect in effect_list:
-            if effect.status(ctx, "dead") or effect.status(ctx, "used_ability"):
+            if effect.status(game, "dead") or effect.status(game, "used_ability"):
                 # TODO: figure out how this should work with registers_status
                 self.effects.remove(effect)
 
-        for effect in self.source_effects(ctx):
-            effect.source_starts_functioning(ctx)
+        for effect in self.source_effects(game):
+            effect.source_starts_functioning(game)
 
         return f"{self.nick} has come back to life."
 
@@ -354,7 +354,7 @@ class Player:
         )
 
         # messages to storytellers
-        if self.is_status(ctx, "storyteller"):
+        if self.is_status(ctx.bot.game, "storyteller"):
             for st in ctx.bot.game.storytellers:
                 message = await safe_send(
                     st.member,
@@ -412,20 +412,20 @@ class Player:
         self, ctx: Context, new_character: typing.Type["Character"]
     ):
         """Change the player's character. Handle effect cleanup."""
-        effect_list = [x for x in self.source_effects(ctx)]
+        effect_list = [x for x in self.source_effects(ctx.bot.game)]
         for effect in effect_list:
-            effect.delete(ctx)
+            effect.delete(ctx.bot.game)
 
         self.character = new_character(self)
         for effect in self.character.default_effects:
-            self.add_effect(ctx, effect, self)
+            self.add_effect(ctx.bot.game, effect, self)
 
         await safe_send(
             ctx, f"Successfully changed {self.nick} to the {self.character.name}."
         )
 
     def add_effect(
-        self, ctx: Context, effect: typing.Type["Effect"], source_player: "Player"
+        self, game: "Game", effect: typing.Type["Effect"], source_player: "Player"
     ) -> Effect:
         """Add non-default effects to the player.
 
@@ -440,24 +440,24 @@ class Player:
             """Add the effect to the player's effects list."""
             self.effects.append(effect_object)
 
-        return effect_object.turn_on(ctx, effect_adder)
+        return effect_object.turn_on(game, effect_adder)
 
     async def execute(self, ctx: Context):
         """Execute the player."""
         message_text = f"{self.nick} has been executed, "
-        if self.ghost(ctx):
+        if self.ghost(ctx.bot.game):
             await safe_send(
                 ctx.bot.channel, message_text + "but is already dead.",
             )
 
-        elif self.is_status(ctx, "safe"):
+        elif self.is_status(ctx.bot.game, "safe"):
             await safe_send(
                 ctx.bot.channel, message_text + "but does not die.",
             )
 
         else:
             await safe_send(ctx.bot.channel, message_text + "and dies.")
-            self.add_effect(ctx, Dead, self)
+            self.add_effect(ctx.bot.game, Dead, self)
 
         # Day.end has a "successfully ended the day" message so this is above that
         if safe_bug_report(ctx):
@@ -489,7 +489,7 @@ class Player:
                     raise commands.BadArgument("You have already skipped.")
             else:
                 self.nominations_today += 1
-            return game.to_nominate(ctx)
+            return game.to_nominate(ctx.bot.game)
 
         await _update_activity(
             ctx.bot.game, _updater_func, "nominated or skipped", "nominate or skip"

@@ -9,7 +9,6 @@ from lib.logic.converters import to_character
 from lib.logic.playerconverter import to_player, to_member
 from lib.preferences import load_preferences
 from lib.typings.context import Context
-
 from lib.utils import (
     safe_send,
     get_player,
@@ -77,16 +76,16 @@ class GameManagement(commands.Cog, name="Game Management"):
                 )
 
                 # check that the character is a traveler
-                if not player.is_status(ctx, "traveler"):
+                if not player.is_status(ctx.bot.game, "traveler"):
                     raise commands.BadArgument(
                         f"{player.character.name} is not a traveler."
                     )
 
                 # add the alignment
                 if alignment.lower() == "good":
-                    player.add_effect(ctx, Good, player)
+                    player.add_effect(ctx.bot.game, Good, player)
                 elif alignment.lower() == "evil":
-                    player.add_effect(ctx, Evil, player)
+                    player.add_effect(ctx.bot.game, Evil, player)
 
                 # add the player role
                 await traveler_actual.add_roles(ctx.bot.player_role)
@@ -137,7 +136,7 @@ class GameManagement(commands.Cog, name="Game Management"):
         traveler_actual = await to_player(ctx, traveler)
 
         # check that player is a traveler
-        if not traveler_actual.is_status(ctx, "traveler"):
+        if not traveler_actual.is_status(ctx.bot.game, "traveler"):
             raise commands.BadArgument(f"{traveler_actual.nick} is not a traveler.")
 
         # remove them from the seating order
@@ -256,7 +255,7 @@ class GameManagement(commands.Cog, name="Game Management"):
         This will kill the player, as appropriate.
         """
         traveler_actual = await to_player(ctx, traveler)
-        if not traveler_actual.is_status(ctx, "traveler"):
+        if not traveler_actual.is_status(ctx.bot.game, "traveler"):
             await safe_send(
                 ctx.bot.channel, f"{traveler_actual.nick} is not a traveler.",
             )
@@ -275,7 +274,7 @@ class GameManagement(commands.Cog, name="Game Management"):
         player: The player to be revived.
         """
         player_actual = await to_player(ctx, player)
-        msg = await safe_send(ctx.bot.channel, await player_actual.revive(ctx))
+        msg = await safe_send(ctx.bot.channel, player_actual.revive(ctx.bot.game))
         await msg.pin()
         await safe_send(ctx, f"Successfully revived {player_actual.nick}.")
 

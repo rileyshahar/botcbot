@@ -1,6 +1,6 @@
 """Contains converters replacements from strings to Players and Members."""
 
-from typing import List, Callable, TYPE_CHECKING
+from typing import List, Callable, TYPE_CHECKING, Any
 
 from discord import Member
 from discord.ext import commands
@@ -11,6 +11,7 @@ from lib.utils import get_input, get_player
 
 if TYPE_CHECKING:
     from lib.logic.Player import Player
+    from lib.logic.Game import Game
 
 
 async def to_member(
@@ -122,7 +123,7 @@ async def to_player(
     all_members: bool = False,
     includes_storytellers: bool = False,
     only_one: bool = False,
-    condition: Callable[["Player", Context], bool] = lambda x, y: True,
+    condition: Callable[["Player", "Game", Any], bool] = lambda x, y: True,
     **kwargs,
 ) -> "Player":
     """Convert a string to a player with a matching name.
@@ -143,7 +144,7 @@ async def to_player(
         If all_members, whether to include storytellers.
     only_one : bool
         Whether to require exactly one initial match.
-    condition: Callable[["Player", Context], bool]
+    condition: Callable[["Player", Context, Any], bool]
         A condition to require the player to meet. If the condition is not met, should
         raise a commands.BadArgument exception.
         The condition may also take kwargs if necessary.
@@ -162,7 +163,7 @@ async def to_player(
                 )
             ).id,
         )
-        if condition(player, ctx, **kwargs):
+        if condition(player, ctx.bot.game, **kwargs):
             return player
     except ValueError as e:
         if str(e) == "player not found":

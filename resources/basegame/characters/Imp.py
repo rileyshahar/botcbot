@@ -19,10 +19,14 @@ class Imp(Demon):
     async def morning(self, ctx: Context) -> Tuple[List[Player], List[str]]:
         """Apply the Imp's kill."""
         target = await select_target(ctx, f"Who did {self.parent.epithet}, kill?")
-        if not target or target.is_status(ctx, "safe_from_demon") or target.ghost(ctx):
+        if (
+            not target
+            or target.is_status(ctx.bot.game, "safe_from_demon")
+            or target.ghost(ctx.bot.game)
+        ):
             return [], []
 
-        target.add_effect(ctx, Dead, self.parent)
+        target.add_effect(ctx.bot.game, Dead, self.parent)
 
         # starpass
         if target == self.parent:
@@ -32,7 +36,7 @@ class Imp(Demon):
                 )
                 if chosen_minion is None:
                     break
-                if chosen_minion.is_status(ctx, "minion", registers=True):
+                if chosen_minion.is_status(ctx.bot.game, "minion", registers=True):
                     await chosen_minion.change_character(ctx, Imp)
                     break
                 await safe_send(ctx, "You must choose a minion.")

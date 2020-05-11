@@ -1,5 +1,5 @@
 """Contains the Professor class."""
-from typing import Tuple, List
+from typing import Tuple, List, TYPE_CHECKING
 
 from discord.ext import commands
 
@@ -9,10 +9,13 @@ from lib.logic.Player import Player
 from lib.logic.tools import if_functioning, onetime_use, select_target
 from lib.typings.context import Context
 
+if TYPE_CHECKING:
+    from lib.logic.Game import Game
 
-def _condition(player: Player, ctx: Context) -> bool:
+
+def _condition(player: Player, game: "Game") -> bool:
     """Determine whether player registers as dead."""
-    if player.ghost(ctx, registers=True):
+    if player.ghost(game, registers=True):
         return True
     raise commands.BadArgument(f"{player.nick} is not dead.")
 
@@ -38,7 +41,7 @@ class Professor(Townsfolk):
             condition=_condition,
         )
         if target:
-            self.parent.add_effect(ctx, UsedAbility, self.parent)
-            if enabled and target.is_status(ctx, "townsfolk", registers=True):
-                return [], [await target.revive(ctx)]
+            self.parent.add_effect(ctx.bot.game, UsedAbility, self.parent)
+            if enabled and target.is_status(ctx.bot.game, "townsfolk", registers=True):
+                return [], [target.revive(ctx.bot.game)]
         return [], []

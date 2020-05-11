@@ -63,9 +63,7 @@ class Character:
         """Determine the seating order addendum."""
         return ""
 
-    async def morning(
-        self, ctx: Context, skip: bool = False
-    ) -> Tuple[List["Player"], List[str]]:
+    async def morning(self, ctx: Context) -> Tuple[List["Player"], List[str]]:
         """Call at the start of each day. Processes night actions.
 
         Parameters
@@ -202,13 +200,13 @@ class Traveler(Character):
 
     async def exile(self, ctx: Context):
         """Exiles the traveler."""
-        if self.parent.ghost(ctx):
+        if self.parent.ghost(ctx.bot.game):
             await safe_send(
                 ctx.bot.channel,
                 f"{self.parent.nick} has been exiled, but is already dead.",
             )
 
-        elif self.parent.is_status(ctx, "safe"):
+        elif self.parent.is_status(ctx.bot.game, "safe"):
             await safe_send(
                 ctx.bot.channel,
                 f"{self.parent.nick} has been exiled, but does not die.",
@@ -218,7 +216,7 @@ class Traveler(Character):
             await safe_send(
                 ctx.bot.channel, f"{self.parent.nick} has been exiled, and dies."
             )
-            self.parent.add_effect(ctx, Dead, self.parent)
+            self.parent.add_effect(ctx.bot.game, Dead, self.parent)
 
 
 class Storyteller(Character):

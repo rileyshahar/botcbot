@@ -36,7 +36,7 @@ class Monk(Townsfolk):
             ctx, f"Who did {self.parent.formatted_epithet(epithet_string)}, protect?"
         )
         if target:
-            effect = target.add_effect(ctx, _MonkProtection, self.parent)
+            effect = target.add_effect(ctx.bot.game, _MonkProtection, self.parent)
             if not enabled:
-                effect.disable(ctx)
+                effect.disable(ctx.bot.game)
         return [], []
