@@ -1,8 +1,9 @@
 """Contains the GameProgression cog, for commands related to game progression."""
-
+from datetime import datetime, timedelta
 from os.path import isfile
 from typing import List
 
+import pytz
 from discord.ext import commands
 
 from lib import checks
@@ -12,6 +13,13 @@ from lib.logic.converters import to_script
 from lib.logic.playerconverter import to_player
 from lib.typings.context import Context
 from lib.utils import safe_send, get_bool_input
+
+
+def _is_dst():
+    """Check if it's currently daylight savings time in the US."""
+    x = datetime(datetime.now().year, 1, 1, 0, 0, 0, tzinfo=pytz.timezone("US/Eastern"))
+    y = datetime.now(pytz.timezone("US/Eastern"))
+    return y.utcoffset() != x.utcoffset()
 
 
 class GameProgression(commands.Cog, name="Game Progression"):
@@ -217,6 +225,42 @@ class GameProgression(commands.Cog, name="Game Progression"):
     async def _pms(self, ctx: Context):
         """Close PMs."""
         await ctx.bot.game.current_day.close_pms(ctx)
+
+    @commands.command()
+    @checks.is_day()
+    @checks.is_game()
+    @checks.is_storyteller()
+    @checks.is_dm()
+    async def setdeadline(self, ctx: Context, length: int):
+        """Set a deadline for the current day.
+
+        length: The number of hours for the deadline to last.
+        The deadline will be rounded up to the nearest hour or half-hour.
+        """
+        now = datetime.now()
+        time_adder = now + timedelta(hours=length)
+        time = time_adder + (datetime.min - time_adder) % timedelta(minutes=30)
+        utc = time.astimezone(pytz.utc).strftime("%H:%M")
+        pacific = time.astimezone(pytz.timezone("US/Pacific")).strftime("%-I:%M %p")
+        eastern = time.astimezone(pytz.timezone("US/Eastern")).strftime("%-I:%M %p")
+
+        utc_name = "UTC"
+        if _is_dst():
+            pacific_name = "PDT"
+            eastern_name = "EDT"
+        else:
+            pacific_name = "PST"
+            eastern_name = "EST"
+
+        await safe_send(
+            ctx.bot.channel,
+            (
+                f"{ctx.bot.player_role.mention}, nominations are open! "
+                f"The deadline is {pacific} {pacific_name} / {eastern} {eastern_name} "
+                f"/ {utc} {utc_name} unless someone nominates or everyone skips."
+            ),
+        )
+        await safe_send(ctx, f"Successfully set a deadline in {length} hours.")
 
 
 def setup(bot):
