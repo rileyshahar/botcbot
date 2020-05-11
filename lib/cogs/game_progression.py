@@ -82,9 +82,12 @@ class GameProgression(commands.Cog, name="Game Progression"):
                 )
 
             # unpin messages
-            # TODO: unpin the script messages as well
             for msg in await ctx.bot.channel.pins():
-                if msg.created_at >= ctx.bot.game.seating_order_message.created_at:
+                if (
+                    msg.created_at
+                    >= ctx.bot.game.seating_order_message.created_at
+                    - timedelta(minutes=1)  # this will unpin the script messages too
+                ):
                     await msg.unpin()
 
             # backup
