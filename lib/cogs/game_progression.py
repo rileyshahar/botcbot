@@ -255,7 +255,7 @@ class GameProgression(commands.Cog, name="Game Progression"):
             pacific_name = "PST"
             eastern_name = "EST"
 
-        await safe_send(
+        announcement = await safe_send(
             ctx.bot.channel,
             (
                 f"{ctx.bot.player_role.mention}, nominations are open! "
@@ -263,10 +263,8 @@ class GameProgression(commands.Cog, name="Game Progression"):
                 f"/ {utc} {utc_name} unless someone nominates or everyone skips."
             ),
         )
-        announcement = await safe_send(
-            ctx, f"Successfully set a deadline in {length} hours."
-        )
         await announcement.pin()
+        await safe_send(ctx, f"Successfully set a deadline in {length} hours.")
 
 
 def setup(bot):
