@@ -199,13 +199,15 @@ class Effect:
         if originally_functioning and not self.affected_player.functioning(game):
 
             if not originally_dead and self.affected_player.ghost(game):
-                for effect in self.affected_player.source_effects(game):
+                effect_list = [x for x in self.affected_player.source_effects(game)]
+                for effect in effect_list:
                     # can't call it on self because of recursion errors
                     if not self == effect:
                         effect.source_death_cleanup(game)
 
             else:
-                for effect in self.affected_player.source_effects(game):
+                effect_list = [x for x in self.affected_player.source_effects(game)]
+                for effect in effect_list:
                     if not self == effect:
                         effect.source_drunkpoisoned_cleanup(game)
 
@@ -225,7 +227,11 @@ class Effect:
 
         def disabler_func():
             """Delete the effect."""
-            self.affected_player.effects.remove(self)
+            try:
+                self.affected_player.effects.remove(self)
+            except ValueError:
+                pass
+            # TODO: this is only a temp fix
 
         self.turn_off(game, disabler_func)
 
@@ -238,7 +244,8 @@ class Effect:
         disabler_func()
 
         if not originally_functioning and self.affected_player.functioning(game):
-            for effect in self.affected_player.source_effects(game):
+            effect_list = [x for x in self.affected_player.source_effects(game)]
+            for effect in effect_list:
                 effect.source_starts_functioning(game)
 
     def source_starts_functioning(self, game: "Game"):
