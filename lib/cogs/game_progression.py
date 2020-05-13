@@ -266,6 +266,8 @@ class GameProgression(commands.Cog, name="Game Progression"):
         await announcement.pin()
         await safe_send(ctx, f"Successfully set a deadline in {length} hours.")
 
+        await ctx.bot.game.current_day.open_noms(ctx)
+
 
 def setup(bot):
     """Set the cog up."""
