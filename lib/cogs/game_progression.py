@@ -235,7 +235,7 @@ class GameProgression(commands.Cog, name="Game Progression"):
     @checks.is_storyteller()
     @checks.is_dm()
     async def setdeadline(self, ctx: Context, length: int):
-        """Set a deadline for the current day.
+        """Set a deadline for the current day and open nominations.
 
         length: The number of hours for the deadline to last.
         The deadline will be rounded up to the nearest hour or half-hour.
