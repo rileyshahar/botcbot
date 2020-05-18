@@ -489,7 +489,7 @@ class Player:
                     raise commands.BadArgument("You have already skipped.")
             else:
                 self.nominations_today += 1
-            return game.to_nominate(ctx.bot.game)
+            return game.to_nominate
 
         await _update_activity(
             ctx.bot.game, _updater_func, "nominated or skipped", "nominate or skip"

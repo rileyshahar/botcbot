@@ -45,9 +45,7 @@ class Info(commands.Cog, name="Info"):
     @checks.is_dm()
     async def tonominate(self, ctx):
         """List the players yet to nominate or skip today."""
-        await _activity_checker(
-            ctx, ctx.bot.game.to_nominate(ctx), "nominated or skipped"
-        )
+        await _activity_checker(ctx, ctx.bot.game.to_nominate, "nominated or skipped")
 
     @commands.command()
     @checks.is_game()

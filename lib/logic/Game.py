@@ -74,12 +74,13 @@ class Game:
         """Determine the players who have not spoken today."""
         return [player for player in self.seating_order if not player.has_spoken]
 
-    def to_nominate(self, game: "Game") -> List[Player]:
+    @property
+    def to_nominate(self) -> List[Player]:
         """Determine the players who have not spoken today."""
         return [
             player
             for player in self.seating_order
-            if player.can_nominate(game) and not player.has_skipped
+            if player.can_nominate(self) and not player.has_skipped
         ]
 
     async def reseat(self, ctx: Context, new_seating_order: List[Player]):
