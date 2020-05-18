@@ -180,14 +180,14 @@ class Playing(commands.Cog):
     @checks.is_player()
     @checks.is_game()
     @checks.is_dm()
-    async def skip(self, ctx):
+    async def skip(self, ctx: Context):
         """Skip your right to nominate for the current day.
 
         You will still be able to nominate.
         However, if all players nominate or skip, the storytellers may end the day.
         """
         author_player = get_player(ctx.bot.game, ctx.author.id, False)
-        if author_player.can_nominate(ctx):
+        if author_player.can_nominate(ctx.bot.game):
             await author_player.add_nomination(ctx, skip=True)
             await safe_send(ctx.bot.channel, f"{author_player.nick} has skipped.")
         else:
