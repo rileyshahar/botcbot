@@ -3,6 +3,7 @@
 from discord.ext import commands
 
 from lib import checks
+from lib.exceptions import AlreadyNomniatedError, PlayerNotFoundError
 from lib.logic.Effect import Good, Evil
 from lib.logic.Player import Player
 from lib.logic.converters import to_character
@@ -58,70 +59,63 @@ class GameManagement(commands.Cog, name="Game Management"):
                 f"{load_preferences(traveler_actual).nick} is already in the game."
             )
 
-        except ValueError as e:
+        except PlayerNotFoundError:
 
-            if str(e) == "player not found":
+            # find the character
+            character_actual = to_character(ctx, character)
 
-                # find the character
-                character_actual = to_character(ctx, character)
+            # determine the position
+            upwards_neighbor_actual = await to_player(ctx, upwards_neighbor)
 
-                # determine the position
-                upwards_neighbor_actual = await to_player(ctx, upwards_neighbor)
+            # make the Player
+            player = Player(
+                traveler_actual, character_actual, upwards_neighbor_actual.position + 1,
+            )
 
-                # make the Player
-                player = Player(
-                    traveler_actual,
-                    character_actual,
-                    upwards_neighbor_actual.position + 1,
+            # check that the character is a traveler
+            if not player.is_status(ctx.bot.game, "traveler"):
+                raise commands.BadArgument(
+                    f"{player.character.name} is not a traveler."
                 )
 
-                # check that the character is a traveler
-                if not player.is_status(ctx.bot.game, "traveler"):
-                    raise commands.BadArgument(
-                        f"{player.character.name} is not a traveler."
-                    )
+            # add the alignment
+            if alignment.lower() == "good":
+                player.add_effect(ctx.bot.game, Good, player)
+            elif alignment.lower() == "evil":
+                player.add_effect(ctx.bot.game, Evil, player)
 
-                # add the alignment
-                if alignment.lower() == "good":
-                    player.add_effect(ctx.bot.game, Good, player)
-                elif alignment.lower() == "evil":
-                    player.add_effect(ctx.bot.game, Evil, player)
+            # add the player role
+            await traveler_actual.add_roles(ctx.bot.player_role)
 
-                # add the player role
-                await traveler_actual.add_roles(ctx.bot.player_role)
+            # add them to the seating order
+            ctx.bot.game.seating_order.insert(
+                upwards_neighbor_actual.position + 1, player
+            )
 
-                # add them to the seating order
-                ctx.bot.game.seating_order.insert(
-                    upwards_neighbor_actual.position + 1, player
-                )
+            # announcement
+            await safe_send(
+                ctx.bot.channel,
+                (
+                    "{townsfolk}, {player} has joined the town as the {traveler}. "
+                    "Let's tell {pronoun} hello!"
+                ).format(
+                    traveler=player.character.name,
+                    pronoun=load_preferences(player).pronouns[1],
+                    townsfolk=ctx.bot.player_role.mention,
+                    player=player.nick,
+                ),
+            )
 
-                # announcement
-                await safe_send(
-                    ctx.bot.channel,
-                    (
-                        "{townsfolk}, {player} has joined the town as the {traveler}. "
-                        "Let's tell {pronoun} hello!"
-                    ).format(
-                        traveler=player.character.name,
-                        pronoun=load_preferences(player).pronouns[1],
-                        townsfolk=ctx.bot.player_role.mention,
-                        player=player.nick,
-                    ),
-                )
-
-                # rules
-                msg = await safe_send(
-                    ctx.bot.channel,
-                    f"\n**{player.character.name}** - {player.character.rules_text}",
-                )
-                await msg.pin()
-                await safe_send(
-                    ctx,
-                    f"Successfully added {player.nick} as the {player.character.name}.",
-                )
-
-            else:
-                raise
+            # rules
+            msg = await safe_send(
+                ctx.bot.channel,
+                f"\n**{player.character.name}** - {player.character.rules_text}",
+            )
+            await msg.pin()
+            await safe_send(
+                ctx,
+                f"Successfully added {player.nick} as the {player.character.name}.",
+            )
 
     @commands.command()
     @checks.is_game()
@@ -196,12 +190,8 @@ class GameManagement(commands.Cog, name="Game Management"):
         try:
             await ctx.bot.game.current_day.nominate(ctx, nominee, nominator_actual)
             await safe_send(ctx, f"Successfully nominated for {nominator_actual.nick}.")
-        except ValueError as e:
-            if str(e) == "nominator already nominated":
-                return await safe_send(
-                    ctx, f"{nominator_actual.nick} cannot nominate today."
-                )
-            raise
+        except AlreadyNomniatedError:
+            await safe_send(ctx, f"{nominator_actual.nick} cannot nominate today.")
 
     @commands.command()
     @checks.is_vote()

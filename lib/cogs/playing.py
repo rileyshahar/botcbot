@@ -5,6 +5,7 @@ from typing import Optional
 from discord.ext import commands
 
 from lib import checks
+from lib.exceptions import AlreadyNomniatedError
 from lib.logic.Player import Player
 from lib.logic.playerconverter import to_player
 from lib.typings.context import Context
@@ -35,10 +36,8 @@ class Playing(commands.Cog):
 
         # if they can't nominate
         # raised by current_day.nominate
-        except ValueError as e:
-            if str(e) == "nominator already nominated":
-                return await safe_send(ctx, "You cannot nominate today.")
-            raise
+        except AlreadyNomniatedError:
+            return await safe_send(ctx, "You cannot nominate today.")
 
     @commands.command()
     @checks.is_vote()

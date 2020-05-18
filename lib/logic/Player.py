@@ -31,6 +31,12 @@ def _get_neighbor(
     return out
 
 
+class _UpdateUnnecessaryError(Exception):
+    """An update to player activity was unnecessary."""
+
+    pass
+
+
 async def _update_activity(
     game: "Game",
     updater_func: typing.Callable[["Game"], typing.List["Player"]],
@@ -40,11 +46,8 @@ async def _update_activity(
     """Update a player's activity."""
     try:
         player_list = updater_func(game)
-    except ValueError as e:
-        if str(e) == "update unnecessary":
-            return
-        else:
-            raise
+    except _UpdateUnnecessaryError:
+        return
 
     if len(player_list) == 0:
         for st in game.storytellers:
@@ -472,7 +475,7 @@ class Player:
 
         def _updater_func(inner_game: "Game") -> typing.List["Player"]:
             if self.has_spoken:
-                raise ValueError("update unnecessary")
+                raise _UpdateUnnecessaryError
             self.has_spoken = True
             return inner_game.not_active
 

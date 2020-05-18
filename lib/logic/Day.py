@@ -5,6 +5,7 @@ from typing import List, Optional, Tuple, TYPE_CHECKING
 from discord.ext import commands
 from numpy import ceil
 
+from lib.exceptions import AlreadyNomniatedError
 from lib.logic.Player import Player
 from lib.logic.Vote import Vote
 from lib.logic.playerconverter import to_player
@@ -208,7 +209,7 @@ def _check_valid_nominator(game: "Game", nominator: Player, nominee: Player):
         or nominee.is_status(game, "traveler")
         or nominator.is_status(game, "storyteller")
     ):
-        raise ValueError("nominator already nominated")
+        raise AlreadyNomniatedError
 
 
 async def _determine_nominee(ctx: Context, nominee_str: str) -> Player:

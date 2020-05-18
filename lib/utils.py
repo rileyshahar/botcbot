@@ -7,6 +7,7 @@ from discord import Message, HTTPException
 from discord.abc import Messageable
 from discord.ext import commands
 
+from lib.exceptions import PlayerNotFoundError
 from lib.typings.context import Context
 
 if TYPE_CHECKING:
@@ -69,7 +70,7 @@ def get_player(game: "Game", idn: int, include_storytellers: bool = True) -> "Pl
         if player.member.id == idn:
             return player
 
-    raise ValueError("player not found")
+    raise PlayerNotFoundError
 
 
 async def get_input(ctx: Context, text: str, timeout: int = 200) -> str:

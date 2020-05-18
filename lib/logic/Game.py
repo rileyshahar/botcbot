@@ -5,6 +5,7 @@ from random import shuffle
 from typing import List, Optional, TYPE_CHECKING
 
 from discord import Message
+from discord.ext import commands
 
 from lib.logic.Day import Day
 from lib.logic.Player import Player
@@ -95,7 +96,9 @@ class Game:
         """
         # Sanitize inputs
         if len(new_seating_order) != len(self.seating_order):
-            raise ValueError("unmatched seating order length")
+            raise commands.BadArgument(
+                "The new and old seating orders have differing lengths."
+            )
 
         # Edit the message
         await self.seating_order_message.edit(

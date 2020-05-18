@@ -10,6 +10,7 @@ from lib.logic.Character import Storyteller
 from lib.logic.Player import Player
 from lib.typings.context import Context
 from lib.utils import get_player, safe_send, safe_bug_report
+from lib.exceptions import PlayerNotFoundError
 
 _report_bug_message = " Please report this bug to nihilistkitten#6937 or an admin."
 
@@ -49,12 +50,8 @@ def _update_player_members(bot, after):
     try:
         player = get_player(bot.game, after)
         player.member = after
-    except TypeError as e:
-        if str(e) != "no current game":
-            raise
-    except ValueError as e:
-        if str(e) != "player not found":
-            raise
+    except PlayerNotFoundError:
+        pass
 
 
 def _update_storyteller_list(bot, after, before):
@@ -123,17 +120,6 @@ class Events(commands.Cog):
 
             if str(error) == "command called":
                 # raised by lib.utils.get_input if another command is called
-                return
-
-            if str(error) == "player not found":
-                # raised by lib.utils.get_player
-                raise error
-
-            if str(error) == "unmatched seating order length":
-                # raised by lib.logic.Game.Game.reseat
-                await safe_send(
-                    ctx, "The new and old seating orders have differing lengths."
-                )
                 return
 
         elif isinstance(error, HTTPException):
@@ -213,12 +199,8 @@ class Events(commands.Cog):
         try:
             player = get_player(self.bot.game, message.author.id, False)
             await player.make_active(self.bot.game)
-        except TypeError as e:
-            if str(e) != "no current game":
-                raise
-        except ValueError as e:
-            if str(e) != "player not found":
-                raise
+        except PlayerNotFoundError:
+            pass
 
 
 def setup(bot: BOTCBot):

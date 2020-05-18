@@ -8,6 +8,7 @@ from discord.ext import commands
 from lib.preferences import load_preferences
 from lib.typings.context import Context
 from lib.utils import get_input, get_player
+from lib.exceptions import PlayerNotFoundError
 
 if TYPE_CHECKING:
     from lib.logic.Player import Player
@@ -165,12 +166,10 @@ async def to_player(
         )
         if condition(player, ctx.bot.game, **kwargs):
             return player
-    except ValueError as e:
-        if str(e) == "player not found":
-            raise commands.BadArgument(
-                f"Multiple players match {argument}. Please try again."
-            )
-        raise
+    except PlayerNotFoundError:
+        raise commands.BadArgument(
+            f"Multiple players match {argument}. Please try again."
+        )
 
 
 def _generate_possibilities(argument: str, possibilities: List[Member]) -> List[Member]:

@@ -6,6 +6,7 @@ from discord.ext import commands
 
 from lib.typings.context import Context
 from lib.utils import get_player
+from lib.exceptions import PlayerNotFoundError
 
 
 def is_in_channel() -> Callable:
@@ -151,9 +152,8 @@ def is_player() -> Callable:
                     ctx.bot.game, ctx.message.author.id, include_storytellers=False
                 )
                 return True
-            except ValueError as e:
-                if not str(e) == "player not found":
-                    raise e
+            except PlayerNotFoundError:
+                pass
         raise commands.CheckFailure(message="Sorry! Only players can do that.")
 
     return commands.check(predicate)
