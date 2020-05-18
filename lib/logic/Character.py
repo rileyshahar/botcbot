@@ -199,7 +199,7 @@ class Traveler(Character):
         return " - " + self.name
 
     async def exile(self, ctx: Context):
-        """Exiles the traveler."""
+        """Exile the traveler."""
         if self.parent.ghost(ctx.bot.game):
             await safe_send(
                 ctx.bot.channel,

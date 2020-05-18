@@ -2,9 +2,8 @@
 from typing import Tuple, List
 
 from lib.logic.Character import Demon
-from lib.logic.Effect import Dead
 from lib.logic.Player import Player
-from lib.logic.tools import if_functioning, select_target
+from lib.logic.tools import if_functioning, select_target, kill_selector
 from lib.typings.context import Context
 from lib.utils import safe_send
 
@@ -18,15 +17,8 @@ class Imp(Demon):
     @if_functioning(False)
     async def morning(self, ctx: Context) -> Tuple[List[Player], List[str]]:
         """Apply the Imp's kill."""
-        target = await select_target(ctx, f"Who did {self.parent.epithet}, kill?")
-        if (
-            not target
-            or target.is_status(ctx.bot.game, "safe_from_demon")
-            or target.ghost(ctx.bot.game)
-        ):
-            return [], []
-
-        target.add_effect(ctx.bot.game, Dead, self.parent)
+        out = await kill_selector(self, ctx)
+        target = out[0][0]
 
         # starpass
         if target == self.parent:
@@ -41,4 +33,4 @@ class Imp(Demon):
                     break
                 await safe_send(ctx, "You must choose a minion.")
 
-        return [target], []
+        return out

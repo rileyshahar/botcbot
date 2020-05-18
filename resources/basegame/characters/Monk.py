@@ -8,7 +8,7 @@ from lib.logic.tools import (
     if_functioning,
     morning_delete,
     generic_ongoing_effect,
-    select_target,
+    add_targeted_effect,
 )
 from lib.typings.context import Context
 
@@ -32,11 +32,6 @@ class Monk(Townsfolk):
         self, ctx: Context, enabled: bool = True, epithet_string: str = ""
     ) -> Tuple[List[Player], List[str]]:
         """Apply the Monk's protection to a chosen target."""
-        target = await select_target(
-            ctx, f"Who did {self.parent.formatted_epithet(epithet_string)}, protect?"
+        return await add_targeted_effect(
+            self, ctx, _MonkProtection, "protect", enabled=enabled
         )
-        if target:
-            effect = target.add_effect(ctx.bot.game, _MonkProtection, self.parent)
-            if not enabled:
-                effect.disable(ctx.bot.game)
-        return [], []

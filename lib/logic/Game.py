@@ -7,6 +7,7 @@ from typing import List, Optional, TYPE_CHECKING
 from discord import Message
 from discord.ext import commands
 
+from lib.exceptions import InvalidMorningTargetError
 from lib.logic.Day import Day
 from lib.logic.Player import Player
 from lib.logic.tools import generate_game_info_message
@@ -132,7 +133,10 @@ class Game:
             for character in order:
                 for player in self.seating_order:
                     if isinstance(player.character, character):
-                        out_temp = await player.character.morning(ctx)
+                        try:
+                            out_temp = await player.character.morning(ctx)
+                        except InvalidMorningTargetError as e:
+                            out_temp = e.out
                         kills += out_temp[0]
                         messages += out_temp[1]
 

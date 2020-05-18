@@ -6,7 +6,12 @@ from discord.ext import commands
 from lib.logic.Character import Demon
 from lib.logic.Effect import Dead, Poisoned
 from lib.logic.Player import Player
-from lib.logic.tools import if_functioning, select_target, generic_ongoing_effect
+from lib.logic.tools import (
+    if_functioning,
+    select_target,
+    generic_ongoing_effect,
+    kill_selector,
+)
 from lib.typings.context import Context
 
 if TYPE_CHECKING:
@@ -56,15 +61,8 @@ class Vigormortis(Demon):
 
         If a Minion is chosen, apply the corresponding poison.
         """
-        target = await select_target(ctx, f"Who did {self.parent.epithet}, kill?")
-        if (
-            not target
-            or target.is_status(ctx.bot.game, "safe_from_demon")
-            or target.ghost(ctx.bot.game)
-        ):
-            return [], []
-
-        target.add_effect(ctx.bot.game, _VigormortisDead, self.parent)
+        out = await kill_selector(self, ctx, _VigormortisDead)
+        target = out[0][0]
 
         # vigormortis poison
         if target.is_status(ctx.bot.game, "minion", registers=True):
@@ -78,4 +76,4 @@ class Vigormortis(Demon):
                 )
                 # TODO: this needs to be a custom Poisoned subclass that has nice
                 # cleanup functions for if the minion changes character
-        return [target], []
+        return out

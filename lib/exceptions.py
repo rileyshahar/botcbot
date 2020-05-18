@@ -1,7 +1,7 @@
 """Contains custom exceptions."""
 
 
-class _InvalidTarget(Exception):
+class _InvalidTargetError(Exception):
     """Invalid target selected."""
 
     default = None
@@ -10,7 +10,7 @@ class _InvalidTarget(Exception):
         self.out = kwargs.pop("out", self.default)
 
 
-class InvalidMorningTarget(_InvalidTarget):
+class InvalidMorningTargetError(_InvalidTargetError):
     """Invalid target selected during the morning."""
 
     default = [], []

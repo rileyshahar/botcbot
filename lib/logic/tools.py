@@ -1,12 +1,14 @@
 """Contains tools for managing game logic."""
 import itertools
 from functools import wraps
-from typing import List, Optional, Type, Callable, TYPE_CHECKING, Dict
+from typing import List, Optional, Type, Callable, TYPE_CHECKING, Dict, Tuple
 
 import numpy as np
 from discord.ext import commands
 
+from lib.exceptions import InvalidMorningTargetError
 from lib.logic.Character import Character
+from lib.logic.Effect import Effect, Dead
 from lib.logic.playerconverter import to_player
 from lib.preferences import load_preferences
 from lib.typings.context import Context
@@ -14,7 +16,6 @@ from lib.utils import safe_send, get_input, safe_bug_report, list_to_plural_stri
 
 if TYPE_CHECKING:
     from lib.logic.Player import Player
-    from lib.logic.Effect import Effect
     from lib.logic.Game import Game
 
 # TODO: sort these into more sensible locations
@@ -401,4 +402,59 @@ def generic_ongoing_effect(effect: Type["Effect"]):
     """Delete the effect on source death and disable it on source drunkpoisoning."""
     return source_functioning_enable()(
         source_drunkpoisoned_disable()(source_death_delete()(effect))
+    )
+
+
+def _condition_wrapper(condition):
+    @wraps(condition)
+    def wrapper(player: "Player", game: "Game"):
+        """Return true if player exists and condition is met, else raise an exception."""
+        if player:
+            return condition(player, game)
+        raise InvalidMorningTargetError
+
+    return wrapper
+
+
+async def add_targeted_effect(
+    character: Character,
+    ctx: Context,
+    effect: Type["Effect"],
+    verb: str,
+    *,
+    condition: Callable[["Player", "Game"], bool] = lambda x, y: True,
+    allow_none: bool = True,
+    enabled: bool = True,
+) -> Tuple[List["Player"], List[str]]:
+    """Choose a target and add an effect.
+
+    condition should raise a InvalidMorningTargetError if not met.
+    """
+    if allow_none:
+        condition = _condition_wrapper(condition)
+    target = await select_target(
+        ctx, f"Who did {character.parent.epithet}, {verb}?", condition=condition
+    )
+    effect_object = target.add_effect(ctx.bot.game, effect, character.parent)
+    if not enabled:
+        effect_object.disable(ctx.bot.game)
+    if issubclass(effect, Dead):
+        return [target], []
+    else:
+        return [], []
+
+
+@_condition_wrapper
+def _kill_condition(target: "Player", game: "Game"):
+    if not (target.is_status(game, "safe_from_demon") or target.ghost(game)):
+        return True
+    raise InvalidMorningTargetError
+
+
+async def kill_selector(
+    character: Character, ctx: Context, kill_effect: Type[Effect] = Dead
+) -> Tuple[List["Player"], List[str]]:
+    """Perform the demon's kill."""
+    return await add_targeted_effect(
+        character, ctx, kill_effect, "kill", condition=_kill_condition
     )
