@@ -64,7 +64,7 @@ class Effect:
     @property
     def name(self):
         """Determine the effect's name."""
-        return self._name
+        return f"{self._name} ({self.source_player.character.name})"
 
     def status(self, game: "Game", status_name: str) -> bool:
         """Determine whether the effect causes a status.

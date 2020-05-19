@@ -34,13 +34,13 @@ class Vote:
     prevotes : Dict[Player, int]
         IDs of players who have prevoted, and their prevotes.
     position : int
-        The current position in the order.
+        The current position in the _order.
     votes : int
         The current number of votes.
     voted : List[Player]
         The players who have voted yes.
     order : List[Player]
-        The order of the vote.
+        The _order of the vote.
     majority : float
         The threshold of votes required for a majority.
     nominee
@@ -64,7 +64,7 @@ class Vote:
         self.votes = 0
         self.voted = []
 
-        # determine the order
+        # determine the _order
         if self.storyteller:
             self.order = game.seating_order
         else:

@@ -3,12 +3,17 @@ from typing import Tuple, List
 
 from lib.logic.Character import Demon
 from lib.logic.Player import Player
-from lib.logic.tools import if_functioning, select_target, kill_selector
+from lib.logic.charcreation import (
+    select_target,
+    if_functioning,
+    kill_selector,
+    MorningTargetCallMixin,
+)
 from lib.typings.context import Context
 from lib.utils import safe_send
 
 
-class Imp(Demon):
+class Imp(Demon, MorningTargetCallMixin):
     """The Imp."""
 
     name: str = "Imp"

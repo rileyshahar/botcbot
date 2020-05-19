@@ -109,7 +109,7 @@ class GameManagement(commands.Cog, name="Game Management"):
             # rules
             msg = await safe_send(
                 ctx.bot.channel,
-                f"\n**{player.character.name}** - {player.character.rules_text}",
+                f"\n**{player.character.name}** - {player.character.rules_text()}",
             )
             await msg.pin()
             await safe_send(

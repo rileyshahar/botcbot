@@ -9,7 +9,7 @@ from lib.bot import BOTCBot
 from lib.logic import Effect
 from lib.logic.Player import Player
 from lib.logic.playerconverter import to_player
-from lib.logic.tools import generic_ongoing_effect
+from lib.logic.charcreation import generic_ongoing_effect
 from lib.typings.context import Context
 from lib.utils import safe_send
 

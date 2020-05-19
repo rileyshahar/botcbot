@@ -1,0 +1,239 @@
+{
+  "Character": {
+    "rules": "Character. If you're seeing this, something has gone wrong."
+  },
+  "Townsfolk": {
+    "rules": "Townsfolk. If you're seeing this, something has gone wrong."
+  },
+  "Outsider": {
+    "rules": "Outsider. If you're seeing this, something has gone wrong."
+  },
+  "Minion": {
+    "rules": "Minion. If you're seeing this, something has gone wrong."
+  },
+  "Demon": {
+    "rules": "Demon. If you're seeing this, something has gone wrong."
+  },
+  "Traveler": {
+    "rules": "Traveler. If you're seeing this, something has gone wrong."
+  },
+  "Storyteller": {
+    "rules": "Storyteller. If you're seeing this, something has (probably) gone wrong."
+  },
+  "Witch": {
+    "rules": "Each night, choose a player: if they nominate tomorrow, they die. If just 3 players live, you lose this ability."
+  },
+  "No Dashii": {
+    "rules": "Each night\\*, choose a player: they die. Your 2 Townsfolk neighbours are poisoned."
+  },
+  "Monk": {
+    "rules": "Each night\\*, choose a player (not yourself): they are safe from the Demon tonight."
+  },
+  "Empath": {
+    "rules": "Each night, you learn how many of your 2 alive neighbours are evil."
+  },
+  "Cerenovus": {
+    "rules": "Each night, choose a player & a good character: they are \"mad\" they are this character tomorrow, or might be executed."
+  },
+  "Chambermaid": {
+    "rules": "Each night, choose 2 alive players (not yourself): you learn how many wake tonight due to their character ability."
+  },
+  "Clockmaker": {
+    "rules": "You start knowing how many steps from the Demon to its nearest Minion."
+  },
+  "Innkeeper": {
+    "rules": "Each night\\*, choose 2 players: they can't die tonight, but 1 is drunk until dusk."
+  },
+  "Pacifist": {
+    "rules": "Executed good players might not die."
+  },
+  "Juggler": {
+    "rules": "On your 1st day, publicly guess up to 5 players' characters. That night, you learn how many you got correct."
+  },
+  "Shabaloth": {
+    "rules": "Each night\\*, choose 2 players: they die. A dead player you chose last night might be regurgitated."
+  },
+  "Sage": {
+    "rules": "If the Demon kills you, you learn that it is 1 of 2 players."
+  },
+  "Recluse": {
+    "rules": "You might register as evil & as a Minion or Demon, even if dead."
+  },
+  "Mastermind": {
+    "rules": "If the Demon dies by execution, play for one more day. If a player is then executed, their team loses."
+  },
+  "Snake Charmer": {
+    "rules": "Each night, choose an alive player: a chosen Demon swaps characters & alignments with you & is then poisoned."
+  },
+  "Baron": {
+    "rules": "There are extra Outsiders in play. [+2 Outsiders]"
+  },
+  "Courtier": {
+    "rules": "Once per game, at night, choose a character: they are drunk for 3 nights & 3 days."
+  },
+  "Devil's Advocate": {
+    "rules": "Each night, choose a living player (not the same as last night): if executed tomorrow, they don't die."
+  },
+  "Sailor": {
+    "rules": "Each night, choose a player: either you or they are drunk until dusk. You can't die."
+  },
+  "Moonchild": {
+    "rules": "When you learn that you died, choose 1 alive player: if good, they die tonight."
+  },
+  "Tea Lady": {
+    "rules": "If both your alive neighbours are good, they can't die."
+  },
+  "Assassin": {
+    "rules": "Once per game, at night\\*, choose a player: they die, even if for some reason they could not."
+  },
+  "Dreamer": {
+    "rules": "Each night, choose a player (not yourself): you learn 1 good & 1 evil character, 1 of which is correct."
+  },
+  "Ravenkeeper": {
+    "rules": "If you die at night, you are woken to choose a player: you learn their character."
+  },
+  "Librarian": {
+    "rules": "You start knowing that 1 of 2 players is a particular Outsider. (Or that zero are in play)"
+  },
+  "Gambler": {
+    "rules": "Each night\\*, choose a player & guess their character: if you guess wrong, you die."
+  },
+  "Flowergirl": {
+    "rules": "Each night\\*, you learn if the Demon voted today."
+  },
+  "Spy": {
+    "rules": "Each night, you see the Grimoire. You might register as good & as a Townsfolk or Outsider, even if dead."
+  },
+  "Fool": {
+    "rules": "The first time you die, you don't."
+  },
+  "Washerwoman": {
+    "rules": "You start knowing that 1 of 2 players is a particular Townsfolk."
+  },
+  "Tinker": {
+    "rules": "You might die at any time."
+  },
+  "Sweetheart": {
+    "rules": "If you die, 1 player is drunk from now on."
+  },
+  "Fang Gu": {
+    "rules": "Each night\\*, choose a player: they die. The 1st Outsider chosen becomes an evil Fang Gu & you die instead. [+1 Outsider]"
+  },
+  "Exorcist": {
+    "rules": "Each night\\*, choose a player (not the same as last night): the Demon, if chosen, learns who you are & doesn't act tonight."
+  },
+  "Klutz": {
+    "rules": "When you learn that you died, publicly choose an alive good player, or your team loses."
+  },
+  "Mathematician": {
+    "rules": "Each night, you learn how many players' abilities worked abnormally (since dawn) due to another character\u00e2\u0080\u0099s ability."
+  },
+  "Butler": {
+    "rules": "Each night, choose a player (not yourself): tomorrow, you may only vote if they are voting too."
+  },
+  "Undertaker": {
+    "rules": "Each night\\*, you learn which character died by execution today."
+  },
+  "Artist": {
+    "rules": "Once per game, during the day, privately ask the Storyteller any yes/no question."
+  },
+  "Poisoner": {
+    "rules": "Each night, choose a player: their ability malfunctions tonight and tomorrow day."
+  },
+  "Barber": {
+    "rules": "If you die, tonight the Demon may choose 2 players to swap characters."
+  },
+  "Grandmother": {
+    "rules": "You start knowing a good player & character. If the Demon kills them, you die too."
+  },
+  "Pukka": {
+    "rules": "Each night, choose a player: they are poisoned until tomorrow night, then die. You act on the 1st night."
+  },
+  "Professor": {
+    "rules": "Once per game, at night\\*, choose a dead player: if they are a Townsfolk, they are resurrected."
+  },
+  "Savant": {
+    "rules": "Each day, you may visit the Storyteller to learn 2 things in private: 1 is true & 1 is false."
+  },
+  "Zombuul": {
+    "rules": "Each night\\*, if no one died today, choose a player: they die. The 1st time you die, you live but register as dead."
+  },
+  "Pit-Hag": {
+    "rules": "Each night\\*, choose a player & a character they become (if not in play). If a Demon is made, deaths tonight are arbitrary."
+  },
+  "Virgin": {
+    "rules": "The 1st time you are nominated, if the nominator is a Townsfolk, they are executed immediately."
+  },
+  "Gossip": {
+    "rules": "Each day, you may make a public statement. Tonight, if it was true, a player dies."
+  },
+  "Seamstress": {
+    "rules": "Once per game, at night, choose 2 players (not yourself): you learn if they are the same alignment."
+  },
+  "Town Crier": {
+    "rules": "Each night\\*, you learn if a Minion nominated that day."
+  },
+  "Po": {
+    "rules": "Each night,\\* you may choose a player: they die. If you chose no one last night, choose 3 players tonight."
+  },
+  "Philosopher": {
+    "rules": "Once per game, at night, choose a good character: become them. If you duplicate an in-play character, they are drunk."
+  },
+  "Saint": {
+    "rules": "If you are executed, your team loses."
+  },
+  "Oracle": {
+    "rules": "Each night\\*, you learn how many dead players are evil."
+  },
+  "Fortune Teller": {
+    "rules": "Each night, choose 2 players: you learn if either is a Demon. There is 1 good player that registers falsely to you."
+  },
+  "Investigator": {
+    "rules": "You start knowing that 1 of 2 players is a particular Minion."
+  },
+  "Slayer": {
+    "rules": "Once per game, during the day, publicly choose a player: if they are the Demon, they die."
+  },
+  "Lunatic": {
+    "rules": "You think you are a Demon, but your abilities malfunction. The Demon knows who you are & who you attack."
+  },
+  "Scarlet Woman": {
+    "rules": "If there are 5 or more players alive & the Demon dies, you become the Demon. (Travelers don't count)"
+  },
+  "Soldier": {
+    "rules": "You are safe from the Demon."
+  },
+  "Vortox": {
+    "rules": "Each night\\*, choose a player: they die. Good abilities yield false information. Each day, if no one is executed, evil wins."
+  },
+  "Chef": {
+    "rules": "You start knowing how many pairs of evil players there are."
+  },
+  "Drunk": {
+    "rules": "You do not know you are the Drunk. You think you are a Townsfolk, but your ability malfunctions."
+  },
+  "Evil Twin": {
+    "rules": "You & an opposing player know each other. If the good player is executed, evil wins. Good can't win if you both live."
+  },
+  "Godfather": {
+    "rules": "You start knowing which Outsiders are in play. If 1 died today, choose a player tonight: they die. [-1 or +1 Outsider]"
+  },
+  "Imp": {
+    "rules": "Each night\\*, choose a player: they die. If you kill yourself this way, a Minion becomes the Imp."
+  },
+  "Vigormortis": {
+    "rules": "Each night\\*, choose a player: they die. Minions you kill keep their ability & poison 1 Townsfolk neighbour. [-1 Outsider]"
+  },
+  "Goon": {
+    "rules": "Each night, the 1st player to choose you with their ability is drunk until dusk. You become their alignment."
+  },
+  "Minstrel": {
+    "rules": "If a Minion died today, all other players (except Travellers) are drunk all night, until dusk."
+  },
+  "Mutant": {
+    "rules": "If you are \"mad\" about being an Outsider, you might be executed."
+  },
+  "Mayor": {
+    "rules": "If only 3 players live & no execution occurs, your team wins. If you die at night, another player might die instead."
+  }
+}

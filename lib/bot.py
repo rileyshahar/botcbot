@@ -15,7 +15,7 @@ from lib.logic.converters import to_character_list
 from lib.logic.playerconverter import to_member_list
 from lib.logic.tools import generate_game_info_message
 from lib.preferences import load_preferences
-from lib.utils import safe_send, get_input
+from lib.utils import safe_send, get_input, safe_bug_report
 
 if typing.TYPE_CHECKING:
     from lib.logic.Script import Script
@@ -155,7 +155,7 @@ class BOTCBot(commands.Bot):
             for content in list(script.info(ctx)):
                 posts.append(await safe_send(self.channel, content))
 
-            for post in posts[::-1]:  # Reverse the order so the pins are right
+            for post in posts[::-1]:  # Reverse the _order so the pins are right
                 await post.pin()
 
             # welcome message
@@ -168,7 +168,7 @@ class BOTCBot(commands.Bot):
                 ),
             )
 
-            # Seating order message
+            # seating order message
             seating_order_message = await safe_send(
                 self.channel, generate_game_info_message(seating_order, ctx.bot.game),
             )
@@ -182,9 +182,9 @@ class BOTCBot(commands.Bot):
 
             # start the game
             self.game = Game(seating_order, seating_order_message, script, storytellers)
-
-            # complete
-            return
+            if safe_bug_report(ctx):
+                await safe_send(ctx, "Started the game successfully.")
+            await self.game.start_night(ctx)
 
     async def update_status(self):
         """Update the bot's status to display information about the game."""

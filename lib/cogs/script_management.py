@@ -101,11 +101,11 @@ class ScriptManagement(commands.Cog, name="Scripts"):
                 playtest=playtest,
             )
 
-        # First night order
+        # First night _order
         raw_first_night = (
             await get_input(
                 ctx,
-                "What is the first night order? Separate characters by line breaks.",
+                "What is the first night _order? Separate characters by line breaks.",
             )
         ).split("\n")
 
@@ -118,12 +118,12 @@ class ScriptManagement(commands.Cog, name="Scripts"):
 
             script.first_night = first_night_list
 
-        # Other nights order
+        # Other nights _order
         raw_other_nights = (
             await get_input(
                 ctx,
                 (
-                    "What is the order for other nights?"
+                    "What is the _order for other nights?"
                     "Separate characters by line breaks."
                 ),
             )

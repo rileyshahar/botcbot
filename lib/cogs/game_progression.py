@@ -1,16 +1,12 @@
 """Contains the GameProgression cog, for commands related to game progression."""
 from datetime import datetime, timedelta
 from os.path import isfile
-from typing import List
 
 import pytz
 from discord.ext import commands
 
 from lib import checks
-from lib.logic.Effect import Dead
-from lib.logic.Player import Player
 from lib.logic.converters import to_script
-from lib.logic.playerconverter import to_player
 from lib.typings.context import Context
 from lib.utils import safe_send, get_bool_input
 
@@ -44,7 +40,6 @@ class GameProgression(commands.Cog, name="Game Progression"):
         This is a line-separated, ordered list of the corresponding characters.
         """
         await ctx.bot.start_game(ctx, to_script(ctx, script))
-        await safe_send(ctx, "Started the game successfully.")
 
     @commands.command()
     @checks.is_game()
@@ -131,37 +126,23 @@ class GameProgression(commands.Cog, name="Game Progression"):
         await safe_send(ctx.bot.channel, "No one was executed.")
         await ctx.bot.game.current_day.end(ctx)
 
-    @commands.group()
+    @commands.command()
     @checks.is_night()
     @checks.is_game()
     @checks.is_storyteller()
     @checks.is_dm()
-    async def startday(self, ctx):
-        """Start the day.
+    async def currentstep(self, ctx: Context):
+        """View the current step in the current night."""
+        await ctx.bot.game.current_night.current_step(ctx)
 
-        This will perform the action of most characters in the night order.
-        It does not handle info roles or other roles with no effect on the gamestate.
-        """
-        return await ctx.bot.game.startday(ctx)
-
-    @startday.command()
-    async def arbitrarykills(self, ctx: Context, *, kills: str):
-        """Start the day with arbitrary additional kills at the beginning of the night.
-
-        kills: Any players to kill.
-        This goes through protection, but cannot kill dead players.
-        The players are killed at the beginning of the night.
-        """
-        kills_actual = []  # type: List[Player]
-        # convert kills
-        for kill_string in kills:
-            kills_actual.append(await to_player(ctx, kill_string))
-
-        for player in kills_actual:
-            if not player.ghost(ctx.bot.game):
-                player.add_effect(ctx.bot.game, Dead, player)
-
-        await ctx.bot.game.startday(ctx, kills_actual)
+    @commands.command()
+    @checks.is_night()
+    @checks.is_game()
+    @checks.is_storyteller()
+    @checks.is_dm()
+    async def nextstep(self, ctx):
+        """Progress the current night."""
+        await ctx.bot.game.current_night.next_step(ctx)
 
     @commands.group(name="open")
     @checks.is_day()

@@ -7,7 +7,7 @@ from typing import Optional
 from discord import Member, Role
 from discord.ext import commands
 
-from lib.logic.Effect import Effect, Dead
+from lib.logic.Effect import Effect, Dead, Evil, Good
 from lib.preferences import load_preferences
 from lib.typings.context import Context
 from lib.utils import safe_send, get_input, safe_bug_report
@@ -22,7 +22,7 @@ def _get_neighbor(
     condition: typing.Callable[["Player", "Game"], bool],
     order: typing.List["Player"],
 ) -> typing.Optional["Player"]:
-    """Determine the first player in order matching condition."""
+    """Determine the first player in _order matching condition."""
     out = None
     for player in order:
         if condition(player, game):
@@ -316,30 +316,6 @@ class Player:
         self.has_spoken = self.is_inactive
         self.has_skipped = self.is_inactive
 
-    def revive(self, game: "Game") -> str:
-        """Handle effect cleanup when the player revives.
-
-        Parameters
-        ----------
-        game: Game
-            The current game.
-
-        Returns
-        -------
-        str
-            A string reporting the revival.
-        """
-        effect_list = [x for x in self.effects]
-        for effect in effect_list:
-            if effect.status(game, "dead") or effect.status(game, "used_ability"):
-                # TODO: figure out how this should work with registers_status
-                self.effects.remove(effect)
-
-        for effect in self.source_effects(game):
-            effect.source_starts_functioning(game)
-
-        return f"{self.nick} has come back to life."
-
     async def message(self, ctx: Context, frm: "Player"):
         """Handle inbound PMs to the player.
 
@@ -365,7 +341,8 @@ class Player:
                         f"{st.member.mention}, message from {frm.nick} to "
                         f"storyteller {self.nick}: **{content}**"
                     ),
-                )  # STs get the bolded message for a message to any ST
+                )  # STs get the
+                # bolded message for a message to any ST
 
             for observer in ctx.bot.observer_role.members:
                 await safe_send(
@@ -411,17 +388,47 @@ class Player:
         await safe_send(frm.member, "Message sent!")
         return
 
+    def revive(self, game: "Game") -> str:
+        """Handle effect cleanup when the player revives.
+
+        Parameters
+        ----------
+        game: Game
+            The current game.
+
+        Returns
+        -------
+        str
+            A string reporting the revival.
+        """
+        effect_list = [x for x in self.effects]
+        for effect in effect_list:
+            if effect.status(game, "dead") or effect.status(game, "used_ability"):
+                # TODO: figure out how this should work with registers_status
+                self.effects.remove(effect)
+
+        for effect in self.source_effects(game):
+            effect.source_starts_functioning(game)
+
+        return f"{self.nick} has come back to life."
+
     async def change_character(
         self, ctx: Context, new_character: typing.Type["Character"]
     ):
         """Change the player's character. Handle effect cleanup."""
         effect_list = [x for x in self.source_effects(ctx.bot.game)]
         for effect in effect_list:
-            effect.delete(ctx.bot.game)
+            if effect not in (Good, Evil):
+                effect.delete(ctx.bot.game)
 
         self.character = new_character(self)
         for effect in self.character.default_effects:
-            self.add_effect(ctx.bot.game, effect, self)
+            if effect not in (Good, Evil):
+                self.add_effect(ctx.bot.game, effect, self)
+
+        if self.character in ctx.bot.game.script.first_night:
+            if ctx.bot.game.current_night:
+                ctx.bot.game.current_night.add(self)
 
         await safe_send(
             ctx, f"Successfully changed {self.nick} to the {self.character.name}."
@@ -507,7 +514,8 @@ class Player:
         """
         return load_preferences(
             self.member
-        ).nick  # the preferences object defaults to obj.nick = member.display_name
+        ).nick  # the preferences object defaults to obj.nick =
+        # member.display_name
 
     @property
     def epithet(self) -> str:

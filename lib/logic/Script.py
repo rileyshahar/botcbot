@@ -30,9 +30,9 @@ class Script:
     aliases : List[str]
         The script's aliases.
     first_night : List[Type[Character]]
-        The first night order.
+        The first night _order.
     other_nights : List[Type[Character]]
-        The order for other nights.
+        The _order for other nights.
     editors : List[int]
         IDs of users authorized to edit the script.
     playtest : bool
@@ -145,7 +145,7 @@ class Script:
         for character in self.character_list:
             if issubclass(character, cls):
                 out += "\n> **{char_name}** - {char_rules}".format(
-                    char_name=character.name, char_rules=character(None).rules_text,
+                    char_name=character.name, char_rules=character.rules_text(),
                 )
         return out
 

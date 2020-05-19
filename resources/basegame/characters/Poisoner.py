@@ -1,14 +1,11 @@
 """Contains the Poisoner class."""
-from typing import Tuple, List
 
 from lib.logic.Character import Minion
 from lib.logic.Effect import Poisoned
-from lib.logic.Player import Player
-from lib.logic.tools import (
-    if_functioning,
+from lib.logic.charcreation import (
     evening_delete,
     generic_ongoing_effect,
-    add_targeted_effect,
+    MorningTargeterMixin,
 )
 
 
@@ -20,17 +17,16 @@ class _PoisonerPoison(Poisoned):
     pass
 
 
-class Poisoner(Minion):
+# TODO: the problem right now is itll ask the poisoner who to target
+# even if they cant use their ability because of death
+# the if_functioning check needs to happen sometime earlier
+# before morning_call is called
+
+
+class Poisoner(Minion, MorningTargeterMixin):
     """The Poisoner."""
 
     name: str = "Poisoner"
     playtest: bool = False
-
-    @if_functioning(True)
-    async def morning(
-        self, ctx, enabled=True, epithet_string=""
-    ) -> Tuple[List[Player], List[str]]:
-        """Apply the Poisoner's poison to a chosen target."""
-        return await add_targeted_effect(
-            self, ctx, _PoisonerPoison, "poison", enabled=enabled
-        )
+    _morning_effect = _PoisonerPoison
+    _morning_target_string = "poison"

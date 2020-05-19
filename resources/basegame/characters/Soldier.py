@@ -1,7 +1,7 @@
 """Contains the Soldier class."""
 
 from lib.logic.Character import Townsfolk
-from lib.logic.tools import generic_ongoing_effect
+from lib.logic.charcreation import generic_ongoing_effect
 from lib.logic.Effect import SafeFromDemon
 
 

@@ -4,7 +4,7 @@ from lib.logic.Character import Townsfolk
 from lib.logic.Day import generate_nomination_message_text
 from lib.logic.Effect import UsedAbility
 from lib.logic.Player import Player
-from lib.logic.tools import if_functioning, onetime_use
+from lib.logic.charcreation import if_functioning, onetime_use
 from lib.typings.context import Context
 from lib.utils import safe_send
 

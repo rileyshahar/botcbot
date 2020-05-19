@@ -1,16 +1,12 @@
 """Contains the Character and Storyteller classes and several Character subclasses."""
 
-from typing import List, Tuple, Type, Optional, TYPE_CHECKING
+import json
+from abc import ABC
+from typing import List, Tuple, Type, Optional, TYPE_CHECKING, Dict
 
 from discord.ext import commands
 
-from resources.basegame.rules_texts import rules_texts
-
-try:
-    from resources.playtest.playtest_rules_texts import playtest_rules_texts
-except ImportError:
-    playtest_rules_texts = {}
-
+from lib.abc import NightOrderMember
 from lib.logic.Effect import (
     Dead,
     Good,
@@ -23,15 +19,14 @@ from lib.logic.Effect import (
     StorytellerEffect,
 )
 from lib.typings.context import Context
-from lib.utils import str_cleanup, safe_send
-from lib.preferences import load_preferences
+from lib.utils import safe_send
 
 if TYPE_CHECKING:
     from lib.logic.Effect import Effect
     from lib.logic.Player import Player
 
 
-class Character:
+class Character(NightOrderMember):
     """A generic character.
 
     Parameters
@@ -78,19 +73,6 @@ class Character:
         str
             A non-kill message to broadcast at the start of the day.
         """
-        # check that this isn't a dummy call from a wrapper to figure out the return
-        # see the commenting of tools.if_functioning for more info
-        if self.parent:
-            await safe_send(
-                ctx,
-                (
-                    "Skipping {epithet}, as "
-                    "{posessive} ability is not handled by the bot."
-                ).format(
-                    epithet=self.parent.epithet,
-                    posessive=load_preferences(self.parent).pronouns[2],
-                ),
-            )
         return [], []
 
     # noinspection PyUnusedLocal
@@ -125,25 +107,36 @@ class Character:
         """
         pass
 
-    @property
-    def rules_text(self) -> str:
-        """Generate the character's rules text.
+    @classmethod
+    def _char_info(cls) -> Dict:
+        if not cls.playtest:
+            with open("resources/basegame/character_info.json", "r") as fp:
+                return json.load(fp)[cls.name]
+        else:
+            with open("resources/playtest/character_info.json", "r") as fp:
+                return json.load(fp)[cls.name]
 
-        Can't be defined in __init__ because self.name is Character then.
-        """
+    @classmethod
+    def rules_text(cls) -> str:
+        """Generate the character's rules text."""
         try:
-            if not self.playtest:
-                return rules_texts[str_cleanup(self.name)]
-            return playtest_rules_texts[str_cleanup(self.name)]
+            return cls._char_info()["rules"]
         except KeyError:
             return "Rules text not found."
+
+    def morning_call(self) -> str:
+        """Generate the character's initial morning call."""
+        return (
+            f"Uh oh! {self.parent.epithet} is up, but I seem to think they "
+            "don't do anything at night! Please report this bug!"
+        )
 
     def exile(self, ctx: Context):
         """Overridden by traveler."""
         raise commands.BadArgument(f"{self.parent.nick} is not a traveler.")
 
 
-class Townsfolk(Character):
+class Townsfolk(Character, ABC):
     """The Townsfolk class."""
 
     name: str = "Townsfolk"
@@ -153,7 +146,7 @@ class Townsfolk(Character):
         self.default_effects += [Good, TownsfolkEffect]
 
 
-class Outsider(Character):
+class Outsider(Character, ABC):
     """The Outsider class."""
 
     name: str = "Outsider"
@@ -163,7 +156,7 @@ class Outsider(Character):
         self.default_effects += [Good, OutsiderEffect]
 
 
-class Minion(Character):
+class Minion(Character, ABC):
     """The Minion class."""
 
     name: str = "Minion"
@@ -173,7 +166,7 @@ class Minion(Character):
         self.default_effects += [Evil, MinionEffect]
 
 
-class Demon(Character):
+class Demon(Character, ABC):
     """The Demon class."""
 
     name: str = "Demon"
@@ -183,7 +176,7 @@ class Demon(Character):
         self.default_effects += [Evil, DemonEffect]
 
 
-class Traveler(Character):
+class Traveler(Character, ABC):
     """The Traveler class."""
 
     name: str = "Traveler"
@@ -232,3 +225,7 @@ class Storyteller(Character):
     def seating_order_addendum(self):
         """Determine the seating order addendum."""
         return " - Storyeller"
+
+    def morning_call(self):
+        """Meet ABC requirements."""
+        return super().morning_call()

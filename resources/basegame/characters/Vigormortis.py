@@ -6,9 +6,9 @@ from discord.ext import commands
 from lib.logic.Character import Demon
 from lib.logic.Effect import Dead, Poisoned
 from lib.logic.Player import Player
-from lib.logic.tools import (
-    if_functioning,
+from lib.logic.charcreation import (
     select_target,
+    if_functioning,
     generic_ongoing_effect,
     kill_selector,
 )

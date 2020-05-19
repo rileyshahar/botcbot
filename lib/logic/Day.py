@@ -167,7 +167,7 @@ class Day:
         for player in ctx.bot.game.seating_order:
             effect_list = [x for x in player.effects]
             for effect in effect_list:
-                effect.evening_cleanup(ctx)
+                effect.evening_cleanup(ctx.bot.game)
 
         # remove the current vote
         if self.current_vote:
@@ -188,6 +188,9 @@ class Day:
         # complete
         if safe_bug_report(ctx):
             await safe_send(ctx, "Successfully ended the day.")
+
+        # new night
+        await ctx.bot.game.start_night(ctx)
 
 
 def _check_valid_nominee(game: "Game", nominator: Player, nominee: Player):

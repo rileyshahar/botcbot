@@ -6,7 +6,7 @@ from discord.ext import commands
 from lib.logic.Character import Townsfolk
 from lib.logic.Effect import UsedAbility
 from lib.logic.Player import Player
-from lib.logic.tools import if_functioning, onetime_use, select_target
+from lib.logic.charcreation import select_target, if_functioning, onetime_use
 from lib.typings.context import Context
 
 if TYPE_CHECKING:

@@ -4,7 +4,7 @@ from typing import Tuple, List
 from lib.logic.Character import Townsfolk
 from lib.logic.Effect import SafeFromDemon
 from lib.logic.Player import Player
-from lib.logic.tools import (
+from lib.logic.charcreation import (
     if_functioning,
     morning_delete,
     generic_ongoing_effect,
