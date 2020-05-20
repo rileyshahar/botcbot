@@ -28,5 +28,5 @@ class Poisoner(Minion, MorningTargeterMixin):
 
     name: str = "Poisoner"
     playtest: bool = False
-    _morning_effect = _PoisonerPoison
-    _morning_target_string = "poison"
+    _MORNING_EFFECT = _PoisonerPoison
+    _MORNING_TARGET_STRING = "poison"

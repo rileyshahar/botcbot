@@ -14,6 +14,6 @@ class Butler(Outsider, MorningTargeterMixin):
 
     name: str = "Butler"
     playtest: bool = False
-    _morning_condition_string = "different"
-    _morning_effect = _ButlerMaster
-    _morning_target_string = "choose"
+    _MORNING_CONDITION_STRING = "different"
+    _MORNING_EFFECT = _ButlerMaster
+    _MORNING_TARGET_STRING = "choose"

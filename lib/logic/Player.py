@@ -426,6 +426,7 @@ class Player:
             if effect not in (Good, Evil):
                 self.add_effect(ctx.bot.game, effect, self)
 
+        # TODO: this needs to be tested
         if self.character in ctx.bot.game.script.first_night:
             if ctx.bot.game.current_night:
                 ctx.bot.game.current_night.add(self)

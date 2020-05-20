@@ -42,9 +42,15 @@ class Night:
         return self._order[self._step]
 
     async def current_step(self, ctx: Context):
-        await safe_send(ctx, self._current_player.character.morning_call())
+        """Send a reminder of the current step in the night."""
+        message_text = await self._current_player.character.morning_call(ctx)
+        if message_text:
+            await safe_send(ctx, message_text)
+        else:
+            await self._increment_night(ctx)
 
     async def next_step(self, ctx: Context):
+        """Perform the next step in the night."""
         try:
             out_temp = await self._current_player.character.morning(ctx)
         except InvalidMorningTargetError as e:
@@ -52,8 +58,10 @@ class Night:
         self._kills += out_temp[0]
         self._messages += out_temp[1]
 
-        self._step += 1
+        await self._increment_night(ctx)
 
+    async def _increment_night(self, ctx):
+        self._step += 1
         if self._step >= len(self._order):
             await self._end(ctx)
         else:

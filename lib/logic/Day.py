@@ -83,7 +83,7 @@ class Day:
             nominee.is_status(ctx.bot.game, "storyteller")
             or nominee.is_status(ctx.bot.game, "traveler")
         ):
-            await nominee.add_nomination(ctx)
+            await nominator.add_nomination(ctx)
         nominee.has_been_nominated = True
 
         # close pms and nominations

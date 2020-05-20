@@ -36,10 +36,6 @@ class Character(NightOrderMember):
 
     Attributes
     ----------
-    playtest : bool
-        Whether the character is playtest-only.
-    name : str
-        The character's name.
     default_effects : List[Type[Effect]]
         The effects a character starts with.
     parent: Player
@@ -113,7 +109,7 @@ class Character(NightOrderMember):
             with open("resources/basegame/character_info.json", "r") as fp:
                 return json.load(fp)[cls.name]
         else:
-            with open("resources/playtest/character_info.json", "r") as fp:
+            with open("resources/d/character_info.json", "r") as fp:
                 return json.load(fp)[cls.name]
 
     @classmethod
@@ -124,12 +120,16 @@ class Character(NightOrderMember):
         except KeyError:
             return "Rules text not found."
 
-    def morning_call(self) -> str:
-        """Generate the character's initial morning call."""
-        return (
-            f"Uh oh! {self.parent.epithet} is up, but I seem to think they "
-            "don't do anything at night! Please report this bug!"
-        )
+    async def morning_call(self, ctx: Context) -> str:
+        """Generate the character's initial morning call.
+
+        If an empty string is returned, skip the character.
+
+        Notes
+        -----
+        This is a coroutine so it will be awaited when decorated by if_functioning.
+        """
+        return ""
 
     def exile(self, ctx: Context):
         """Overridden by traveler."""
@@ -226,6 +226,6 @@ class Storyteller(Character):
         """Determine the seating order addendum."""
         return " - Storyeller"
 
-    def morning_call(self):
+    async def morning_call(self, ctx: Context):
         """Meet ABC requirements."""
-        return super().morning_call()
+        return await super().morning_call(ctx)

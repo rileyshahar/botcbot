@@ -75,27 +75,27 @@ def if_functioning(run_if_drunkpoisoned):
     def outer_wrapper(func):
         # noinspection PyMissingOrEmptyDocstring
         @wraps(func)
-        async def inner_wrapper(*args, **kwargs):
-            if args[0].parent.functioning(args[1]):
-                return await func(*args, **kwargs)
-            if safe_bug_report(args[1]):
-                if args[0].parent.ghost(args[1]):
+        async def inner_wrapper(character: Character, ctx: Context, *args, **kwargs):
+            if character.parent.functioning(ctx.bot.game):
+                return await func(character, ctx, *args, **kwargs)
+            if safe_bug_report(ctx):
+                if character.parent.ghost(ctx.bot.game):
                     status = "dead"
-                elif args[0].parent.is_status(args[1], "drunk"):
+                elif character.parent.is_status(ctx.bot.game, "drunk"):
                     status = "drunk"
-                elif args[0].parent.is_status(args[1], "poisoned"):
+                elif character.parent.is_status(ctx.bot.game, "poisoned"):
                     status = "poisoned"
                 else:
                     status = "not functioning"
                 if run_if_drunkpoisoned and status in ("drunk", "poisoned"):
                     kwargs["enabled"] = False
                     kwargs["epithet_string"] = f"({status})"
-                    return await func(*args, **kwargs)
-                pronouns = load_preferences(args[0].parent).pronouns
+                    return await func(character, ctx, *args, **kwargs)
+                pronouns = load_preferences(character.parent).pronouns
                 await safe_send(
-                    args[1],
+                    ctx,
                     "Skipping {epithet}, as {pronoun} {verb} {status}.".format(
-                        epithet=args[0].parent.epithet,
+                        epithet=character.parent.epithet,
                         pronoun=pronouns[0],
                         verb=("is", "are")[pronouns[5]],
                         status=status,
@@ -108,7 +108,7 @@ def if_functioning(run_if_drunkpoisoned):
             # the character initializes with no parent to let us check in the method
             # if it's actually being called or just being called to get the return
             # so we can hide side effects in an "if self.parent" block
-            return await getattr(Character(None), func.__name__)(*args[1:], **kwargs)
+            return await getattr(Character(None), func.__name__)(ctx, *args, **kwargs)
 
         return inner_wrapper
 
@@ -119,24 +119,24 @@ def onetime_use(func):
     """Stop character methods if the character has used their ability."""
     # noinspection PyMissingOrEmptyDocstring
     @wraps(func)
-    async def wrapper(*args, **kwargs):
-        if not args[0].parent.is_status(args[1], "used_ability"):
-            return await func(*args, **kwargs)
-        if safe_bug_report(args[1]):
-            pronouns = load_preferences(args[0].parent).pronouns
+    async def wrapper(character: Character, ctx: Context, *args, **kwargs):
+        if not character.parent.is_status(ctx.bot.game, "used_ability"):
+            return await func(character, ctx, *args, **kwargs)
+        if safe_bug_report(ctx):
+            pronouns = load_preferences(character.parent).pronouns
             await safe_send(
-                args[1],
+                ctx,
                 (
                     "Skipping {epithet}, as "
                     "{subjective} {verb} used {posessive} ability."
                 ).format(
-                    epithet=args[0].parent.epithet,
+                    epithet=character.parent.epithet,
                     subjective=pronouns[0],
                     verb=["has", "have"][pronouns[5]],
                     posessive=pronouns[2],
                 ),
             )
-        return await getattr(Character(None), func.__name__)(*args[1:], **kwargs)
+        return await getattr(Character(None), func.__name__)(ctx, *args, **kwargs)
 
     return wrapper
 
@@ -323,20 +323,21 @@ async def kill_selector(
     )
 
 
-class MorningTargetCallMixin(Character, ABC):
+class MorningTargetCallMixin(Character):
     """Mixin for characters which target in the morning."""
 
-    _targets = 1
-    _morning_condition_string = ""
-    _optional_targeter = False
+    _TARGETS = 1
+    _MORNING_CONDITION_STRING = ""
+    _OPTIONAL_TARGETER = False
 
-    def morning_call(self):
+    @if_functioning(True)
+    async def morning_call(self, ctx: Context):
         """Determine the morning call."""
-        condition = self._morning_condition_string
+        condition = self._MORNING_CONDITION_STRING
         if condition:
             condition += " "
-        optional = ", or pass" if self._optional_targeter else ""
-        if self._targets == 1:
+        optional = ", or pass" if self._OPTIONAL_TARGETER else ""
+        if self._TARGETS == 1:
             if condition.startswith(("a", "e", "i", "o", "u")):
                 number_word = "an"
             else:
@@ -344,7 +345,7 @@ class MorningTargetCallMixin(Character, ABC):
             plural = ""
         else:
             plural = "s"
-            number_word = str(self._targets)
+            number_word = str(self._TARGETS)
         target_string = f"{number_word} {condition}player{plural}{optional}"
 
         return f"Ask {self.parent.epithet}, to choose {target_string}."
@@ -353,18 +354,18 @@ class MorningTargetCallMixin(Character, ABC):
 class MorningTargeterMixin(MorningTargetCallMixin, ABC):
     """Mixin for characters which target and add an effect to a single player."""
 
-    # noinspection PyPropertyDefinition
+    # noinspection PyPropertyDefinition,PyPep8Naming
     @classmethod
     @property
     @abstractmethod
-    def _morning_effect(cls) -> Type[Effect]:
+    def _MORNING_EFFECT(cls) -> Type[Effect]:
         raise NotImplementedError
 
-    # noinspection PyPropertyDefinition
+    # noinspection PyPropertyDefinition,PyPep8Naming
     @classmethod
     @property
     @abstractmethod
-    def _morning_target_string(cls) -> str:
+    def _MORNING_TARGET_STRING(cls) -> str:
         raise NotImplementedError
 
     @if_functioning(True)
@@ -375,8 +376,8 @@ class MorningTargeterMixin(MorningTargetCallMixin, ABC):
         return await add_targeted_effect(
             self,
             ctx,
-            self._morning_effect,
-            self._morning_target_string,
+            self._MORNING_EFFECT,
+            self._MORNING_TARGET_STRING,
             enabled=enabled,
             epithet_string=epithet_string,
         )

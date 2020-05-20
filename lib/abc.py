@@ -19,7 +19,7 @@ class NightOrderMember(ABC):
         raise NotImplementedError
 
     @abstractmethod
-    def morning_call(self) -> str:
+    async def morning_call(self, ctx: Context) -> str:
         """Get the text to display when first called in the morning."""
         raise NotImplementedError
 
