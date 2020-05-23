@@ -19,30 +19,25 @@ async def _http_error_handler(ctx: Context, error: HTTPException):
     """Handle HTTP errors."""
     if error.code == 50006:
         # empty message
-        await safe_send(
-            ctx, "Uh oh! Unable to send an empty message." + _report_bug_message,
-        )
-        if safe_bug_report(ctx):
-            await safe_send(ctx, f"```{error}```")
-        raise error
+        await _generic_error_handler(ctx, error, "Unable to send an empty message.")
 
     if error.code == 50035:
         # invalid body
-        await safe_send(
-            ctx,
-            (
-                "Uh oh! The response had an invalid body, likely due to length."
-                + _report_bug_message
-            ),
+        await _generic_error_handler(
+            ctx, error, "The response had an invalid body, likely due to length."
         )
-        if safe_bug_report(ctx):
-            await safe_send(ctx, f"```{error}```")
-        raise error
 
     if error.code == 30003:
         # pin limit
         await safe_send(ctx, "Uh oh! The pin limit has been reached.")
         raise error
+
+
+async def _generic_error_handler(ctx, error, text):
+    await safe_send(ctx, f"Uh oh! {text} {_report_bug_message}")
+    if safe_bug_report(ctx):
+        await safe_send(ctx, f"```{error}```")
+    raise error
 
 
 def _update_player_members(bot, after):
@@ -128,12 +123,9 @@ class Events(commands.Cog):
 
         elif isinstance(error, SyntaxError):
             # syntax errors
-            await safe_send(
-                ctx, "Uh oh! There's a syntax error somewhere." + _report_bug_message,
+            await _generic_error_handler(
+                ctx, error, "There's a syntax error somewhere."
             )
-            if safe_bug_report(ctx):
-                await safe_send(ctx, f"```{error}```")
-            raise error
 
         elif isinstance(error, asyncio.TimeoutError):
             # timeout error
@@ -166,12 +158,7 @@ class Events(commands.Cog):
             # disabled command
             return await safe_send(ctx, f"{ctx.command.name} has been disabled.")
 
-        await safe_send(
-            ctx, "Uh oh! An unknown error occured." + _report_bug_message,
-        )
-        if safe_bug_report(ctx):
-            await safe_send(ctx, f"```{error}```")
-        raise error
+        await _generic_error_handler(ctx, error, "An unknown error occurred.")
 
     @commands.Cog.listener()
     async def on_member_update(self, before, after):
