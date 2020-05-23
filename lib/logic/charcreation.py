@@ -381,3 +381,68 @@ class MorningTargeterMixin(MorningTargetCallMixin, ABC):
             enabled=enabled,
             epithet_string=epithet_string,
         )
+
+
+class SeesTwo(Character, ABC):
+    """Handles common functionality between Investigator, Librarian, and Washerwoman."""
+
+    # noinspection PyPropertyDefinition,PyPep8Naming
+    @classmethod
+    @property
+    @abstractmethod
+    def _SEES(cls) -> str:
+        raise NotImplementedError
+
+    def _condition_literal(self, player: "Player", game: "Game") -> bool:
+        return player.is_status(game, self._SEES.lower(), registers=True)
+
+    # noinspection PyPep8Naming
+    @property
+    def _Correct(self) -> Type[Effect]:
+        class Out(Effect):
+            _name = self._SEES
+
+        return Out
+
+    class _Wrong(Effect):
+        _name = "Wrong"
+
+    def _condition(self, player: "Player", game: "Game") -> bool:
+        """Determine whether player registers as a townsfolk."""
+        if self._condition_literal(player, game):
+            return True
+        err = f"{player.nick} is not a"
+        if self._SEES.startswith(("a", "e", "i", "o", "u")):
+            err += "n"
+        raise commands.BadArgument(err + f" {self._SEES}.")
+
+    @if_functioning(True)
+    async def morning_call(self, ctx: Context, enabled=True, epithet_string="") -> str:
+        """Determine the morning call."""
+        out = f"Tell {self.parent.formatted_epithet(epithet_string)}, "
+        if enabled:
+            out += f"a correct and an incorrect {self._SEES}."
+        else:
+            out += "any two players."
+        return out
+
+    @if_functioning(True)
+    async def morning(self, ctx: Context, enabled=True, epithet_string=""):
+        await add_targeted_effect(
+            self,
+            ctx,
+            self._Correct,
+            f"see as the correct {self._SEES}",
+            enabled=enabled,
+            epithet_string=epithet_string,
+            condition=self._condition,
+        )
+        await add_targeted_effect(
+            self,
+            ctx,
+            self._Wrong,
+            f"see as the incorrect {self._SEES}",
+            enabled=enabled,
+            epithet_string=epithet_string,
+        )
+        return [], []
