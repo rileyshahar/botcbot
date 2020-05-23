@@ -12,12 +12,6 @@ if TYPE_CHECKING:
 class NightOrderMember(ABC):
     """An ABC detailing requirements for an object to be in the night order."""
 
-    @classmethod
-    @abstractmethod
-    def rules_text(cls) -> str:
-        """Get the rules text."""
-        raise NotImplementedError
-
     @abstractmethod
     async def morning_call(self, ctx: Context) -> str:
         """Get the text to display when first called in the morning."""

@@ -429,7 +429,7 @@ class Player:
         # TODO: this needs to be tested
         if self.character in ctx.bot.game.script.first_night:
             if ctx.bot.game.current_night:
-                ctx.bot.game.current_night.add(self)
+                ctx.bot.game.current_night.add(self.character)
 
         await safe_send(
             ctx, f"Successfully changed {self.nick} to the {self.character.name}."
