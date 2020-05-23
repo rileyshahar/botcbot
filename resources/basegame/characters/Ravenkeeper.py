@@ -8,3 +8,6 @@ class Ravenkeeper(Townsfolk):
 
     name: str = "Ravenkeeper"
     playtest: bool = False
+
+    # TODO: add functionality
+    # we don't track triggers yet, and also we don't know in this scope that the RK died

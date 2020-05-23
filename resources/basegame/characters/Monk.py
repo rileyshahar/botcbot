@@ -1,16 +1,12 @@
 """Contains the Monk class."""
-from typing import Tuple, List
 
 from lib.logic.Character import Townsfolk
 from lib.logic.Effect import SafeFromDemon
-from lib.logic.Player import Player
 from lib.logic.charcreation import (
-    if_functioning,
     morning_delete,
     generic_ongoing_effect,
-    add_targeted_effect,
+    MorningTargeterMixin,
 )
-from lib.typings.context import Context
 
 
 @morning_delete()
@@ -21,17 +17,10 @@ class _MonkProtection(SafeFromDemon):
     pass
 
 
-class Monk(Townsfolk):
-    """The Monk."""
+class Monk(Townsfolk, MorningTargeterMixin):
+    """The Poisoner."""
 
     name: str = "Monk"
     playtest: bool = False
-
-    @if_functioning(True)
-    async def morning(
-        self, ctx: Context, enabled: bool = True, epithet_string: str = ""
-    ) -> Tuple[List[Player], List[str]]:
-        """Apply the Monk's protection to a chosen target."""
-        return await add_targeted_effect(
-            self, ctx, _MonkProtection, "protect", enabled=enabled
-        )
+    _MORNING_EFFECT = _MonkProtection
+    _MORNING_TARGET_STRING = "protect"
