@@ -23,7 +23,7 @@ class Chef(Townsfolk):
                     numb += 1
         out = (
             f"Tell {self.parent.formatted_epithet(epithet_string)}, "
-            "a number of evil pairs "
+            "the number of evil pairs "
         )
         if enabled:
             out += f"(**{numb}**)."

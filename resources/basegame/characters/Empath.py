@@ -26,7 +26,7 @@ class Empath(Townsfolk):
         )
         out = (
             f"Tell {self.parent.formatted_epithet(epithet_string)}, "
-            "a number of evil living neighbors "
+            "the number of evil living neighbors "
         )
         if enabled:
             out += f"(**{numb}**)."
