@@ -154,27 +154,6 @@ class Playing(commands.Cog):
         )
 
     @commands.command()
-    @checks.is_dm()
-    async def playercommands(self, ctx: Context):
-        """View all player commands."""
-        message_text = "```"
-        command_list = [
-            command.name
-            for command in ctx.bot.commands
-            if command.cog is not None
-            and command.cog.qualified_name
-            not in ("Effects", "Game Management", "Info", "Game Progression")
-            and not command.hidden
-        ]
-        command_list.sort()
-        for command in command_list:
-            message_text += f"\n{command}"
-        message_text += (
-            f"\n\nType {ctx.prefix}help command for more info on a command.```"
-        )
-        await safe_send(ctx, message_text)
-
-    @commands.command()
     @checks.is_day()
     @checks.is_player()
     @checks.is_game()
