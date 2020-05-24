@@ -17,12 +17,6 @@ class _PoisonerPoison(Poisoned):
     pass
 
 
-# TODO: the problem right now is itll ask the poisoner who to target
-# even if they cant use their ability because of death
-# the if_functioning check needs to happen sometime earlier
-# before morning_call is called
-
-
 class Poisoner(Minion, MorningTargeterMixin):
     """The Poisoner."""
 
