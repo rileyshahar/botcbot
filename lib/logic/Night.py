@@ -81,7 +81,7 @@ class Night:
         # kills
         shuffle(self._kills)
         text = list_to_plural_string([x.nick for x in self._kills], alt="No one")
-        kill_msg = await safe_send(
+        await safe_send(
             ctx.bot.channel,
             "{text} {verb} died.".format(text=text[0], verb=("has", "have")[text[1]]),
         )
@@ -89,15 +89,14 @@ class Night:
         # other
         for content in self._messages:
             if content:
-                msg = await safe_send(ctx.bot.channel, content)
-                await msg.pin()
+                await safe_send(ctx.bot.channel, content, pin=True)
 
         # start day
         await safe_send(
-            ctx.bot.channel, f"{ctx.bot.player_role.mention}, wake up!",
+            ctx.bot.channel,
+            f"{ctx.bot.player_role.mention}, wake up!",
+            pin=bool(self._kills),
         )
-        if self._kills:
-            await kill_msg.pin()
 
         # end night
         ctx.bot.game.past_nights.append(self)

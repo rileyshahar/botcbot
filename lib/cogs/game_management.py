@@ -107,11 +107,11 @@ class GameManagement(commands.Cog, name="Game Management"):
             )
 
             # rules
-            msg = await safe_send(
+            await safe_send(
                 ctx.bot.channel,
                 f"\n**{player.character.name}** - {player.character.rules_text()}",
+                pin=True,
             )
-            await msg.pin()
             await safe_send(
                 ctx,
                 f"Successfully added {player.nick} as the {player.character.name}.",
@@ -137,7 +137,7 @@ class GameManagement(commands.Cog, name="Game Management"):
         ctx.bot.game.seating_order.remove(traveler_actual)
 
         # announcement
-        msg = await safe_send(
+        await safe_send(
             ctx.bot.channel,
             (
                 "{townsfolk}, {traveler} has left the town. "
@@ -147,8 +147,8 @@ class GameManagement(commands.Cog, name="Game Management"):
                 townsfolk=ctx.bot.player_role.mention,
                 traveler=traveler_actual.nick,
             ),
+            pin=True,
         )
-        await msg.pin()
         await safe_send(ctx, f"Successfully removed traveler {traveler_actual.nick}.")
 
     @commands.command()
@@ -264,8 +264,7 @@ class GameManagement(commands.Cog, name="Game Management"):
         player: The player to be revived.
         """
         player_actual = await to_player(ctx, player)
-        msg = await safe_send(ctx.bot.channel, player_actual.revive(ctx.bot.game))
-        await msg.pin()
+        await safe_send(ctx.bot.channel, player_actual.revive(ctx.bot.game), pin=True)
         await safe_send(ctx, f"Successfully revived {player_actual.nick}.")
 
 

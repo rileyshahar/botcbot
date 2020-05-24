@@ -144,8 +144,8 @@ class Vote:
             "{voter} votes {vote}. {votes} votes.".format(
                 voter=voter.nick, vote=["no", "yes"][vt], votes=self.votes
             ),
+            pin=True,
         )
-        await msg.pin()
         self.announcements.append(msg.id)
 
         # call next
@@ -253,8 +253,7 @@ class Vote:
     async def _send_vote_end_message(self, ctx: Context):
         """Send a message ending the vote."""
         message_text, result = self._generate_vote_end_message()
-        end_msg = await safe_send(ctx.bot.channel, message_text)
-        await end_msg.pin()
+        end_msg = await safe_send(ctx.bot.channel, message_text, pin=True)
         ctx.bot.game.current_day.vote_end_messages.append(end_msg.id)
         return end_msg, result
 

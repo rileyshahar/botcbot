@@ -170,9 +170,10 @@ class BOTCBot(commands.Bot):
 
             # seating order message
             seating_order_message = await safe_send(
-                self.channel, generate_game_info_message(seating_order, ctx.bot.game),
+                self.channel,
+                generate_game_info_message(seating_order, ctx.bot.game),
+                pin=True,
             )
-            await seating_order_message.pin()
 
             # storytellers
             storytellers = [

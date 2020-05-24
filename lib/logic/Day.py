@@ -103,10 +103,9 @@ class Day:
             majority=int(ceil(self.current_vote.majority)),
             about_to_die=self.about_to_die,
         )
-        msg = await safe_send(ctx.bot.channel, message_text)
+        msg = await safe_send(ctx.bot.channel, message_text, pin=True)
 
         # pin
-        await msg.pin()
         self.current_vote.announcements.append(msg.id)
 
         # message tally

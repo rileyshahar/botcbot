@@ -147,7 +147,7 @@ def str_cleanup(text: str, chars: Tuple[str] = (",", " ", "-", "'", "_")) -> str
     return "".join(s.capitalize() for s in split)
 
 
-async def safe_send(target: Messageable, msg: str) -> Message:
+async def safe_send(target: Messageable, msg: str, pin: bool = False) -> Message:
     """Send a message with protection from message length errors.
 
     Functionally a wrapper of target.send.
@@ -158,6 +158,8 @@ async def safe_send(target: Messageable, msg: str) -> Message:
         The object to send the message to.
     msg : str
         The message to be sent.
+    pin: bool
+        Whether to pin the message.
 
     Returns
     -------
@@ -165,17 +167,19 @@ async def safe_send(target: Messageable, msg: str) -> Message:
         The first message sent this way.
     """
     try:
-        return await target.send(msg)
-
+        out = await target.send(msg)
     except HTTPException as e:
-        if e.code == 50035:
+        if e.code != 50035:
+            raise
 
-            n = len(msg) // 2
-            out = await safe_send(target, msg[:n])
-            await safe_send(target, msg[n:])
-            return out
+        n = len(msg) // 2
+        out = await safe_send(target, msg[:n])
+        await safe_send(target, msg[n:])
 
-        raise
+    if pin:
+        await out.pin()
+
+    return out
 
 
 def list_to_plural_string(initial_list: List[str], alt: str) -> Tuple[str, bool]:
