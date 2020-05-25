@@ -27,7 +27,7 @@ try:
         int(config[BOT_NAME]["playtestid"]),
         int(config[BOT_NAME]["observerid"]),
         config=config[BOT_NAME],
-        command_prefix=tuple([x for x in config[BOT_NAME]["prefixes"]]),
+        command_prefix=tuple(config[BOT_NAME]["prefixes"]),
         description=(
             "An unofficial Discord bot for helping run games of Blood on the "
             "Clocktower. \nThis bot is in beta and is not associated with BOTC or "
@@ -38,19 +38,18 @@ try:
         case_insensitive=True,
         owner_id=149969652141785088,
     )
-except KeyError as e:
-    if str(e) == f"'{BOT_NAME}'":
+except KeyError as error:
+    if str(error) == f"'{BOT_NAME}'":
         print(f'Bot "{BOT_NAME}" not found.')
         print("Shutting down.")
         sysexit()
     else:
-        print(f'Key {str(e)} not defined in config.ini for "{BOT_NAME}".')
+        print(f'Key {str(error)} not defined in config.ini for "{BOT_NAME}".')
         print("Shutting down.")
         sysexit()
 
 
 # Backup wrapper
-# noinspection PyUnboundLocalVariable
 # if we get here, bot is guaranteed to be defined
 @bot.after_invoke
 async def command_cleanup(ctx: Context):
