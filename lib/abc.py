@@ -17,11 +17,11 @@ class NightOrderMember(ABC):
         """Get the text to display when first called in the morning."""
         raise NotImplementedError
 
+    # pylint: disable=unused-argument
     async def morning(self, ctx: Context) -> Tuple[List["Player"], List[str]]:
         """Call in the morning."""
         return [], []
 
-    # noinspection PyPropertyDefinition
     @classmethod
     @property
     @abstractmethod

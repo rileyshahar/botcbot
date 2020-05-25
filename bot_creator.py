@@ -5,6 +5,7 @@ from os import mkdir
 
 
 def while_not_int(text: str) -> str:
+    """Ask for an integer input."""
     while True:
         out = input(f"What is the {text} ID?\n")
         try:
