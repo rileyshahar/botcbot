@@ -10,7 +10,7 @@ from sys import exit as sysexit, argv
 from lib.bot import BOTCBot
 from lib.typings.context import Context
 
-bot_name = " ".join(argv[1:])
+BOT_NAME = " ".join(argv[1:])
 
 config = ConfigParser()
 config.read("config.ini")
@@ -18,16 +18,16 @@ config.read("config.ini")
 # Define the bot
 try:
     bot = BOTCBot(
-        bot_name,
-        int(config[bot_name]["server"]),
-        int(config[bot_name]["channel"]),
-        int(config[bot_name]["storytellerid"]),
-        int(config[bot_name]["playerid"]),
-        int(config[bot_name]["inactiveid"]),
-        int(config[bot_name]["playtestid"]),
-        int(config[bot_name]["observerid"]),
-        config=config[bot_name],
-        command_prefix=tuple([x for x in config[bot_name]["prefixes"]]),
+        BOT_NAME,
+        int(config[BOT_NAME]["server"]),
+        int(config[BOT_NAME]["channel"]),
+        int(config[BOT_NAME]["storytellerid"]),
+        int(config[BOT_NAME]["playerid"]),
+        int(config[BOT_NAME]["inactiveid"]),
+        int(config[BOT_NAME]["playtestid"]),
+        int(config[BOT_NAME]["observerid"]),
+        config=config[BOT_NAME],
+        command_prefix=tuple([x for x in config[BOT_NAME]["prefixes"]]),
         description=(
             "An unofficial Discord bot for helping run games of Blood on the "
             "Clocktower. \nThis bot is in beta and is not associated with BOTC or "
@@ -39,12 +39,12 @@ try:
         owner_id=149969652141785088,
     )
 except KeyError as e:
-    if str(e) == f"'{bot_name}'":
-        print(f'Bot "{bot_name}" not found.')
+    if str(e) == f"'{BOT_NAME}'":
+        print(f'Bot "{BOT_NAME}" not found.')
         print("Shutting down.")
         sysexit()
     else:
-        print(f'Key {str(e)} not defined in config.ini for "{bot_name}".')
+        print(f'Key {str(e)} not defined in config.ini for "{BOT_NAME}".')
         print("Shutting down.")
         sysexit()
 
@@ -71,4 +71,4 @@ for file in listdir("lib/cogs"):
 
 # Run the bot
 if __name__ == "__main__":
-    bot.run(config[bot_name]["TOKEN"])
+    bot.run(config[BOT_NAME]["TOKEN"])
