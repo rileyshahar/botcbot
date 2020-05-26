@@ -1,10 +1,14 @@
 """Contains the Script class and script_list generator."""
 
 from os import listdir
-from typing import List, Generator, Type, Tuple
+from typing import Generator, List, Tuple, Type
 
 from dill import dump, load
 
+from lib.abc import NightOrderMember
+from lib.logic.Character import Character, Demon, Minion, Outsider, Townsfolk
+from lib.typings.context import Context
+from lib.utils import list_to_plural_string
 from resources.basegame import characters
 
 try:
@@ -12,60 +16,6 @@ try:
     from resources.playtest import playtestcharacters
 except ImportError:
     pass
-
-from lib.abc import NightOrderMember
-from lib.logic.Character import Character, Townsfolk, Outsider, Minion, Demon
-from lib.typings.context import Context
-from lib.utils import list_to_plural_string
-
-
-def _get_minion_demon_text(ctx: Context) -> Tuple[Tuple[str, bool], Tuple[str, bool]]:
-    minions = [
-        player.nick
-        for player in ctx.bot.game.seating_order
-        if player.is_status(ctx.bot.game, "minion")
-    ]
-    minion_text = list_to_plural_string(minions, "")
-    demons = [
-        player.nick
-        for player in ctx.bot.game.seating_order
-        if player.is_status(ctx.bot.game, "demon")
-    ]
-    demon_text = list_to_plural_string(demons, "no one")
-    return minion_text, demon_text
-
-
-class _MinionInfo(NightOrderMember):
-    name = "Minion Info"
-
-    async def morning_call(self, ctx: Context) -> str:
-        """Determine the morning call."""
-        if len(ctx.bot.game.seating_order) < 7:  # teensyville
-            return ""
-        minion_text, demon_text = _get_minion_demon_text(ctx)
-        if not minion_text[0]:  # there are no minions
-            return ""
-        s = ""
-        if minion_text[1]:
-            s = "s"
-        return f"Tell the Minion{s} ({minion_text[0]}) the Demon ({demon_text[0]})."
-
-
-class _DemonInfo(NightOrderMember):
-    name = "Demon Info"
-
-    async def morning_call(self, ctx: Context) -> str:
-        """Determine the morning call."""
-        if len(ctx.bot.game.seating_order) < 7:  # teensyville
-            return ""
-        minion_text, demon_text = _get_minion_demon_text(ctx)
-        s = ""
-        if minion_text[1]:
-            s = "s"
-        return (
-            f"Tell the Demon ({demon_text[0]}) the Minion{s} "
-            f"({minion_text[0]}) and three bluffs."
-        )
 
 
 class Script:
@@ -101,7 +51,6 @@ class Script:
 
     aliases: List[str]
     editors: List[int]
-    other_nights: List[Type[NightOrderMember]]
 
     def __init__(
         self,
@@ -118,16 +67,8 @@ class Script:
         self.aliases = aliases or []
         self.editors = editors or []
         self.playtest = playtest
-        self._first_night = first_night or []
+        self.first_night = first_night or []
         self.other_nights = other_nights or []
-
-    @property
-    def first_night(self) -> List[Type[NightOrderMember]]:
-        return [_MinionInfo, _DemonInfo] + self._first_night
-
-    @first_night.setter
-    def first_night(self, first_night: List[Type[NightOrderMember]]):
-        self._first_night = first_night
 
     def has_character(self, character: Character) -> bool:
         """Whether character is on the script."""
@@ -171,7 +112,7 @@ class Script:
                 message_text += self._character_type_info(cls)
             yield message_text
 
-            message_text = "__First Night:__\nDusk"
+            message_text = "__First Night:__\nDusk\nMinion Info\nDemon Info"
             for character in self.first_night:
                 message_text += "\n" + character.name
             message_text += "\nDawn"

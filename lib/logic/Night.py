@@ -1,6 +1,6 @@
 """Contains the Night class."""
 from random import shuffle
-from typing import TYPE_CHECKING, List
+from typing import TYPE_CHECKING, List, Tuple
 
 from lib.abc import NightOrderMember
 from lib.exceptions import InvalidMorningTargetError
@@ -11,6 +11,58 @@ from lib.utils import list_to_plural_string, safe_bug_report, safe_send
 if TYPE_CHECKING:
     from lib.logic.Player import Player
     from lib.logic.Game import Game
+
+
+def _get_minion_demon_text(ctx: Context) -> Tuple[Tuple[str, bool], Tuple[str, bool]]:
+    assert ctx.bot.game  # mypy-proofing
+    minions = [
+        player.nick
+        for player in ctx.bot.game.seating_order
+        if player.is_status(ctx.bot.game, "minion")
+    ]
+    minion_text = list_to_plural_string(minions, "")
+    demons = [
+        player.nick
+        for player in ctx.bot.game.seating_order
+        if player.is_status(ctx.bot.game, "demon")
+    ]
+    demon_text = list_to_plural_string(demons, "no one")
+    return minion_text, demon_text
+
+
+class _MinionInfo(NightOrderMember):
+    async def morning_call(self, ctx: Context) -> str:
+        """Determine the morning call."""
+        if len(ctx.bot.game.seating_order) < 7:  # teensyville
+            return ""
+        minion_text, demon_text = _get_minion_demon_text(ctx)
+        if not minion_text[0]:  # there are no minions
+            return ""
+        s = ""
+        if minion_text[1]:
+            s = "s"
+        return f"Tell the Minion{s} ({minion_text[0]}) the Demon ({demon_text[0]})."
+
+
+class _DemonInfo(NightOrderMember):
+    async def morning_call(self, ctx: Context) -> str:
+        """Determine the morning call."""
+        if len(ctx.bot.game.seating_order) < 7:  # teensyville
+            return ""
+        minion_text, demon_text = _get_minion_demon_text(ctx)
+        s = ""
+        if minion_text[1]:
+            s = "s"
+        return (
+            f"Tell the Demon ({demon_text[0]}) the Minion{s} "
+            f"({minion_text[0]}) and three bluffs."
+        )
+
+
+class _NightEnd(NightOrderMember):
+    async def morning_call(self, ctx: Context) -> str:
+        """Determine the morning call."""
+        return "The next step will start the day."
 
 
 class Night:
@@ -29,16 +81,17 @@ class Night:
             night_order = game.script.first_night
         else:
             night_order = game.script.other_nights
-        relevant_characters: List[NightOrderMember] = [
+        relevant_characters = [
             player.character
             for player in game.seating_order
             if type(player.character) in night_order and not player.ghost(game)
         ]
-        if game.day_number == 0:
-            relevant_characters += [x() for x in night_order[:2]]
-        self._order = sorted(
+        relevant_characters = sorted(
             relevant_characters, key=lambda x: night_order.index(type(x))
         )
+        self._order = relevant_characters + [_NightEnd()]  # type: ignore
+        if game.day_number == 0:
+            self._order = [_MinionInfo(), _DemonInfo()] + self._order
 
     @property
     def _current_character(self) -> NightOrderMember:
@@ -49,7 +102,8 @@ class Night:
         """Send a reminder of the current step in the night."""
         message_text = await self._current_character.morning_call(ctx)
         if message_text:
-            await safe_send(ctx, message_text)
+            if safe_bug_report(ctx):
+                await safe_send(ctx, message_text)
         else:
             await self._increment_night(ctx)
 

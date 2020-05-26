@@ -1,7 +1,7 @@
 """Contains abstract base classes for game logic handling."""
 
 from abc import ABC, abstractmethod
-from typing import TYPE_CHECKING, Tuple, List
+from typing import TYPE_CHECKING, List, Tuple
 
 from lib.typings.context import Context
 
@@ -21,10 +21,3 @@ class NightOrderMember(ABC):
     async def morning(self, ctx: Context) -> Tuple[List["Player"], List[str]]:
         """Call in the morning."""
         return [], []
-
-    @classmethod
-    @property
-    @abstractmethod
-    def name(cls) -> str:
-        """Get the object's name."""
-        raise NotImplementedError
