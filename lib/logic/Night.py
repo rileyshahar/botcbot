@@ -1,12 +1,12 @@
-"""Constains the Night class."""
+"""Contains the Night class."""
 from random import shuffle
-from typing import List, TYPE_CHECKING
+from typing import TYPE_CHECKING, List
 
 from lib.abc import NightOrderMember
 from lib.exceptions import InvalidMorningTargetError
 from lib.logic.Day import Day
 from lib.typings.context import Context
-from lib.utils import safe_send, list_to_plural_string, safe_bug_report
+from lib.utils import list_to_plural_string, safe_bug_report, safe_send
 
 if TYPE_CHECKING:
     from lib.logic.Player import Player
@@ -14,6 +14,7 @@ if TYPE_CHECKING:
 
 
 class Night:
+    """Stores information about the night."""
 
     _order: List[NightOrderMember]
 
@@ -28,7 +29,7 @@ class Night:
             night_order = game.script.first_night
         else:
             night_order = game.script.other_nights
-        relevant_characters = [
+        relevant_characters: List[NightOrderMember] = [
             player.character
             for player in game.seating_order
             if type(player.character) in night_order and not player.ghost(game)

@@ -5,7 +5,8 @@ Call this with an argument (which can include spaces) representing the bot's nam
 
 from configparser import ConfigParser
 from os import listdir
-from sys import exit as sysexit, argv
+from sys import argv
+from sys import exit as sysexit
 
 from lib.bot import BOTCBot
 from lib.typings.context import Context

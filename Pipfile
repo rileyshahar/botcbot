@@ -14,3 +14,9 @@ python_version = "3.8"
 
 [pipenv]
 allow_prereleases = true
+
+[dev-packages]
+pylint = "*"
+flake8 = "*"
+mypy = "*"
+pydocstyle = "*"
