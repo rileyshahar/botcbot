@@ -75,14 +75,16 @@ class Playing(commands.Cog):
     @checks.is_player()
     @checks.is_game()
     @checks.is_dm()
-    async def pm(self, ctx: Context, *, recipient: str):
+    async def pm(self, ctx: Context, *, recipient: str = None):
         """Message a player or storyteller.
 
         recipient: The player or storyteller to recieve the message.
+        If none, this will list all possible recipients.
 
         You will be asked about the content of the message.
         You can cancel by saying "cancel".
         """
+        recipient = recipient or ""
         recipient_actual = await to_player(ctx, recipient, includes_storytellers=True)
 
         await recipient_actual.message(
@@ -140,11 +142,13 @@ class Playing(commands.Cog):
     @checks.is_player()
     @checks.is_game()
     @checks.is_dm()
-    async def history(self, ctx: Context, *, player: str):
+    async def history(self, ctx: Context, *, player: str = None):
         """View your message history.
 
         player: The player to view your message history with.
+        If none, this will list all possible players.
         """
+        player = player or ""
         player_actual = await to_player(ctx, player)
         await safe_send(
             ctx,
