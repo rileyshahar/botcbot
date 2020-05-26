@@ -4,9 +4,9 @@ from typing import Callable
 
 from discord.ext import commands
 
+from lib.exceptions import PlayerNotFoundError
 from lib.typings.context import Context
 from lib.utils import get_player
-from lib.exceptions import PlayerNotFoundError
 
 
 def is_in_channel() -> Callable:
