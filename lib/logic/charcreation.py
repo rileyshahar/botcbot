@@ -1,7 +1,7 @@
 """Contains utilities for character creation."""
 from abc import ABC, abstractmethod
 from functools import wraps
-from typing import Callable, Optional, Type, Tuple, List, TYPE_CHECKING
+from typing import TYPE_CHECKING, Callable, List, Optional, Tuple, Type
 
 from discord.ext import commands
 
@@ -11,7 +11,7 @@ from lib.logic.Effect import Dead, Effect
 from lib.logic.playerconverter import to_player
 from lib.preferences import load_preferences
 from lib.typings.context import Context
-from lib.utils import get_input, safe_send, safe_bug_report
+from lib.utils import get_input, safe_bug_report, safe_send
 
 if TYPE_CHECKING:
     from lib.logic.Player import Player
@@ -383,6 +383,13 @@ class MorningTargeterMixin(MorningTargetCallMixin, ABC):
         )
 
 
+def _correct_effect(name) -> Type[Effect]:
+    class Out(Effect):
+        _name = name
+
+    return Out
+
+
 class SeesTwo(Character, ABC):
     """Handles common functionality between Investigator, Librarian, and Washerwoman."""
 
@@ -397,12 +404,6 @@ class SeesTwo(Character, ABC):
         return player.is_status(game, self._SEES.lower(), registers=True)
 
     # noinspection PyPep8Naming
-    @property
-    def _Correct(self) -> Type[Effect]:
-        class Out(Effect):
-            _name = self._SEES
-
-        return Out
 
     class _Wrong(Effect):
         _name = "Wrong"
@@ -431,7 +432,7 @@ class SeesTwo(Character, ABC):
         await add_targeted_effect(
             self,
             ctx,
-            self._Correct,
+            _correct_effect(self._SEES),
             f"see as the correct {self._SEES}",
             enabled=enabled,
             epithet_string=epithet_string,
