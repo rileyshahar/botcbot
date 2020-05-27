@@ -383,17 +383,17 @@ class MorningTargeterMixin(MorningTargetCallMixin, ABC):
         )
 
 
-def _correct_effect(name) -> Type[Effect]:
-    class Out(Effect):
-        _name = name
+class _Correct(Effect):
+    _name = "Correct"
 
-    return Out
+
+class _Wrong(Effect):
+    _name = "Wrong"
 
 
 class SeesTwo(Character, ABC):
     """Handles common functionality between Investigator, Librarian, and Washerwoman."""
 
-    # noinspection PyPropertyDefinition,PyPep8Naming
     @classmethod
     @property
     @abstractmethod
@@ -404,9 +404,6 @@ class SeesTwo(Character, ABC):
         return player.is_status(game, self._SEES.lower(), registers=True)
 
     # noinspection PyPep8Naming
-
-    class _Wrong(Effect):
-        _name = "Wrong"
 
     def _condition(self, player: "Player", game: "Game") -> bool:
         """Determine whether player registers as a townsfolk."""
@@ -432,7 +429,7 @@ class SeesTwo(Character, ABC):
         await add_targeted_effect(
             self,
             ctx,
-            _correct_effect(self._SEES),
+            _Correct,
             f"see as the correct {self._SEES}",
             enabled=enabled,
             epithet_string=epithet_string,
@@ -441,7 +438,7 @@ class SeesTwo(Character, ABC):
         await add_targeted_effect(
             self,
             ctx,
-            self._Wrong,
+            _Wrong,
             f"see as the incorrect {self._SEES}",
             enabled=enabled,
             epithet_string=epithet_string,
