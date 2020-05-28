@@ -326,17 +326,17 @@ class _BotWithVote(_BotWithDay):
     game: _GameWithVote
 
 
-class _GameContext(Context):
+class GameContext(Context):
     bot: _BotWithGame
 
 
-class _DayContext(Context):
+class DayContext(GameContext):
     bot: _BotWithDay
 
 
-class _NightContext(Context):
+class NightContext(GameContext):
     bot: _BotWithNight
 
 
-class _VoteContext(Context):
+class VoteContext(DayContext):
     bot: _BotWithVote
