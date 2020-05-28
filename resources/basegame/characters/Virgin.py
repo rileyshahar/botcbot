@@ -1,12 +1,16 @@
 """Contains the Virgin class."""
 
+from typing import TYPE_CHECKING
+
 from lib.logic.Character import Townsfolk
+from lib.logic.charcreation import if_functioning, onetime_use
 from lib.logic.Day import generate_nomination_message_text
 from lib.logic.Effect import UsedAbility
 from lib.logic.Player import Player
-from lib.logic.charcreation import if_functioning, onetime_use
-from lib.typings.context import Context
 from lib.utils import safe_send
+
+if TYPE_CHECKING:
+    from lib.typings.context import Context
 
 
 class Virgin(Townsfolk):
@@ -19,7 +23,7 @@ class Virgin(Townsfolk):
     @onetime_use
     async def nomination(
         self,
-        ctx: Context,
+        ctx: "Context",
         nominee: Player,
         nominator: Player,
         enabled: bool = True,

@@ -1,14 +1,14 @@
 """Contains the Vote class."""
 
-from typing import List, Dict, TYPE_CHECKING
+from typing import TYPE_CHECKING, Dict, List
 
 from lib.preferences import load_preferences
-from lib.typings.context import Context
-from lib.utils import list_to_plural_string, safe_send, get_bool_input
+from lib.utils import get_bool_input, list_to_plural_string, safe_send
 
 if TYPE_CHECKING:
     from lib.logic.Player import Player
     from lib.logic.Game import Game
+    from lib.typings.context import Context
 
 
 class Vote:
@@ -102,7 +102,7 @@ class Vote:
         """Determine the next player to vote."""
         return self.order[self.position]
 
-    async def vote(self, ctx: Context, voter: "Player", vt: int):
+    async def vote(self, ctx: "Context", voter: "Player", vt: int):
         """Implement a vote.
 
         Parameters
@@ -154,7 +154,7 @@ class Vote:
         else:
             await self.end(ctx)
 
-    async def call_next(self, ctx: Context):
+    async def call_next(self, ctx: "Context"):
         """Call the next voter."""
         # check dead votes
         if not self.to_vote.can_vote(ctx.bot.game, self.traveler):
@@ -197,7 +197,7 @@ class Vote:
         self.prevotes[voter] = vt
         await safe_send(ctx, "Successfully prevoted.")
 
-    async def end(self, ctx: Context):
+    async def end(self, ctx: "Context"):
         """End the vote."""
         # TODO: refactor probably
         if ctx.bot.game.current_day.current_vote == self:
@@ -237,7 +237,7 @@ class Vote:
                 if msg.pinned:
                     await msg.unpin()
 
-    async def _update_old_vote_end_message(self, ctx: Context, result: bool):
+    async def _update_old_vote_end_message(self, ctx: "Context", result: bool):
         """Update the old vote end message as appropriate."""
         if ctx.bot.game.current_day.about_to_die:
             if result or self.votes == ctx.bot.game.current_day.about_to_die[1]:
@@ -250,7 +250,7 @@ class Vote:
                 if not result:
                     ctx.bot.game.current_day.about_to_die = None
 
-    async def _send_vote_end_message(self, ctx: Context):
+    async def _send_vote_end_message(self, ctx: "Context"):
         """Send a message ending the vote."""
         message_text, result = self._generate_vote_end_message()
         end_msg = await safe_send(ctx.bot.channel, message_text, pin=True)
@@ -278,7 +278,7 @@ class Vote:
         )
         return message_text, result
 
-    async def cancel(self, ctx: Context):
+    async def cancel(self, ctx: "Context"):
         """Cancel the vote."""
         if ctx.bot.game.current_day.current_vote == self:
 

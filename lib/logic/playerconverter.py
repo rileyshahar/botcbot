@@ -1,22 +1,22 @@
 """Contains converters replacements from strings to Players and Members."""
 
-from typing import List, Callable, TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, Callable, List
 
 from discord import Member
 from discord.ext import commands
 
-from lib.preferences import load_preferences
-from lib.typings.context import Context
-from lib.utils import get_input, get_player
 from lib.exceptions import PlayerNotFoundError
+from lib.preferences import load_preferences
+from lib.utils import get_input, get_player
 
 if TYPE_CHECKING:
     from lib.logic.Player import Player
     from lib.logic.Game import Game
+    from lib.typings.context import Context
 
 
 async def to_member(
-    ctx: Context,
+    ctx: "Context",
     argument: str,
     all_members: bool = True,
     includes_storytellers: bool = False,
@@ -103,7 +103,7 @@ async def to_member(
 
 
 async def to_member_list(
-    ctx: Context,
+    ctx: "Context",
     arguments: List[str],
     all_members: bool = True,
     includes_storytellers: bool = False,
@@ -119,7 +119,7 @@ async def to_member_list(
 
 
 async def to_player(
-    ctx: Context,
+    ctx: "Context",
     argument: str,
     all_members: bool = False,
     includes_storytellers: bool = False,

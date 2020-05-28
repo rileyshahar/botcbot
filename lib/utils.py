@@ -1,21 +1,21 @@
 """Contains several utilities, generally not for game logic management."""
 
 import re
-from typing import Any, List, Tuple, TYPE_CHECKING
+from typing import TYPE_CHECKING, Any, List, Tuple
 
-from discord import Message, HTTPException
+from discord import HTTPException, Message
 from discord.abc import Messageable
 from discord.ext import commands
 
 from lib.exceptions import PlayerNotFoundError
-from lib.typings.context import Context
 
 if TYPE_CHECKING:
     from lib.logic.Game import Game
     from lib.logic.Player import Player
+    from lib.typings.context import Context
 
 
-async def aexec(code: str, ctx: Context) -> Any:
+async def aexec(code: str, ctx: "Context") -> Any:
     """Execute code asynchronously.
 
     This is dangerous and should probably not be enabled on the production server.
@@ -73,7 +73,7 @@ def get_player(game: "Game", idn: int, include_storytellers: bool = True) -> "Pl
     raise PlayerNotFoundError
 
 
-async def get_input(ctx: Context, text: str, timeout: int = 200) -> str:
+async def get_input(ctx: "Context", text: str, timeout: int = 200) -> str:
     """Ask for a response in a given context.
 
     Parameters
@@ -106,7 +106,7 @@ async def get_input(ctx: Context, text: str, timeout: int = 200) -> str:
     return out.content
 
 
-async def get_bool_input(ctx: Context, text: str, timeout: int = 200) -> bool:
+async def get_bool_input(ctx: "Context", text: str, timeout: int = 200) -> bool:
     """Ask for a boolean response in a given context.
 
     Parameters
@@ -219,7 +219,7 @@ def to_bool(argument: str, message: str = "response") -> bool:
     )
 
 
-def safe_bug_report(ctx: Context) -> bool:
+def safe_bug_report(ctx: "Context") -> bool:
     """Determine if the context is safe to send arbitrary error messages.
 
     For instance, it's unsafe to send those messages in public.

@@ -2,28 +2,20 @@
 
 import json
 from abc import ABC
-from typing import List, Tuple, Type, Optional, TYPE_CHECKING, Dict
+from typing import TYPE_CHECKING, Dict, List, Optional, Tuple, Type
 
 from discord.ext import commands
 
 from lib.abc import NightOrderMember
-from lib.logic.Effect import (
-    Dead,
-    Good,
-    Evil,
-    TownsfolkEffect,
-    OutsiderEffect,
-    MinionEffect,
-    DemonEffect,
-    TravelerEffect,
-    StorytellerEffect,
-)
-from lib.typings.context import Context
+from lib.logic.Effect import (Dead, DemonEffect, Evil, Good, MinionEffect,
+                              OutsiderEffect, StorytellerEffect,
+                              TownsfolkEffect, TravelerEffect)
 from lib.utils import safe_send
 
 if TYPE_CHECKING:
     from lib.logic.Effect import Effect
     from lib.logic.Player import Player
+    from lib.typings.context import Context
 
 
 class Character(NightOrderMember):
@@ -54,7 +46,7 @@ class Character(NightOrderMember):
         """Determine the seating order addendum."""
         return ""
 
-    async def morning(self, ctx: Context) -> Tuple[List["Player"], List[str]]:
+    async def morning(self, ctx: "Context") -> Tuple[List["Player"], List[str]]:
         """Call at the start of each day. Processes night actions.
 
         Parameters
@@ -73,7 +65,7 @@ class Character(NightOrderMember):
 
     # noinspection PyUnusedLocal
     async def nomination(
-        self, ctx: Context, nominee: "Player", nominator: "Player",
+        self, ctx: "Context", nominee: "Player", nominator: "Player",
     ) -> bool:
         """Call at the start of each nomination.
 
@@ -93,7 +85,7 @@ class Character(NightOrderMember):
         """
         return True
 
-    async def evening(self, ctx: Context):
+    async def evening(self, ctx: "Context"):
         """Call at the end of each day.
 
         Parameters
@@ -120,7 +112,7 @@ class Character(NightOrderMember):
         except KeyError:
             return "Rules text not found."
 
-    async def morning_call(self, ctx: Context) -> str:
+    async def morning_call(self, ctx: "Context") -> str:
         """Generate the character's initial morning call.
 
         If an empty string is returned, skip the character.
@@ -131,7 +123,7 @@ class Character(NightOrderMember):
         """
         return ""
 
-    def exile(self, ctx: Context):
+    def exile(self, ctx: "Context"):
         """Overridden by traveler."""
         raise commands.BadArgument(f"{self.parent.nick} is not a traveler.")
 
@@ -191,7 +183,7 @@ class Traveler(Character, ABC):
         # Cannot be set in __init__ because self.name isn't character-specific there
         return " - " + self.name
 
-    async def exile(self, ctx: Context):
+    async def exile(self, ctx: "Context"):
         """Exile the traveler."""
         if self.parent.ghost(ctx.bot.game):
             await safe_send(
@@ -226,6 +218,6 @@ class Storyteller(Character):
         """Determine the seating order addendum."""
         return " - Storyeller"
 
-    async def morning_call(self, ctx: Context):
+    async def morning_call(self, ctx: "Context"):
         """Meet ABC requirements."""
         return await super().morning_call(ctx)

@@ -1,6 +1,6 @@
 """Contains the Game class."""
 
-from typing import List, Optional, TYPE_CHECKING
+from typing import TYPE_CHECKING, List, Optional
 
 from discord import Message
 from discord.ext import commands
@@ -9,10 +9,10 @@ from lib.logic.Day import Day
 from lib.logic.Night import Night
 from lib.logic.Player import Player
 from lib.logic.tools import generate_game_info_message
-from lib.typings.context import Context
 
 if TYPE_CHECKING:
     from lib.logic.Script import Script
+    from lib.typings.context import Context
 
 
 class Game:
@@ -84,7 +84,7 @@ class Game:
             if player.can_nominate(self) and not player.has_skipped
         ]
 
-    async def reseat(self, ctx: Context, new_seating_order: List[Player]):
+    async def reseat(self, ctx: "Context", new_seating_order: List[Player]):
         """Modify the seating order and seating order message.
 
         Parameters
@@ -108,7 +108,7 @@ class Game:
         # Update seating order
         self.seating_order = new_seating_order
 
-    async def start_night(self, ctx: Context):
+    async def start_night(self, ctx: "Context"):
         """Start a new night."""
 
         self.current_night = Night(self)

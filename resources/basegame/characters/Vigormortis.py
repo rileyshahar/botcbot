@@ -1,21 +1,17 @@
 """Contains the Vigormortis class."""
-from typing import List, Tuple, TYPE_CHECKING
+from typing import TYPE_CHECKING, List, Tuple
 
 from discord.ext import commands
 
 from lib.logic.Character import Demon
+from lib.logic.charcreation import (generic_ongoing_effect, if_functioning,
+                                    kill_selector, select_target)
 from lib.logic.Effect import Dead, Poisoned
 from lib.logic.Player import Player
-from lib.logic.charcreation import (
-    select_target,
-    if_functioning,
-    generic_ongoing_effect,
-    kill_selector,
-)
-from lib.typings.context import Context
 
 if TYPE_CHECKING:
     from lib.logic.Game import Game
+    from lib.typings.context import Context
 
 
 class _VigormortisDead(Dead):
@@ -56,7 +52,7 @@ class Vigormortis(Demon):
     playtest: bool = False
 
     @if_functioning(False)
-    async def morning(self, ctx: Context) -> Tuple[List[Player], List[str]]:
+    async def morning(self, ctx: "Context") -> Tuple[List[Player], List[str]]:
         """Apply the Vigormortis's kill to a chosen target.
 
         If a Minion is chosen, apply the corresponding poison.

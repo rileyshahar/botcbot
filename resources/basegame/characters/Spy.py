@@ -1,7 +1,11 @@
 """Contains the Spy class."""
 
+from typing import TYPE_CHECKING
+
 from lib.logic.Character import Minion
-from lib.typings.context import Context
+
+if TYPE_CHECKING:
+    from lib.typings.context import Context
 
 
 class Spy(Minion):
@@ -10,7 +14,7 @@ class Spy(Minion):
     name: str = "Spy"
     playtest: bool = False
 
-    async def morning_call(self, ctx: Context) -> str:
+    async def morning_call(self, ctx: "Context") -> str:
         """Determine the morning call."""
         return (
             "Show the spy the grimoire. "

@@ -5,16 +5,15 @@ from typing import TYPE_CHECKING, List, Tuple
 from lib.abc import NightOrderMember
 from lib.exceptions import InvalidMorningTargetError
 from lib.logic.Day import Day
-from lib.typings.context import Context
 from lib.utils import list_to_plural_string, safe_bug_report, safe_send
 
 if TYPE_CHECKING:
     from lib.logic.Player import Player
     from lib.logic.Game import Game
+    from lib.typings.context import Context
 
 
-def _get_minion_demon_text(ctx: Context) -> Tuple[Tuple[str, bool], Tuple[str, bool]]:
-    assert ctx.bot.game  # mypy-proofing
+def _get_minion_demon_text(ctx: "Context") -> Tuple[Tuple[str, bool], Tuple[str, bool]]:
     minions = [
         player.nick
         for player in ctx.bot.game.seating_order
@@ -31,7 +30,7 @@ def _get_minion_demon_text(ctx: Context) -> Tuple[Tuple[str, bool], Tuple[str, b
 
 
 class _MinionInfo(NightOrderMember):
-    async def morning_call(self, ctx: Context) -> str:
+    async def morning_call(self, ctx: "Context") -> str:
         """Determine the morning call."""
         if len(ctx.bot.game.seating_order) < 7:  # teensyville
             return ""
@@ -45,7 +44,7 @@ class _MinionInfo(NightOrderMember):
 
 
 class _DemonInfo(NightOrderMember):
-    async def morning_call(self, ctx: Context) -> str:
+    async def morning_call(self, ctx: "Context") -> str:
         """Determine the morning call."""
         if len(ctx.bot.game.seating_order) < 7:  # teensyville
             return ""
@@ -60,7 +59,7 @@ class _DemonInfo(NightOrderMember):
 
 
 class _NightEnd(NightOrderMember):
-    async def morning_call(self, ctx: Context) -> str:
+    async def morning_call(self, ctx: "Context") -> str:
         """Determine the morning call."""
         return "The next step will start the day."
 
@@ -98,7 +97,7 @@ class Night:
         """Determine the current character to check."""
         return self._order[self._step]
 
-    async def current_step(self, ctx: Context):
+    async def current_step(self, ctx: "Context"):
         """Send a reminder of the current step in the night."""
         message_text = await self._current_character.morning_call(ctx)
         if message_text:
@@ -107,7 +106,7 @@ class Night:
         else:
             await self._increment_night(ctx)
 
-    async def next_step(self, ctx: Context):
+    async def next_step(self, ctx: "Context"):
         """Perform the next step in the night."""
         try:
             out_temp = await self._current_character.morning(ctx)
@@ -125,7 +124,7 @@ class Night:
         else:
             await self.current_step(ctx)
 
-    async def _end(self, ctx: Context):
+    async def _end(self, ctx: "Context"):
         for player in ctx.bot.game.seating_order:
             player.morning(ctx.bot.inactive_role)
             effect_list = [x for x in player.effects]

@@ -1,9 +1,11 @@
 """Contains several pseudo-converters for coercing strings to custom types."""
 
-from typing import Type, Optional, List, TYPE_CHECKING
+from typing import TYPE_CHECKING, List, Optional, Type
 
 from discord.ext import commands
 
+from lib.logic.Script import script_list
+from lib.utils import str_cleanup
 from resources.basegame import characters
 
 try:
@@ -11,17 +13,15 @@ try:
 except ImportError:
     playtestcharacters = None
 
-from lib.typings.context import Context
-from lib.utils import str_cleanup
-from lib.logic.Script import script_list
 
 if TYPE_CHECKING:
     from lib.logic.Script import Script
     from lib.logic.Character import Character
+    from lib.typings.context import Context
 
 
 def to_character(
-    ctx: Context, argument: str, script: Optional["Script"] = None
+    ctx: "Context", argument: str, script: Optional["Script"] = None
 ) -> Type["Character"]:
     """Convert a string to a Character class with a matching name.
 
@@ -72,7 +72,7 @@ def to_character(
 
 
 def to_character_list(
-    ctx: Context, arguments: List[str], script: Optional["Script"] = None
+    ctx: "Context", arguments: List[str], script: Optional["Script"] = None
 ) -> List[Type["Character"]]:
     """Convert a list of strings into characters with corresponding names."""
     out = []  # type: List[Type[Character]]
@@ -81,7 +81,7 @@ def to_character_list(
     return out
 
 
-def to_script(ctx: Context, argument: str) -> "Script":
+def to_script(ctx: "Context", argument: str) -> "Script":
     """Convert a string to a Script with a matching name.
 
     The match does not have to be exact. The string must be contained in script.name.

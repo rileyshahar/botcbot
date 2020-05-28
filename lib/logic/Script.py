@@ -1,21 +1,23 @@
 """Contains the Script class and script_list generator."""
 
 from os import listdir
-from typing import Generator, List, Tuple, Type
+from typing import TYPE_CHECKING, Generator, List, Tuple, Type
 
 from dill import dump, load
 
 from lib.abc import NightOrderMember
 from lib.logic.Character import Character, Demon, Minion, Outsider, Townsfolk
-from lib.typings.context import Context
 from lib.utils import list_to_plural_string
 from resources.basegame import characters
 
 try:
-    # noinspection PyUnresolvedReferences
     from resources.playtest import playtestcharacters
 except ImportError:
     pass
+
+
+if TYPE_CHECKING:
+    from lib.typings.context import Context
 
 
 class Script:
@@ -98,7 +100,7 @@ class Script:
     # noinspection PyTypeChecker
     # this is bugged with the combination of property and classmethod decorators
     # that we use to define the NightOrderMember abc
-    def info(self, ctx: Context) -> Generator[str, None, None]:
+    def info(self, ctx: "Context") -> Generator[str, None, None]:
         """Return a generator with information about the script."""
         # maybe we should do more specific message length handling here than in safe_send
 
@@ -124,7 +126,7 @@ class Script:
 
             yield message_text
 
-    def editor_names(self, ctx: Context) -> Tuple[str, bool]:
+    def editor_names(self, ctx: "Context") -> Tuple[str, bool]:
         """Determine the names of the bot's editors."""
         names = []
         for idn in self.editors:
@@ -133,7 +135,7 @@ class Script:
 
         return list_to_plural_string(names, "no one")
 
-    def short_info(self, ctx: Context) -> str:
+    def short_info(self, ctx: "Context") -> str:
         """Format a short-form summary of script info."""
         aliases = list_to_plural_string(self.aliases, "none")[0]
         editors = (self.editor_names(ctx))[0]
@@ -151,7 +153,9 @@ class Script:
         return out
 
 
-def script_list(ctx: Context, playtest: bool = False) -> Generator[Script, None, None]:
+def script_list(
+    ctx: "Context", playtest: bool = False
+) -> Generator[Script, None, None]:
     """Find all scripts.
 
     Parameters

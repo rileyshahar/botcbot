@@ -1,15 +1,15 @@
 """Contains tools for managing game logic."""
 import itertools
-from typing import List, Callable, TYPE_CHECKING, Dict
+from typing import TYPE_CHECKING, Callable, Dict, List
 
 import numpy as np
 
-from lib.typings.context import Context
 from lib.utils import list_to_plural_string
 
 if TYPE_CHECKING:
     from lib.logic.Player import Player
     from lib.logic.Game import Game
+    from lib.typings.context import Context
 
 
 def generate_game_info_message(order, game: "Game") -> str:
@@ -114,7 +114,7 @@ def _generate_day_info_message(game: "Game", order: List["Player"]) -> str:
     return message_text
 
 
-def generate_message_tally(ctx: Context, condition: Callable[[Dict], bool]):
+def generate_message_tally(ctx: "Context", condition: Callable[[Dict], bool]):
     """Generate a tally of messages."""
     # TODO: clean this up lol
     message_tally = {

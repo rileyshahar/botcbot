@@ -1,18 +1,20 @@
 """Contains custom checks."""
 
-from typing import Callable
+from typing import TYPE_CHECKING, Callable
 
 from discord.ext import commands
 
 from lib.exceptions import PlayerNotFoundError
-from lib.typings.context import Context
 from lib.utils import get_player
+
+if TYPE_CHECKING:
+    from lib.typings.context import Context
 
 
 def is_in_channel() -> Callable:
     """Apply predicate as a check."""
 
-    def predicate(ctx: Context) -> bool:
+    def predicate(ctx: "Context") -> bool:
         """Check if the command was called in the main channel.
 
         Parameters
@@ -36,7 +38,7 @@ def is_in_channel() -> Callable:
 def is_dm() -> Callable:
     """Apply predicate as a check."""
 
-    def predicate(ctx: Context) -> bool:
+    def predicate(ctx: "Context") -> bool:
         """Check if the command was called in a DM.
 
         Parameters
@@ -60,7 +62,7 @@ def is_dm() -> Callable:
 def is_game() -> Callable:
     """Apply predicate as a check."""
 
-    def predicate(ctx: Context) -> bool:
+    def predicate(ctx: "Context") -> bool:
         """Check if there is a current game.
 
         Parameters
@@ -84,7 +86,7 @@ def is_game() -> Callable:
 def is_not_game() -> Callable:
     """Apply predicate as a check."""
 
-    def predicate(ctx: Context) -> bool:
+    def predicate(ctx: "Context") -> bool:
         """Check if the is no current game.
 
         Parameters
@@ -108,7 +110,7 @@ def is_not_game() -> Callable:
 def is_storyteller() -> Callable:
     """Apply predicate as a check."""
 
-    def predicate(ctx: Context) -> bool:
+    def predicate(ctx: "Context") -> bool:
         """Check if the command author is a storyteller.
 
         Parameters
@@ -132,7 +134,7 @@ def is_storyteller() -> Callable:
 def is_player() -> Callable:
     """Apply predicate as a check."""
 
-    def predicate(ctx: Context) -> bool:
+    def predicate(ctx: "Context") -> bool:
         """Check if the command author is a player.
 
         Parameters
@@ -162,7 +164,7 @@ def is_player() -> Callable:
 def is_day() -> Callable:
     """Apply predicate as a check."""
 
-    def predicate(ctx: Context) -> bool:
+    def predicate(ctx: "Context") -> bool:
         """Check if the game is in day.
 
         Parameters
@@ -186,7 +188,7 @@ def is_day() -> Callable:
 def is_night() -> Callable:
     """Apply predicate as a check."""
 
-    def predicate(ctx: Context) -> bool:
+    def predicate(ctx: "Context") -> bool:
         """Check if the game is in night.
 
         Parameters
@@ -210,7 +212,7 @@ def is_night() -> Callable:
 def pms_open() -> Callable:
     """Apply predicate as a check."""
 
-    def predicate(ctx: Context) -> bool:
+    def predicate(ctx: "Context") -> bool:
         """Check if PMs are open.
 
         Parameters
@@ -238,7 +240,7 @@ def pms_open() -> Callable:
 def noms_open() -> Callable:
     """Apply predicate as a check."""
 
-    def predicate(ctx: Context) -> bool:
+    def predicate(ctx: "Context") -> bool:
         """Check if nominations are open.
 
         Parameters
@@ -266,7 +268,7 @@ def noms_open() -> Callable:
 def is_vote() -> Callable:
     """Apply predicate as a check."""
 
-    def predicate(ctx: Context) -> bool:
+    def predicate(ctx: "Context") -> bool:
         """Check if there is an ongoing vote.
 
         Parameters
@@ -294,7 +296,7 @@ def is_vote() -> Callable:
 def is_not_vote() -> Callable:
     """Apply predicate as a check."""
 
-    def predicate(ctx: Context) -> bool:
+    def predicate(ctx: "Context") -> bool:
         """Check if there is no ongoing vote.
 
         Parameters

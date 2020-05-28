@@ -1,16 +1,14 @@
 """Contains the Imp class."""
-from typing import Tuple, List
+from typing import TYPE_CHECKING, List, Tuple
 
 from lib.logic.Character import Demon
+from lib.logic.charcreation import (MorningTargetCallMixin, if_functioning,
+                                    kill_selector, select_target)
 from lib.logic.Player import Player
-from lib.logic.charcreation import (
-    select_target,
-    if_functioning,
-    kill_selector,
-    MorningTargetCallMixin,
-)
-from lib.typings.context import Context
 from lib.utils import safe_send
+
+if TYPE_CHECKING:
+    from lib.typings.context import Context
 
 
 class Imp(Demon, MorningTargetCallMixin):
@@ -20,7 +18,7 @@ class Imp(Demon, MorningTargetCallMixin):
     playtest: bool = False
 
     @if_functioning(False)
-    async def morning(self, ctx: Context) -> Tuple[List[Player], List[str]]:
+    async def morning(self, ctx: "Context") -> Tuple[List[Player], List[str]]:
         """Apply the Imp's kill."""
         out = await kill_selector(self, ctx)
         target = out[0][0]

@@ -1,6 +1,6 @@
 """Contains the Debug cog for commands related to debugging."""
 
-from typing import List
+from typing import TYPE_CHECKING, List
 
 from discord.ext import commands
 
@@ -8,7 +8,7 @@ from lib import checks
 from lib.bot import BOTCBot
 from lib.logic.Effect import status_list
 from lib.typings.context import Context
-from lib.utils import aexec, safe_send, list_to_plural_string
+from lib.utils import aexec, list_to_plural_string, safe_send
 
 
 class Debug(commands.Cog, command_attrs=dict(hidden=True)):

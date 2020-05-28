@@ -20,9 +20,17 @@ FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 DEALINGS IN THE SOFTWARE.
 """
 
-import discord.ext.commands
+from typing import Generic, TypeVar
+
 import discord.abc
+import discord.ext.commands
 import discord.utils
+
+from lib.bot import BOTCBot
+from lib.logic.Day import Day
+from lib.logic.Game import Game
+from lib.logic.Night import Night
+from lib.logic.Vote import Vote
 
 
 class Context(discord.ext.commands.Context):
@@ -282,3 +290,53 @@ class Context(discord.ext.commands.Context):
                 return None
         except CommandError as e:
             await cmd.on_help_command_error(self, e)
+
+
+class _BotWithGame(BOTCBot):
+    game: Game
+
+
+class _GameWithDay(Game):
+    current_day: Day
+    current_night: None
+
+
+class _GameWithNight(Game):
+    current_night: Night
+    current_day: None
+
+
+class _DayWithVote(Day):
+    current_vote: Vote
+
+
+class _GameWithVote(_GameWithDay):
+    current_day: _DayWithVote
+
+
+class _BotWithDay(_BotWithGame):
+    game: _GameWithDay
+
+
+class _BotWithNight(_BotWithGame):
+    game: _GameWithNight
+
+
+class _BotWithVote(_BotWithDay):
+    game: _GameWithVote
+
+
+class _GameContext(Context):
+    bot: _BotWithGame
+
+
+class _DayContext(Context):
+    bot: _BotWithDay
+
+
+class _NightContext(Context):
+    bot: _BotWithNight
+
+
+class _VoteContext(Context):
+    bot: _BotWithVote

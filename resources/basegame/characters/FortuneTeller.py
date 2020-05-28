@@ -1,9 +1,14 @@
 """Contains the FortuneTeller class."""
 
+from typing import TYPE_CHECKING
+
 from lib.logic.Character import Townsfolk
+from lib.logic.charcreation import (MorningTargetCallMixin, if_functioning,
+                                    select_target)
 from lib.logic.Effect import Effect
-from lib.logic.charcreation import MorningTargetCallMixin, if_functioning, select_target
-from lib.typings.context import Context
+
+if TYPE_CHECKING:
+    from lib.typings.context import Context
 
 
 class _RedHerring(Effect):
@@ -18,7 +23,7 @@ class FortuneTeller(Townsfolk, MorningTargetCallMixin):
     _TARGETS = 2
 
     @if_functioning(True)
-    async def morning(self, ctx: Context, enabled: bool = True, epithet_string=""):
+    async def morning(self, ctx: "Context", enabled: bool = True, epithet_string=""):
         """Determine the red herring on the first night."""
         if ctx.bot.game.day_number == 0:
             target = await select_target(ctx, "Who is the red herring?")

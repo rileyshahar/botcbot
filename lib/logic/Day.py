@@ -1,20 +1,20 @@
 """Contains the Day class."""
 
-from typing import List, Optional, Tuple, TYPE_CHECKING
+from typing import TYPE_CHECKING, List, Optional, Tuple
 
 from discord.ext import commands
 from numpy import ceil
 
 from lib.exceptions import AlreadyNomniatedError
 from lib.logic.Player import Player
-from lib.logic.Vote import Vote
 from lib.logic.playerconverter import to_player
 from lib.logic.tools import generate_message_tally
-from lib.typings.context import Context
-from lib.utils import safe_send, safe_bug_report
+from lib.logic.Vote import Vote
+from lib.utils import safe_bug_report, safe_send
 
 if TYPE_CHECKING:
     from lib.logic.Game import Game
+    from lib.typings.context import Context
 
 
 class Day:
@@ -44,7 +44,7 @@ class Day:
         self.about_to_die = None  # type: Optional[Tuple[Player, int, int]]
         self.vote_end_messages = []  # type: List[int]
 
-    async def nominate(self, ctx: Context, nominee_str: str, nominator: Player):
+    async def nominate(self, ctx: "Context", nominee_str: str, nominator: Player):
         """Begin a vote on the nominee.
 
         Parameters
@@ -131,35 +131,35 @@ class Day:
                 ),
             )
 
-    async def open_pms(self, ctx: Context):
+    async def open_pms(self, ctx: "Context"):
         """Open PMs."""
         self.is_pms = True
         for st in ctx.bot.game.storytellers:
             await safe_send(st.member, "PMs are now open.")
         await ctx.bot.update_status()
 
-    async def open_noms(self, ctx: Context):
+    async def open_noms(self, ctx: "Context"):
         """Open nominations."""
         self.is_noms = True
         for st in ctx.bot.game.storytellers:
             await safe_send(st.member, "Nominations are now open.")
         await ctx.bot.update_status()
 
-    async def close_pms(self, ctx: Context):
+    async def close_pms(self, ctx: "Context"):
         """Close PMs."""
         self.is_pms = False
         for st in ctx.bot.game.storytellers:
             await safe_send(st.member, "PMs are now closed.")
         await ctx.bot.update_status()
 
-    async def close_noms(self, ctx: Context):
+    async def close_noms(self, ctx: "Context"):
         """Close nominations."""
         self.is_noms = False
         for st in ctx.bot.game.storytellers:
             await safe_send(st.member, "Nominations are now closed.")
         await ctx.bot.update_status()
 
-    async def end(self, ctx: Context):
+    async def end(self, ctx: "Context"):
         """End the day."""
 
         # cleanup effects
@@ -214,7 +214,7 @@ def _check_valid_nominator(game: "Game", nominator: Player, nominee: Player):
         raise AlreadyNomniatedError
 
 
-async def _determine_nominee(ctx: Context, nominee_str: str) -> Player:
+async def _determine_nominee(ctx: "Context", nominee_str: str) -> Player:
     """Determine the nominee from the string."""
     if "storyteller" in nominee_str and ctx.bot.game.script.has_atheist:  #
         # atheist nominations
@@ -230,7 +230,7 @@ async def _determine_nominee(ctx: Context, nominee_str: str) -> Player:
 
 
 def generate_nomination_message_text(
-    ctx: Context,
+    ctx: "Context",
     nominator: "Player",
     nominee: "Player",
     traveler=False,
