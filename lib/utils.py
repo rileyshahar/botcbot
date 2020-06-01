@@ -34,7 +34,7 @@ async def aexec(code: str, ctx: "Context") -> Any:
     """
     with ctx.typing():
         exec(
-            f"async def _ex(ctx): " + "".join(f"\n {line}" for line in code.split("\n"))
+            "async def _ex(ctx): " + "".join(f"\n {line}" for line in code.split("\n"))
         )
         return await locals()["_ex"](ctx)
 
