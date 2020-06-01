@@ -289,7 +289,31 @@ async def add_targeted_effect(
 ) -> Tuple[List["Player"], List[str]]:
     """Choose a target and add an effect.
 
-    condition should raise a InvalidMorningTargetError if not met.
+    Parameters
+    ----------
+    character : Character
+        The character who controls the effect.
+    ctx : "GameContext"
+        The context.
+    effect : Type["Effect"]
+        The type of effect to add.
+    verb : str
+        The verb describing the effect, ex "kill" or "poison". 
+    condition : Callable[["Player", "Game"], bool]
+        A condition the target must satisfy.
+        This should return InvalidMorningTargetError if not met.
+    allow_none : bool
+        Whether to allow no target.
+    enabled : bool
+        Whether to enable the effect.
+    epithet_string : str
+        A string to add to the character's epithet, for instance "poisoner".
+
+    Returns
+    -------
+    Tuple[List["Player"], List[str]]
+        A list of players killed, and a list of messages to add to the end of the night.
+
     """
     if allow_none:
         condition = _condition_wrapper(condition)
@@ -317,14 +341,38 @@ def _kill_condition(target: "Player", game: "Game"):
 async def kill_selector(
     character: Character, ctx: "Context", kill_effect: Type[Effect] = Dead
 ) -> Tuple[List["Player"], List[str]]:
-    """Perform the demon's kill."""
+    """Perform a nightly kill.
+
+    Parameters
+    ----------
+    character : Character
+        The character controlling the effect.
+    ctx : "Context"
+        The context.
+    kill_effect : Type[Effect]
+        The effect representing the kill.
+
+    Returns
+    -------
+    Tuple[List["Player"], List[str]]
+    """
     return await add_targeted_effect(
         character, ctx, kill_effect, "kill", condition=_kill_condition
     )
 
 
 class MorningTargetCallMixin(Character):
-    """Mixin for characters which target in the morning."""
+    """Mixin for characters which target in the morning.
+
+    Attributes
+    ----------
+    _TARGETS : int
+        The number of character they target in the morning.
+    _MORNING_CONDITION_STRING : str
+        A string representing a condition for their targets.
+    _OPTIONAL_TARGETER : bool
+        Whether they can choose not to target.
+    """
 
     _TARGETS = 1
     _MORNING_CONDITION_STRING = ""
@@ -352,16 +400,23 @@ class MorningTargetCallMixin(Character):
 
 
 class MorningTargeterMixin(MorningTargetCallMixin, ABC):
-    """Mixin for characters which target and add an effect to a single player."""
+    """Mixin for characters which target and add an effect to a single player.
 
-    # noinspection PyPropertyDefinition,PyPep8Naming
+    Attributes
+    ----------
+    _MORNING_EFFECT : Type[Effect]
+        The effect they apply in the morning.
+
+    _MOTNING_TARGET_STRONG : str
+        A very explaining what their effect does, for instance "Kill".
+    """
+
     @classmethod
     @property
     @abstractmethod
     def _MORNING_EFFECT(cls) -> Type[Effect]:
         raise NotImplementedError
 
-    # noinspection PyPropertyDefinition,PyPep8Naming
     @classmethod
     @property
     @abstractmethod
