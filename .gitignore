@@ -7,3 +7,4 @@ dev
 resources/playtest
 config.ini
 .idea
+mypy.ini
