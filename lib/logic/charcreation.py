@@ -15,7 +15,7 @@ from lib.utils import get_input, safe_bug_report, safe_send
 if TYPE_CHECKING:
     from lib.logic.Player import Player
     from lib.logic.Game import Game
-    from lib.typings.context import Context
+    from lib.typings.context import Context, GameContext
 
 
 async def select_target(
@@ -75,7 +75,9 @@ def if_functioning(run_if_drunkpoisoned):
     def outer_wrapper(func):
         # noinspection PyMissingOrEmptyDocstring
         @wraps(func)
-        async def inner_wrapper(character: Character, ctx: "Context", *args, **kwargs):
+        async def inner_wrapper(
+            character: Character, ctx: "GameContext", *args, **kwargs
+        ):
             if character.parent.functioning(ctx.bot.game):
                 return await func(character, ctx, *args, **kwargs)
             if safe_bug_report(ctx):
@@ -121,7 +123,7 @@ def onetime_use(func):
     """Stop character methods if the character has used their ability."""
     # noinspection PyMissingOrEmptyDocstring
     @wraps(func)
-    async def wrapper(character: Character, ctx: "Context", *args, **kwargs):
+    async def wrapper(character: Character, ctx: "GameContext", *args, **kwargs):
         if not character.parent.is_status(ctx.bot.game, "used_ability"):
             return await func(character, ctx, *args, **kwargs)
         if safe_bug_report(ctx):
@@ -282,7 +284,7 @@ def _condition_wrapper(condition):
 
 async def add_targeted_effect(
     character: Character,
-    ctx: "Context",
+    ctx: "GameContext",
     effect: Type["Effect"],
     verb: str,
     *,
@@ -343,7 +345,7 @@ def _kill_condition(target: "Player", game: "Game"):
 
 
 async def kill_selector(
-    character: Character, ctx: "Context", kill_effect: Type[Effect] = Dead
+    character: Character, ctx: "GameContext", kill_effect: Type[Effect] = Dead
 ) -> Tuple[List["Player"], List[str]]:
     """Perform a nightly kill.
 
@@ -351,7 +353,7 @@ async def kill_selector(
     ----------
     character : Character
         The character controlling the effect.
-    ctx : "Context"
+    ctx : "GameContext"
         The context.
     kill_effect : Type[Effect]
         The effect representing the kill.
@@ -383,7 +385,7 @@ class MorningTargetCallMixin(Character):
     _OPTIONAL_TARGETER = False
 
     @if_functioning(True)
-    async def morning_call(self, ctx: "Context"):
+    async def morning_call(self, ctx: "GameContext"):
         """Determine the morning call."""
         condition = self._MORNING_CONDITION_STRING
         if condition:
@@ -429,7 +431,7 @@ class MorningTargeterMixin(MorningTargetCallMixin, ABC):
 
     @if_functioning(True)
     async def morning(
-        self, ctx, enabled=True, epithet_string=""
+        self, ctx: "GameContext", enabled=True, epithet_string=""
     ) -> Tuple[List["Player"], List[str]]:
         """Apply the effect to a chosen target."""
         return await add_targeted_effect(
@@ -475,7 +477,7 @@ class SeesTwo(Character, ABC):
 
     @if_functioning(True)
     async def morning_call(
-        self, ctx: "Context", enabled=True, epithet_string=""
+        self, ctx: "GameContext", enabled=True, epithet_string=""
     ) -> str:
         """Determine the morning call."""
         out = f"Tell {self.parent.formatted_epithet(epithet_string)}, "
@@ -486,7 +488,7 @@ class SeesTwo(Character, ABC):
         return out
 
     @if_functioning(True)
-    async def morning(self, ctx: "Context", enabled=True, epithet_string=""):
+    async def morning(self, ctx: "GameContext", enabled=True, epithet_string=""):
         await add_targeted_effect(
             self,
             ctx,

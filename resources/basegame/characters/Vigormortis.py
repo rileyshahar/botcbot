@@ -11,7 +11,7 @@ from lib.logic.Player import Player
 
 if TYPE_CHECKING:
     from lib.logic.Game import Game
-    from lib.typings.context import Context
+    from lib.typings.context import GameContext
 
 
 class _VigormortisDead(Dead):
@@ -52,7 +52,7 @@ class Vigormortis(Demon):
     playtest: bool = False
 
     @if_functioning(False)
-    async def morning(self, ctx: "Context") -> Tuple[List[Player], List[str]]:
+    async def morning(self, ctx: "GameContext") -> Tuple[List[Player], List[str]]:
         """Apply the Vigormortis's kill to a chosen target.
 
         If a Minion is chosen, apply the corresponding poison.

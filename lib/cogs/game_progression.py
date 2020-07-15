@@ -7,8 +7,8 @@ from discord.ext import commands
 
 from lib import checks
 from lib.logic.converters import to_script
-from lib.typings.context import Context
-from lib.utils import safe_send, get_bool_input
+from lib.typings.context import Context, DayContext, GameContext
+from lib.utils import get_bool_input, safe_send
 
 
 def _is_dst():
@@ -25,7 +25,7 @@ class GameProgression(commands.Cog, name="Game Progression"):
     @checks.is_not_game()
     @checks.is_storyteller()
     @checks.is_dm()
-    async def startgame(self, ctx: Context, *, script: str):
+    async def startgame(self, ctx: "Context", *, script: str):
         """Start the game.
 
         script: The game's script. Available scripts can be viewed with `script list`.
@@ -45,7 +45,7 @@ class GameProgression(commands.Cog, name="Game Progression"):
     @checks.is_game()
     @checks.is_storyteller()
     @checks.is_dm()
-    async def endgame(self, ctx: Context, winner: str):
+    async def endgame(self, ctx: "GameContext", winner: str):
         """End the game.
 
         winner: 'good' or 'evil'. Can be 'neutral' in the event of a rerack.
@@ -109,7 +109,7 @@ class GameProgression(commands.Cog, name="Game Progression"):
     @checks.is_game()
     @checks.is_storyteller()
     @checks.is_dm()
-    async def endday(self, ctx: Context):
+    async def endday(self, ctx: "DayContext"):
         """End the current day."""
         # confirm
         if not await get_bool_input(
@@ -131,7 +131,7 @@ class GameProgression(commands.Cog, name="Game Progression"):
     @checks.is_game()
     @checks.is_storyteller()
     @checks.is_dm()
-    async def currentstep(self, ctx: Context):
+    async def currentstep(self, ctx: "GameContext"):
         """View the current step in the current night."""
         await ctx.bot.game.current_night.current_step(ctx)
 
@@ -149,7 +149,7 @@ class GameProgression(commands.Cog, name="Game Progression"):
     @checks.is_game()
     @checks.is_storyteller()
     @checks.is_dm()
-    async def _open(self, ctx: Context):
+    async def _open(self, ctx: "DayContext"):
         """Open PMs and nominations.
 
         The bot automatically opens nominations and PMs at the end of a nomination.
@@ -164,7 +164,7 @@ class GameProgression(commands.Cog, name="Game Progression"):
     @checks.is_game()
     @checks.is_storyteller()
     @checks.is_dm()
-    async def noms(self, ctx: Context):
+    async def noms(self, ctx: "DayContext"):
         """Open nominations."""
         await ctx.bot.game.current_day.open_noms(ctx)
 
@@ -173,7 +173,7 @@ class GameProgression(commands.Cog, name="Game Progression"):
     @checks.is_game()
     @checks.is_storyteller()
     @checks.is_dm()
-    async def pms(self, ctx: Context):
+    async def pms(self, ctx: "DayContext"):
         """Open PMs."""
         await ctx.bot.game.current_day.open_pms(ctx)
 
@@ -182,7 +182,7 @@ class GameProgression(commands.Cog, name="Game Progression"):
     @checks.is_game()
     @checks.is_storyteller()
     @checks.is_dm()
-    async def _close(self, ctx: Context):
+    async def _close(self, ctx: "DayContext"):
         """Close PMs and nominations.
 
         The bot automatically closes nominations and PMs at the start of a nomination.
@@ -197,7 +197,7 @@ class GameProgression(commands.Cog, name="Game Progression"):
     @checks.is_game()
     @checks.is_storyteller()
     @checks.is_dm()
-    async def _noms(self, ctx: Context):
+    async def _noms(self, ctx: "DayContext"):
         """Close nominations."""
         await ctx.bot.game.current_day.close_noms(ctx)
 
@@ -206,7 +206,7 @@ class GameProgression(commands.Cog, name="Game Progression"):
     @checks.is_game()
     @checks.is_storyteller()
     @checks.is_dm()
-    async def _pms(self, ctx: Context):
+    async def _pms(self, ctx: "DayContext"):
         """Close PMs."""
         await ctx.bot.game.current_day.close_pms(ctx)
 
@@ -215,7 +215,7 @@ class GameProgression(commands.Cog, name="Game Progression"):
     @checks.is_game()
     @checks.is_storyteller()
     @checks.is_dm()
-    async def setdeadline(self, ctx: Context, length: float):
+    async def setdeadline(self, ctx: "DayContext", length: float):
         """Set a deadline for the current day and open nominations.
 
         length: The number of hours for the deadline to last.

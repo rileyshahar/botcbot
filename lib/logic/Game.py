@@ -12,7 +12,7 @@ from lib.logic.tools import generate_game_info_message
 
 if TYPE_CHECKING:
     from lib.logic.Script import Script
-    from lib.typings.context import Context
+    from lib.typings.context import GameContext, DayContext
 
 
 class Game:
@@ -84,12 +84,12 @@ class Game:
             if player.can_nominate(self) and not player.has_skipped
         ]
 
-    async def reseat(self, ctx: "Context", new_seating_order: List[Player]):
+    async def reseat(self, ctx: "GameContext", new_seating_order: List[Player]):
         """Modify the seating order and seating order message.
 
         Parameters
         ----------
-        ctx : Context
+        ctx : GameContext
             The invocation context.
         new_seating_order : List[Player]
             The new seating order to replace self.seating_order.
@@ -108,7 +108,7 @@ class Game:
         # Update seating order
         self.seating_order = new_seating_order
 
-    async def start_night(self, ctx: "Context"):
+    async def start_night(self, ctx: "DayContext"):
         """Start a new night."""
 
         self.current_night = Night(self)

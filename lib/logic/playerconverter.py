@@ -12,11 +12,11 @@ from lib.utils import get_input, get_player
 if TYPE_CHECKING:
     from lib.logic.Player import Player
     from lib.logic.Game import Game
-    from lib.typings.context import Context
+    from lib.typings.context import GameContext
 
 
 async def to_member(
-    ctx: "Context",
+    ctx: "GameContext",
     argument: str,
     all_members: bool = True,
     includes_storytellers: bool = False,
@@ -29,7 +29,7 @@ async def to_member(
 
     Parameters
     ----------
-    ctx : Context
+    ctx : GameContext
         The invocation context.
     argument : str
         The string to match to a script.
@@ -103,7 +103,7 @@ async def to_member(
 
 
 async def to_member_list(
-    ctx: "Context",
+    ctx: "GameContext",
     arguments: List[str],
     all_members: bool = True,
     includes_storytellers: bool = False,
@@ -119,7 +119,7 @@ async def to_member_list(
 
 
 async def to_player(
-    ctx: "Context",
+    ctx: "GameContext",
     argument: str,
     all_members: bool = False,
     includes_storytellers: bool = False,
@@ -135,7 +135,7 @@ async def to_player(
 
     Parameters
     ----------
-    ctx : Context
+    ctx : GameContext
         The invocation context.
     argument : str
         The string to match to a script.
@@ -145,7 +145,7 @@ async def to_player(
         If all_members, whether to include storytellers.
     only_one : bool
         Whether to require exactly one initial match.
-    condition: Callable[["Player", Context, Any], bool]
+    condition: Callable[["Player", GameContext, Any], bool]
         A condition to require the player to meet. If the condition is not met, should
         raise a commands.BadArgument exception.
         The condition may also take kwargs if necessary.

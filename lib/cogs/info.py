@@ -9,11 +9,11 @@ from lib.bot import BOTCBot
 from lib.logic.Player import Player
 from lib.logic.playerconverter import to_player
 from lib.logic.tools import generate_message_tally
-from lib.typings.context import Context
+from lib.typings.context import Context, DayContext, GameContext, VoteContext
 from lib.utils import safe_send
 
 
-async def _activity_checker(ctx, player_list: List[Player], text: str):
+async def _activity_checker(ctx: GameContext, player_list: List[Player], text: str):
     if not player_list:
         message_text = f"Everyone has {text}!"
 
@@ -34,7 +34,7 @@ class Info(commands.Cog, name="Info"):
     @checks.is_game()
     @checks.is_storyteller()
     @checks.is_dm()
-    async def notactive(self, ctx):
+    async def notactive(self, ctx: "DayContext"):
         """List the players yet to speak today."""
         await _activity_checker(ctx, ctx.bot.game.not_active, "spoken")
 
@@ -43,7 +43,7 @@ class Info(commands.Cog, name="Info"):
     @checks.is_game()
     @checks.is_storyteller()
     @checks.is_dm()
-    async def tonominate(self, ctx):
+    async def tonominate(self, ctx: "DayContext"):
         """List the players yet to nominate or skip today."""
         await _activity_checker(ctx, ctx.bot.game.to_nominate, "nominated or skipped")
 
@@ -51,7 +51,7 @@ class Info(commands.Cog, name="Info"):
     @checks.is_game()
     @checks.is_storyteller()
     @checks.is_dm()
-    async def messagetally(self, ctx, idn: int):
+    async def messagetally(self, ctx: "GameContext", idn: int):
         """Generate a message tally.
 
         idn: The ID of the message to tally messages since.
@@ -70,7 +70,7 @@ class Info(commands.Cog, name="Info"):
     @checks.is_game()
     @checks.is_storyteller()
     @checks.is_dm()
-    async def grimoire(self, ctx: Context):
+    async def grimoire(self, ctx: "GameContext"):
         """Generate the grimoire."""
 
         message_text = "**Grimoire:**"
@@ -93,7 +93,7 @@ class Info(commands.Cog, name="Info"):
     @checks.is_game()
     @checks.is_storyteller()
     @checks.is_dm()
-    async def sthistory(self, ctx, player1: str, player2: str):
+    async def sthistory(self, ctx: "GameContext", player1: str, player2: str):
         """View the message history between two players."""
         player1_actual = await to_player(ctx, player1)
         player2_actual = await to_player(ctx, player2)

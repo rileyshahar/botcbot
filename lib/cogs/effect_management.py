@@ -7,10 +7,10 @@ from discord.ext import commands
 from lib import checks
 from lib.bot import BOTCBot
 from lib.logic import Effect
+from lib.logic.charcreation import generic_ongoing_effect
 from lib.logic.Player import Player
 from lib.logic.playerconverter import to_player
-from lib.logic.charcreation import generic_ongoing_effect
-from lib.typings.context import Context
+from lib.typings.context import GameContext
 from lib.utils import safe_send
 
 
@@ -24,7 +24,7 @@ class EffectManagement(commands.Cog, name="Effects"):
     @checks.is_game()
     @checks.is_storyteller()
     @checks.is_dm()
-    async def registers(self, ctx: Context):
+    async def registers(self, ctx: "GameContext"):
         """Change what a player registers as.
 
         Primarily used for Recluse, Spy, etc.
@@ -34,37 +34,37 @@ class EffectManagement(commands.Cog, name="Effects"):
             return await ctx.send_help(ctx.bot.get_command("registers"))
 
     @registers.command()
-    async def good(self, ctx: Context, player: str):
+    async def good(self, ctx: "GameContext", player: str):
         """Make a player register as good."""
         player_actual = await to_player(ctx, player)
         await _effect_adder(ctx, player_actual, Effect.RegistersGood)
 
     @registers.command()
-    async def evil(self, ctx: Context, player: str):
+    async def evil(self, ctx: "GameContext", player: str):
         """Make a player register as evil."""
         player_actual = await to_player(ctx, player)
         await _effect_adder(ctx, player_actual, Effect.RegistersEvil)
 
     @registers.command()
-    async def townsfolk(self, ctx: Context, player: str):
+    async def townsfolk(self, ctx: "GameContext", player: str):
         """Make a player register as a Townsfolk."""
         player_actual = await to_player(ctx, player)
         await _effect_adder(ctx, player_actual, Effect.RegistersTownsfolk)
 
     @registers.command()
-    async def outsider(self, ctx: Context, player: str):
+    async def outsider(self, ctx: "GameContext", player: str):
         """Make a player register as an Outsider."""
         player_actual = await to_player(ctx, player)
         await _effect_adder(ctx, player_actual, Effect.RegistersOutsider)
 
     @registers.command()
-    async def minion(self, ctx: Context, player: str):
+    async def minion(self, ctx: "GameContext", player: str):
         """Make a player register as a Minion."""
         player_actual = await to_player(ctx, player)
         await _effect_adder(ctx, player_actual, Effect.RegistersMinion)
 
     @registers.command()
-    async def demon(self, ctx: Context, player: str):
+    async def demon(self, ctx: "GameContext", player: str):
         """Make a player register as a Demon."""
         player_actual = await to_player(ctx, player)
         await _effect_adder(ctx, player_actual, Effect.RegistersDemon)
@@ -72,7 +72,7 @@ class EffectManagement(commands.Cog, name="Effects"):
     # noinspection PyArgumentList
     # this seems like a false positive
     @registers.command()
-    async def clear(self, ctx: Context, player: str):
+    async def clear(self, ctx: "GameContext", player: str):
         """Clear all ST-added registration effects on a player."""
         player_actual = await to_player(ctx, player)
         effect_list = [x for x in player_actual.effects]
@@ -105,7 +105,7 @@ class EffectManagement(commands.Cog, name="Effects"):
     @checks.is_storyteller()
     @checks.is_dm()
     async def poison(
-        self, ctx: Context, player: str, source: str = None,
+        self, ctx: "GameContext", player: str, source: str = None,
     ):
         """Poison a player.
 
@@ -129,7 +129,10 @@ def setup(bot: BOTCBot):
 
 
 async def _effect_adder(
-    ctx: Context, player: Player, effect: Type[Effect.Effect], source: Player = None
+    ctx: "GameContext",
+    player: Player,
+    effect: Type[Effect.Effect],
+    source: Player = None,
 ):
     """Add effect to player."""
     source = source or player

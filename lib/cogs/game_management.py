@@ -1,20 +1,17 @@
 """Contains the GameManagement cog, for commands related to game management."""
 
+
 from discord.ext import commands
 
 from lib import checks
 from lib.exceptions import AlreadyNomniatedError, PlayerNotFoundError
-from lib.logic.Effect import Good, Evil
-from lib.logic.Player import Player
 from lib.logic.converters import to_character
-from lib.logic.playerconverter import to_player, to_member
+from lib.logic.Effect import Evil, Good
+from lib.logic.Player import Player
+from lib.logic.playerconverter import to_member, to_player
 from lib.preferences import load_preferences
-from lib.typings.context import Context
-from lib.utils import (
-    safe_send,
-    get_player,
-    to_bool,
-)
+from lib.typings.context import DayContext, GameContext, VoteContext
+from lib.utils import get_player, safe_send, to_bool
 
 
 class GameManagement(commands.Cog, name="Game Management"):
@@ -29,7 +26,7 @@ class GameManagement(commands.Cog, name="Game Management"):
     @checks.is_dm()
     async def addtraveler(
         self,
-        ctx: Context,
+        ctx: "GameContext",
         traveler: str,
         upwards_neighbor: str,
         alignment: str,
@@ -121,7 +118,7 @@ class GameManagement(commands.Cog, name="Game Management"):
     @checks.is_game()
     @checks.is_storyteller()
     @checks.is_dm()
-    async def removetraveler(self, ctx: Context, traveler: str):
+    async def removetraveler(self, ctx: "GameContext", traveler: str):
         """Remove a traveler from the game.
 
         traveler: The traveler to remove.
@@ -158,7 +155,7 @@ class GameManagement(commands.Cog, name="Game Management"):
     @checks.is_game()
     @checks.is_storyteller()
     @checks.is_dm()
-    async def stnominate(self, ctx: Context, nominee: str):
+    async def stnominate(self, ctx: "DayContext", nominee: str):
         """Nominate a player for execution.
 
         nominee: The player to nominate.
@@ -177,7 +174,7 @@ class GameManagement(commands.Cog, name="Game Management"):
     @checks.is_game()
     @checks.is_storyteller()
     @checks.is_dm()
-    async def proxynominate(self, ctx: Context, nominee: str, nominator: str):
+    async def proxynominate(self, ctx: "DayContext", nominee: str, nominator: str):
         """Simulate a nomination by a player.
 
         nominee: The player to nominate.
@@ -199,7 +196,7 @@ class GameManagement(commands.Cog, name="Game Management"):
     @checks.is_game()
     @checks.is_storyteller()
     @checks.is_dm()
-    async def proxyvote(self, ctx, voter: str, vote: str):
+    async def proxyvote(self, ctx: "VoteContext", voter: str, vote: str):
         """Simulate a vote by a player.
 
         voter: The player to vote for.
@@ -223,7 +220,7 @@ class GameManagement(commands.Cog, name="Game Management"):
     @checks.is_game()
     @checks.is_storyteller()
     @checks.is_dm()
-    async def execute(self, ctx: Context, player: str):
+    async def execute(self, ctx: "GameContext", player: str):
         """Execute a player.
 
         player: The player to be executed.
@@ -237,7 +234,7 @@ class GameManagement(commands.Cog, name="Game Management"):
     @checks.is_game()
     @checks.is_storyteller()
     @checks.is_dm()
-    async def exile(self, ctx: Context, traveler: str):
+    async def exile(self, ctx: "GameContext", traveler: str):
         """Exile a traveler.
 
         traveler: The traveler to be executed.
@@ -258,7 +255,7 @@ class GameManagement(commands.Cog, name="Game Management"):
     @checks.is_game()
     @checks.is_storyteller()
     @checks.is_dm()
-    async def revive(self, ctx: Context, player: str):
+    async def revive(self, ctx: "GameContext", player: str):
         """Revive a player.
 
         player: The player to be revived.

@@ -4,8 +4,8 @@ from discord.ext import commands
 
 from lib import checks
 from lib.bot import BOTCBot
+from lib.logic.converters import to_character, to_character_list, to_script
 from lib.logic.Script import Script, script_list
-from lib.logic.converters import to_script, to_character, to_character_list
 from lib.preferences import load_preferences
 from lib.typings.context import Context
 from lib.utils import get_input, safe_send

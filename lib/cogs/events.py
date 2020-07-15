@@ -6,11 +6,11 @@ from discord import HTTPException
 from discord.ext import commands
 
 from lib.bot import BOTCBot
+from lib.exceptions import PlayerNotFoundError
 from lib.logic.Character import Storyteller
 from lib.logic.Player import Player
 from lib.typings.context import Context
-from lib.utils import get_player, safe_send, safe_bug_report
-from lib.exceptions import PlayerNotFoundError
+from lib.utils import get_player, safe_bug_report, safe_send
 
 _report_bug_message = " Please report this bug to nihilistkitten#6937 or an admin."
 
@@ -33,7 +33,7 @@ async def _http_error_handler(ctx: Context, error: HTTPException):
         raise error
 
 
-async def _generic_error_handler(ctx, error, text):
+async def _generic_error_handler(ctx: Context, error, text):
     await safe_send(ctx, f"Uh oh! {text} {_report_bug_message}")
     if safe_bug_report(ctx):
         await safe_send(ctx, f"```{error}```")

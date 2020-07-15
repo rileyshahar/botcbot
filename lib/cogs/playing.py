@@ -8,7 +8,7 @@ from lib import checks
 from lib.exceptions import AlreadyNomniatedError
 from lib.logic.Player import Player
 from lib.logic.playerconverter import to_player
-from lib.typings.context import Context
+from lib.typings.context import DayContext, GameContext, VoteContext
 from lib.utils import get_player, safe_send, to_bool
 
 
@@ -24,7 +24,7 @@ class Playing(commands.Cog):
     @checks.is_day()
     @checks.is_player()
     @checks.is_game()
-    async def nominate(self, ctx: Context, *, nominee: str):
+    async def nominate(self, ctx: "DayContext", *, nominee: str):
         """Nominate a player for execution.
 
         nominee: The player to be nominated, or "the storytellers".
@@ -44,7 +44,7 @@ class Playing(commands.Cog):
     @checks.is_day()
     @checks.is_player()
     @checks.is_game()
-    async def vote(self, ctx: Context, *, vote: str):
+    async def vote(self, ctx: "VoteContext", *, vote: str):
         """Vote in an ongoing nomination.
 
         vote: The vote to submit.
@@ -75,7 +75,7 @@ class Playing(commands.Cog):
     @checks.is_player()
     @checks.is_game()
     @checks.is_dm()
-    async def pm(self, ctx: Context, *, recipient: str = None):
+    async def pm(self, ctx: "DayContext", *, recipient: str = None):
         """Message a player or storyteller.
 
         recipient: The player or storyteller to recieve the message.
@@ -97,7 +97,7 @@ class Playing(commands.Cog):
     @checks.is_player()
     @checks.is_game()
     @checks.is_dm()
-    async def reply(self, ctx: Context):
+    async def reply(self, ctx: "DayContext"):
         """Reply to the previously recieved message.
 
         You will be asked about the content of the message.
@@ -126,7 +126,7 @@ class Playing(commands.Cog):
     @checks.is_player()
     @checks.is_game()
     @checks.is_dm()
-    async def prevote(self, ctx: Context, vote: str):
+    async def prevote(self, ctx: "VoteContext", vote: str):
         """Prevote in an ongoing nomination.
 
         vote: The prevote to queue.
@@ -142,7 +142,7 @@ class Playing(commands.Cog):
     @checks.is_player()
     @checks.is_game()
     @checks.is_dm()
-    async def history(self, ctx: Context, *, player: str = None):
+    async def history(self, ctx: "GameContext", *, player: str = None):
         """View your message history.
 
         player: The player to view your message history with.
@@ -162,7 +162,7 @@ class Playing(commands.Cog):
     @checks.is_player()
     @checks.is_game()
     @checks.is_dm()
-    async def skip(self, ctx: Context):
+    async def skip(self, ctx: "DayContext"):
         """Skip your right to nominate for the current day.
 
         You will still be able to nominate.

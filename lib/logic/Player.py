@@ -14,7 +14,7 @@ from lib.utils import get_input, safe_bug_report, safe_send
 if typing.TYPE_CHECKING:
     from lib.logic.Character import Character
     from lib.logic.Game import Game
-    from lib.typings.context import Context
+    from lib.typings.context import Context, GameContext, DayContext, VoteContext
 
 
 def _get_neighbor(
@@ -316,14 +316,14 @@ class Player:
         self.has_spoken = self.is_inactive
         self.has_skipped = self.is_inactive
 
-    async def message(self, ctx: "Context", frm: "Player"):
+    async def message(self, ctx: "GameContext", frm: "Player"):
         """Handle inbound PMs to the player.
 
         Reports the message in public and saves the message to both player's histories.
 
         Parameters
         ----------
-        ctx : Context
+        ctx : GameContext
             The invocation context.
         frm : Player
             The PM's author.
@@ -413,7 +413,7 @@ class Player:
         return f"{self.nick} has come back to life."
 
     async def change_character(
-        self, ctx: "Context", new_character: typing.Type["Character"]
+        self, ctx: "GameContext", new_character: typing.Type["Character"]
     ):
         """Change the player's character. Handle effect cleanup."""
         effect_list = [x for x in self.source_effects(ctx.bot.game)]
@@ -453,7 +453,7 @@ class Player:
 
         return effect_object.turn_on(game, effect_adder)
 
-    async def execute(self, ctx: "Context"):
+    async def execute(self, ctx: "GameContext"):
         """Execute the player."""
         message_text = f"{self.nick} has been executed, "
         if self.ghost(ctx.bot.game):
@@ -489,7 +489,7 @@ class Player:
 
         await _update_activity(game, _updater_func, "spoken", "speak")
 
-    async def add_nomination(self, ctx: "Context", skip: bool = False):
+    async def add_nomination(self, ctx: "DayContext", skip: bool = False):
         """Set has_spoken to true and update storytellers."""
 
         def _updater_func(game: "Game") -> typing.List["Player"]:

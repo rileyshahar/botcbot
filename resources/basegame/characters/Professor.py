@@ -10,7 +10,7 @@ from lib.logic.Player import Player
 
 if TYPE_CHECKING:
     from lib.logic.Game import Game
-    from lib.typings.context import Context
+    from lib.typings.context import GameContext
 
 
 def _condition(player: Player, game: "Game") -> bool:
@@ -29,7 +29,7 @@ class Professor(Townsfolk):
     @if_functioning(True)
     @onetime_use
     async def morning(
-        self, ctx: "Context", enabled: bool = True, epithet_string: str = ""
+        self, ctx: "GameContext", enabled: bool = True, epithet_string: str = ""
     ) -> Tuple[List[Player], List[str]]:
         """Ask if the professor targeted anyone, then revive them if applicable."""
         target = await select_target(

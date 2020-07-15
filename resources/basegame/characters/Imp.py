@@ -8,7 +8,7 @@ from lib.logic.Player import Player
 from lib.utils import safe_send
 
 if TYPE_CHECKING:
-    from lib.typings.context import Context
+    from lib.typings.context import GameContext
 
 
 class Imp(Demon, MorningTargetCallMixin):
@@ -18,7 +18,7 @@ class Imp(Demon, MorningTargetCallMixin):
     playtest: bool = False
 
     @if_functioning(False)
-    async def morning(self, ctx: "Context") -> Tuple[List[Player], List[str]]:
+    async def morning(self, ctx: "GameContext") -> Tuple[List[Player], List[str]]:
         """Apply the Imp's kill."""
         out = await kill_selector(self, ctx)
         target = out[0][0]

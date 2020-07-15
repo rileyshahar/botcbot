@@ -1,13 +1,13 @@
 """Contains the Debug cog for commands related to debugging."""
 
-from typing import TYPE_CHECKING, List
+from typing import List
 
 from discord.ext import commands
 
 from lib import checks
 from lib.bot import BOTCBot
 from lib.logic.Effect import status_list
-from lib.typings.context import Context
+from lib.typings.context import Context, GameContext
 from lib.utils import aexec, list_to_plural_string, safe_send
 
 
@@ -92,7 +92,7 @@ class Debug(commands.Cog, command_attrs=dict(hidden=True)):
     @commands.is_owner()
     @checks.is_game()
     @checks.is_dm()
-    async def _detailedgrimoire(self, ctx: Context):
+    async def _detailedgrimoire(self, ctx: GameContext):
         """Display a detailed text grimoire."""
         message_text = "**Grimoire:**"
         for player in ctx.bot.game.seating_order:
