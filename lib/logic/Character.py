@@ -2,7 +2,7 @@
 
 import json
 from abc import ABC
-from typing import TYPE_CHECKING, Dict, List, Optional, Tuple, Type
+from typing import TYPE_CHECKING, Dict, List, Tuple, Type
 
 from discord.ext import commands
 
@@ -37,7 +37,7 @@ class Character(NightOrderMember):
     playtest: bool = False
     default_effects: List[Type["Effect"]]
 
-    def __init__(self, parent: Optional["Player"]):
+    def __init__(self, parent: "Player"):
         self.parent = parent
         self.default_effects = []
 

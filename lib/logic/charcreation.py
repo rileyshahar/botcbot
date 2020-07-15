@@ -108,7 +108,9 @@ def if_functioning(run_if_drunkpoisoned):
             # the character initializes with no parent to let us check in the method
             # if it's actually being called or just being called to get the return
             # so we can hide side effects in an "if self.parent" block
-            return await getattr(Character(None), func.__name__)(ctx, *args, **kwargs)
+            return await getattr(Character(None), func.__name__)(  # type: ignore
+                ctx, *args, **kwargs
+            )
 
         return inner_wrapper
 
@@ -136,7 +138,9 @@ def onetime_use(func):
                     posessive=pronouns[2],
                 ),
             )
-        return await getattr(Character(None), func.__name__)(ctx, *args, **kwargs)
+        return await getattr(Character(None), func.__name__)(  # type: ignore
+            ctx, *args, **kwargs
+        )
 
     return wrapper
 
