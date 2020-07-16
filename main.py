@@ -58,7 +58,7 @@ async def command_cleanup(ctx: Context):
 
     Backs up the bot and updates the status.
     """
-    if ctx.bot.game:
+    if ctx.bot.game and ctx.bot.game.current_day:
         await ctx.bot.game.reseat(ctx, ctx.bot.game.seating_order)
     ctx.bot.backup()
     await ctx.bot.update_status()
