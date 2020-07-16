@@ -18,7 +18,7 @@ def _is_dst():
     return y.utcoffset() != x.utcoffset()
 
 
-class GameProgression(commands.Cog, name="Game Progression"):
+class GameProgression(commands.Cog, name="Game Progression"):  # type: ignore
     """Commands for game progression."""
 
     @commands.command()

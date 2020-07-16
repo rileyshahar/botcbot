@@ -1,6 +1,6 @@
 """Contains the Effect class and several Effect subclass ABCs."""
 
-from typing import Callable, TYPE_CHECKING
+from typing import TYPE_CHECKING, Callable
 
 if TYPE_CHECKING:
     from lib.logic.Player import Player
@@ -18,7 +18,7 @@ status_list = [
     "thiefed",  # Vote counts negative (caused by thief).
     "bureaucrated",  # Vote counts thrice (caused by bureaucrat).
     "used_ability",  # A one-time-use character has used their ability.
-    "can_dead_vote_without_token",  # Voting while dead won't use or require a dead vote.
+    "can_dead_vote_without_token",  # Voting while dead won't use or need a dead vote.
     "can_nominate_while_dead",  # The player can nominate while dead.
     "can_nominate_twice",  # The player can nominate twice.
     "can_vote_twice",  # The player can vote twice.
@@ -238,7 +238,8 @@ class Effect:
     def turn_off(self, game: "Game", disabler_func: Callable[[], None]):
         """Turn off the effect.
 
-        For more details, see the turn_on documentation."""
+        For more details, see the turn_on documentation.
+        """
         originally_functioning = self.affected_player.functioning(game)
 
         disabler_func()
@@ -251,7 +252,8 @@ class Effect:
     def source_starts_functioning(self, game: "Game"):
         """Call when source_player restarts functioning.
 
-        Modified by decorators (defined in logic.tools) to call self.turn_on."""
+        Modified by decorators (defined in logic.tools) to call self.turn_on.
+        """
         pass
 
 

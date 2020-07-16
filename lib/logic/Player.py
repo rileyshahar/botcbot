@@ -14,7 +14,7 @@ from lib.utils import get_input, safe_bug_report, safe_send
 if typing.TYPE_CHECKING:
     from lib.logic.Character import Character
     from lib.logic.Game import Game
-    from lib.typings.context import Context, GameContext, DayContext, VoteContext
+    from lib.typings.context import GameContext, DayContext
 
 
 def _get_neighbor(
@@ -140,6 +140,8 @@ class Player:
             The upwards neighbor and the downwards neighbor satisfying condition.
         """
         seating_order_excluding_self = (
+            # flake8: noqa
+            # (this is a false positive), the space is black-enforced
             game.seating_order[self.position + 1 :]
             + game.seating_order[: self.position]
         )
@@ -243,8 +245,8 @@ class Player:
                     "Hit a recursion error while determining "
                     f"whether {self.nick} is {status_name}.",
                 ),
-                traceback.print_exc(),
             )
+            traceback.print_exc()
             return True
 
     def exclusive_status_search(
@@ -422,9 +424,9 @@ class Player:
                 effect.delete(ctx.bot.game)
 
         self.character = new_character(self)
-        for effect in self.character.default_effects:
-            if effect not in (Good, Evil):
-                self.add_effect(ctx.bot.game, effect, self)
+        for effect_type in self.character.default_effects:
+            if effect_type not in (Good, Evil):
+                self.add_effect(ctx.bot.game, effect_type, self)
 
         # TODO: this needs to be tested
         if self.character in ctx.bot.game.script.first_night:
@@ -545,6 +547,7 @@ class Player:
         return self.member.id
 
     def __repr__(self):
+        """Add easier formatting for repl introspection and debugging."""
         return self.epithet
 
     # Dill Stuff

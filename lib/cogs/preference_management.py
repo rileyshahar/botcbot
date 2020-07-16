@@ -9,7 +9,7 @@ from lib.typings.context import Context
 from lib.utils import safe_send, to_bool
 
 
-class PreferenceManagement(commands.Cog, name="Preferences"):
+class PreferenceManagement(commands.Cog, name="Preferences"):  # type: ignore
     """Commands for preference management.
 
     Note that preferences are generally global (stored across all BOTC bots).
@@ -124,7 +124,7 @@ class PreferenceManagement(commands.Cog, name="Preferences"):
 
         These inputs are case-insensitive.
 
-        If you use this to mock trans people, I will blacklist you from using the bot. <3
+        If you use this to mock trans people, I will blacklist you from the bot. <3
         """
         plural_actual = to_bool(plural, "argument")
 

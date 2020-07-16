@@ -9,7 +9,7 @@ from lib.bot import BOTCBot
 from lib.logic.Player import Player
 from lib.logic.playerconverter import to_player
 from lib.logic.tools import generate_message_tally
-from lib.typings.context import Context, DayContext, GameContext, VoteContext
+from lib.typings.context import DayContext, GameContext
 from lib.utils import safe_send
 
 
@@ -26,7 +26,7 @@ async def _activity_checker(ctx: GameContext, player_list: List[Player], text: s
     await safe_send(ctx, message_text)
 
 
-class Info(commands.Cog, name="Info"):
+class Info(commands.Cog, name="Info"):  # type: ignore
     """Commands for viewing game information."""
 
     @commands.command()
@@ -72,7 +72,6 @@ class Info(commands.Cog, name="Info"):
     @checks.is_dm()
     async def grimoire(self, ctx: "GameContext"):
         """Generate the grimoire."""
-
         message_text = "**Grimoire:**"
 
         for player in ctx.bot.game.seating_order:

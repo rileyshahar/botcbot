@@ -6,6 +6,7 @@ from lib.preferences import load_preferences
 from lib.utils import get_bool_input, list_to_plural_string, safe_send
 
 if TYPE_CHECKING:
+    from discord import Message
     from lib.logic.Player import Player
     from lib.logic.Game import Game
     from lib.typings.context import VoteContext
@@ -71,6 +72,8 @@ class Vote:
             self.order = game.seating_order
         else:
             self.order = (
+                # flake8: noqa
+                # this is a false positive; the space is black-enforced
                 game.seating_order[game.seating_order.index(self.nominee) + 1 :]
                 + game.seating_order[: game.seating_order.index(self.nominee) + 1]
             )
@@ -181,7 +184,6 @@ class Vote:
 
     async def prevote(self, ctx, voter: "Player", vt: int):
         """Implement a prevote."""
-
         if voter == self.to_vote:
             if await get_bool_input(
                 ctx, "It is currently your vote. Would you like to vote now?"
@@ -235,9 +237,9 @@ class Vote:
 
             # cleanup pins
             for msg in self.announcements:
-                msg = await ctx.bot.channel.fetch_message(msg)
-                if msg.pinned:
-                    await msg.unpin()
+                msg_actual: Message = await ctx.bot.channel.fetch_message(msg)
+                if msg_actual.pinned:
+                    await msg_actual.unpin()
 
     async def _update_old_vote_end_message(self, ctx: "VoteContext", result: bool):
         """Update the old vote end message as appropriate."""

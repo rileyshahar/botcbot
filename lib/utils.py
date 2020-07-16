@@ -131,9 +131,9 @@ async def get_bool_input(ctx: "Context", text: str, timeout: int = 200) -> bool:
             # then continue
 
 
-def str_cleanup(text: str, chars: Tuple[str] = (",", " ", "-", "'", "_")) -> str:
+def str_cleanup(text: str, chars: Tuple[str, ...] = (",", " ", "-", "'", "_")) -> str:
     """Remove all instances of chars in str and capitalize the following letter.
-    
+
     Essentially converts text to UpperCamelCase with given chars as delimiters.
 
     Notes

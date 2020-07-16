@@ -1,6 +1,4 @@
 """Contains the Misc cog, for miscellaneous commands."""
-from typing import TYPE_CHECKING
-
 from discord.ext import commands
 
 from lib import checks

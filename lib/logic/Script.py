@@ -5,7 +5,6 @@ from typing import TYPE_CHECKING, Generator, List, Tuple, Type
 
 from dill import dump, load
 
-from lib.abc import NightOrderMember
 from lib.logic.Character import Character, Demon, Minion, Outsider, Townsfolk
 from lib.utils import list_to_plural_string
 from resources.basegame import characters
@@ -102,7 +101,7 @@ class Script:
     # that we use to define the NightOrderMember abc
     def info(self, ctx: "Context") -> Generator[str, None, None]:
         """Return a generator with information about the script."""
-        # maybe we should do more specific message length handling here than in safe_send
+        # TODO: more specific message length handling here than in safe_send
 
         with ctx.typing():
             message_text = f"**__{self.name}:__**"
@@ -365,5 +364,5 @@ def script_list(
         for filename in listdir("resources/playtest/scripts/"):
             if filename.endswith(".pckl"):
                 with open("resources/playtest/scripts/" + filename, "rb") as file:
-                    script: Script = load(file)
-                    yield script
+                    playtest_script: Script = load(file)
+                    yield playtest_script

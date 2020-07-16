@@ -11,7 +11,7 @@ from lib.typings.context import Context
 from lib.utils import get_input, safe_send
 
 
-class ScriptManagement(commands.Cog, name="Scripts"):
+class ScriptManagement(commands.Cog, name="Scripts"):  # type: ignore
     """Commands for script management."""
 
     # TODO: tools for script modification
@@ -45,19 +45,19 @@ class ScriptManagement(commands.Cog, name="Scripts"):
 
                 # Check duplicate names
                 if script.name.lower() == name.lower():
-                    if _permission_to_edit(ctx, ctx.author.id, script):
-                        # _permission_to_edit raises a BadArgument exception if the check
-                        # fails, which is handled in Events.on_command_error, so we don't
-                        # have to do any handling of that case here
-                        await safe_send(
-                            ctx,
-                            (
-                                f"There is already a script named {name}. "
-                                "You can modify it or delete it:"
-                            ),
-                        )
-                        await ctx.send_help(ctx.bot.get_command("script"))
-                        return
+                    _check_permission_to_edit(ctx, ctx.author.id, script)
+                    # _check_permission_to_edit raises a BadArgument exception on
+                    # failure, which is handled in Events.on_command_error, so we don't
+                    # have to do any handling of that case here
+                    await safe_send(
+                        ctx,
+                        (
+                            f"There is already a script named {name}. "
+                            "You can modify it or delete it:"
+                        ),
+                    )
+                    await ctx.send_help(ctx.bot.get_command("script"))
+                    return
 
         # Get the characters
         if mode == "json":
@@ -89,7 +89,7 @@ class ScriptManagement(commands.Cog, name="Scripts"):
             character_list = to_character_list(ctx, raw_characters)
             playtest = False
             for char_class in character_list:
-                if char_class(None).playtest:
+                if char_class.playtest:
                     playtest = True
                     break
 
@@ -163,15 +163,18 @@ class ScriptManagement(commands.Cog, name="Scripts"):
     @script.command()
     async def list(self, ctx: Context):
         """List the scripts available from this bot."""
-
         with ctx.typing():
             for script in script_list(
-                ctx, playtest=ctx.author in ctx.bot.playtest_role.members
+                ctx,
+                playtest=(
+                    ctx.bot.playtest_role is not None
+                    and ctx.author in ctx.bot.playtest_role.members
+                ),
             ):
                 await safe_send(ctx, script.short_info(ctx))
 
 
-def _permission_to_edit(ctx: Context, idn: int, script: Script):
+def _check_permission_to_edit(ctx: Context, idn: int, script: Script):
     """Determine if the user represented by the ID can edit the script."""
     if idn in script.editors:
         return True

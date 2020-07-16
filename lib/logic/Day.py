@@ -161,7 +161,6 @@ class Day:
 
     async def end(self, ctx: "DayContext"):
         """End the day."""
-
         # cleanup effects
         for player in ctx.bot.game.seating_order:
             effect_list = [x for x in player.effects]

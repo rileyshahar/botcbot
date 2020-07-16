@@ -11,7 +11,7 @@ from lib.typings.context import Context, GameContext
 from lib.utils import aexec, list_to_plural_string, safe_send
 
 
-class Debug(commands.Cog, command_attrs=dict(hidden=True)):
+class Debug(commands.Cog, command_attrs=dict(hidden=True)):  # type: ignore
     """Commands for debugging code."""
 
     def __init__(self, bot):

@@ -274,7 +274,7 @@ def generic_ongoing_effect(effect: Type["Effect"]):
 def _condition_wrapper(condition):
     @wraps(condition)
     def wrapper(player: "Player", game: "Game"):
-        """Return true if player exists and condition is met, else raise an exception."""
+        """Return true if player found and condition is met, else raise an exception."""
         if player:
             return condition(player, game)
         raise InvalidMorningTargetError
@@ -304,7 +304,7 @@ async def add_targeted_effect(
     effect : Type["Effect"]
         The type of effect to add.
     verb : str
-        The verb describing the effect, ex "kill" or "poison". 
+        The verb describing the effect, ex "kill" or "poison".
     condition : Callable[["Player", "Game"], bool]
         A condition the target must satisfy.
         This should return InvalidMorningTargetError if not met.
@@ -489,6 +489,7 @@ class SeesTwo(Character, ABC):
 
     @if_functioning(True)
     async def morning(self, ctx: "GameContext", enabled=True, epithet_string=""):
+        """Add reminder tokens for who was seen."""
         await add_targeted_effect(
             self,
             ctx,

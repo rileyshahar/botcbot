@@ -110,6 +110,5 @@ class Game:
 
     async def start_night(self, ctx: "DayContext"):
         """Start a new night."""
-
         self.current_night = Night(self)
         await self.current_night.current_step(ctx)

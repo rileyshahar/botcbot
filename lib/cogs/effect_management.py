@@ -14,7 +14,7 @@ from lib.typings.context import GameContext
 from lib.utils import safe_send
 
 
-class EffectManagement(commands.Cog, name="Effects"):
+class EffectManagement(commands.Cog, name="Effects"):  # type: ignore
     """Tools for effect management."""
 
     def __init__(self, bot: BOTCBot):
@@ -142,6 +142,5 @@ async def _effect_adder(
     else:
         source_text = f"with source {source.nick} "
     await safe_send(
-        ctx,
-        f"Successfully added effect {effect_object.name} {source_text}to {player.nick}.",
+        ctx, f"Added effect {effect_object.name} {source_text}to {player.nick}.",
     )

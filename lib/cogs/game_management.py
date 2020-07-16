@@ -14,7 +14,7 @@ from lib.typings.context import DayContext, GameContext, VoteContext
 from lib.utils import get_player, safe_send, to_bool
 
 
-class GameManagement(commands.Cog, name="Game Management"):
+class GameManagement(commands.Cog, name="Game Management"):  # type: ignore
     """Commands for game management."""
 
     def __init__(self, bot):
@@ -165,7 +165,7 @@ class GameManagement(commands.Cog, name="Game Management"):
         await ctx.bot.game.current_day.nominate(
             ctx, nominee, get_player(ctx.bot.game, ctx.message.author.id)
         )
-        await safe_send(ctx, f"Successfully nominated.")
+        await safe_send(ctx, "Successfully nominated.")
 
     @commands.command()
     @checks.is_not_vote()
