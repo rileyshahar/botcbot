@@ -264,22 +264,22 @@ class Vote:
     def _generate_vote_end_message(self):
         """Generate the vote end message."""
         result = self.votes >= self.majority
-        voters = list_to_plural_string([x.nick for x in self.voted], "no one")
         result_type = ["executed", "exiled"][self.traveler]
         pronouns = load_preferences(self.nominee).pronouns
         message_text = (
-            "{votes} votes on {nominee_nick} (nominated by {nominator_nick}):"
-            " {voters}. {pronoun_string}{nt} about to be {result_type}."
+            "{votes} votes on {nominee_nick} (nominated by {nominator_nick}). "
+            "{pronoun_string}{nt} about to be {result_type}."
         )
         message_text = message_text.format(
             nt=[" not", ""][result],
-            voters=voters[0],
             votes=self.votes,
             nominee_nick=self.nominee.nick,
             nominator_nick=self.nominator.nick,
             result_type=result_type,
             pronoun_string=pronouns[0].capitalize() + [" is", " are"][pronouns[5]],
         )
+        for voter in self.voted:
+            message_text += f"\n- {voter.nick}"
         return message_text, result
 
     async def cancel(self, ctx: "VoteContext"):
